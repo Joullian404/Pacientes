@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>PedCare — Sincronizado via GitHub</title>
+  <title>PedCare — Prescrição & Caderno Clínico Obsidian</title>
   <style>
     :root {
       --primary: #0284c7;
@@ -11,6 +11,9 @@
       --primary-light: #e0f2fe;
       --accent: #16a34a;
       --accent-dark: #15803d;
+      --obsidian: #7c3aed;
+      --obsidian-dark: #6d28d9;
+      --obsidian-light: #f5f3ff;
       --bg-page: #f1f5f9;
       --surface: #ffffff;
       --text: #0f172a;
@@ -24,7 +27,6 @@
       --radius: 8px;
     }
 
-    /* PREVENÇÃO TOTAL DE VAZAMENTO HORIZONTAL */
     html, body {
       width: 100%;
       max-width: 100%;
@@ -49,11 +51,11 @@
       font-size: 13px;
     }
 
-    /* BARRA SUPERIOR DE PERFIL & NUVEM */
+    /* BARRA SUPERIOR DE SINCRONIZAÇÃO GITHUB */
     .user-bar {
       background: #021a36;
       color: #94a3b8;
-      padding: 6px 12px;
+      padding: 7px 12px;
       font-size: 11px;
       display: flex;
       justify-content: space-between;
@@ -67,13 +69,22 @@
       align-items: center;
       gap: 6px;
       color: #f8fafc;
-      font-weight: 600;
+      font-weight: 700;
     }
-    .user-bar-btns {
-      display: flex;
+    .cloud-status-badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
+      cursor: pointer;
     }
+    .cloud-connected { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; }
+    .cloud-disconnected { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+    .cloud-syncing { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #0284c7; }
+
     .btn-user-action {
       background: #1e293b;
       color: #38bdf8;
@@ -87,20 +98,6 @@
       align-items: center;
       gap: 4px;
     }
-    .btn-user-action:active { background: #334155; }
-    
-    .cloud-status-badge {
-      font-size: 10.5px;
-      padding: 3px 7px;
-      border-radius: 12px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .cloud-connected { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; }
-    .cloud-disconnected { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; cursor: pointer; }
-    .cloud-syncing { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #0284c7; }
 
     /* HEADER */
     header {
@@ -109,7 +106,7 @@
       padding: 10px 12px 0;
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 90;
       box-shadow: 0 2px 10px rgba(0,0,0,0.15);
       width: 100%;
     }
@@ -128,13 +125,21 @@
       align-items: center;
       gap: 6px;
     }
+    .status-save {
+      font-size: 11px;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      padding: 2px 7px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
     .btn-action-group {
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
     }
 
-    /* TABS BAR (ROLAGEM TOUCH) */
+    /* TABS BAR */
     .tabs-bar {
       display: flex;
       align-items: flex-end;
@@ -195,11 +200,11 @@
     .container {
       max-width: 1180px;
       width: 100%;
-      margin: 10px auto 40px;
+      margin: 10px auto 70px;
       padding: 0 10px;
     }
 
-    /* SUB-ABAS 50% / 50% */
+    /* SUB-ABAS */
     .subtabs-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -346,7 +351,7 @@
       transform: translate(-50%, -50%);
     }
 
-    /* BADGES DE DOSE CALCULADA & MÁXIMA */
+    /* BADGES DE DOSE CALCULADA */
     .dose-calc-badge {
       display: block;
       margin-top: 5px;
@@ -380,7 +385,6 @@
       white-space: normal;
     }
 
-    /* TABELA RESPONSIVA DO MAPA GLICÊMICO */
     .table-scroll-wrapper {
       width: 100%;
       max-width: 100%;
@@ -467,14 +471,233 @@
     }
     .signature-line { flex: 1; min-width: 200px; border-top: 1px solid #475569; text-align: center; padding-top: 4px; font-size: 11px; font-weight: 600; }
 
-    /* MODAL PADRÃO */
+    /* ============================================================== */
+    /* BOTÕES FLUTUANTES NO CANTO INFERIOR DIREITO (FABs)            */
+    /* ============================================================== */
+    .fab-container {
+      position: fixed;
+      bottom: 20px;
+      right: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 999;
+      align-items: flex-end;
+    }
+    .fab-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: none;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    .fab-btn:hover, .fab-btn:active {
+      transform: scale(1.08);
+    }
+    .fab-patient-notes {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+    }
+    .fab-obsidian {
+      background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+      box-shadow: 0 4px 16px rgba(109, 40, 217, 0.35);
+    }
+    .fab-label {
+      position: absolute;
+      right: 58px;
+      background: rgba(15, 23, 42, 0.9);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .fab-btn:hover .fab-label { opacity: 1; }
+
+    /* POPUP JANELA FLUTUANTE (BOTTOM-RIGHT POPUP) */
+    .floating-popup {
+      display: none;
+      position: fixed;
+      bottom: 80px;
+      right: 18px;
+      width: min(520px, calc(100vw - 28px));
+      height: min(620px, calc(100vh - 110px));
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 12px 35px rgba(15, 23, 42, 0.28);
+      border: 1px solid var(--border);
+      z-index: 1000;
+      flex-direction: column;
+      overflow: hidden;
+      animation: popupSlideUp 0.2s ease-out;
+    }
+    @keyframes popupSlideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .popup-header {
+      padding: 12px 14px;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .popup-header-patient { background: linear-gradient(135deg, #0284c7, #0369a1); }
+    .popup-header-obsidian { background: linear-gradient(135deg, #7c3aed, #5b21b6); }
+    .popup-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .popup-close-btn {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    .popup-close-btn:hover { background: rgba(255,255,255,0.2); }
+    .popup-body {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #fff;
+    }
+
+    /* OBSIDIAN KNOWLEDGE BASE INTERFACE */
+    .obsidian-layout {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      gap: 8px;
+    }
+    .obsidian-nav-bar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+      background: #f8fafc;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .folder-select {
+      flex: 1;
+      font-size: 12px;
+      padding: 5px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-weight: 600;
+    }
+    .note-select {
+      flex: 1.2;
+      font-size: 12px;
+      padding: 5px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+    .obsidian-toolbar {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      background: #f1f5f9;
+      padding: 5px;
+      border-radius: 6px 6px 0 0;
+      border: 1px solid var(--border);
+      border-bottom: none;
+    }
+    .obs-btn {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 7px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+    }
+    .obs-btn:active { background: #e2e8f0; }
+
+    /* ESTILO OBSIDIAN (MARKDOWN VIEW & CALLOUTS) */
+    .obsidian-preview {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      background: #ffffff;
+      min-height: 250px;
+      flex: 1;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #1e293b;
+    }
+    .obsidian-preview h1 { font-size: 18px; font-weight: 800; color: #5b21b6; border-bottom: 2px solid #ddd6fe; padding-bottom: 4px; margin: 12px 0 8px; }
+    .obsidian-preview h2 { font-size: 15.5px; font-weight: 700; color: #7c3aed; border-bottom: 1px solid #ede9fe; padding-bottom: 3px; margin: 10px 0 6px; }
+    .obsidian-preview h3 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 8px 0 4px; }
+    .obsidian-callout {
+      border-left: 4px solid #7c3aed;
+      background: #f5f3ff;
+      border-radius: 0 6px 6px 0;
+      padding: 8px 12px;
+      margin: 8px 0;
+    }
+    .callout-title { font-weight: 800; font-size: 12px; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
+    .callout-tip { border-color: #16a34a; background: #f0fdf4; color: #166534; }
+    .callout-warning { border-color: #d97706; background: #fffbeb; color: #92400e; }
+    .callout-danger { border-color: #dc2626; background: #fef2f2; color: #991b1b; }
+    .callout-note { border-color: #0284c7; background: #f0f9ff; color: #0369a1; }
+    
+    .obsidian-tag {
+      background: #ede9fe;
+      color: #6d28d9;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 12px;
+      font-size: 11px;
+      display: inline-block;
+    }
+    .obsidian-wikilink {
+      color: #7c3aed;
+      text-decoration: underline;
+      font-weight: 600;
+      background: #faf5ff;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    /* MODAL GITHUB */
     .modal-backdrop {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(15, 23, 42, 0.7);
       backdrop-filter: blur(4px);
-      z-index: 1000;
+      z-index: 2000;
       justify-content: center;
       align-items: center;
       padding: 16px;
@@ -482,52 +705,15 @@
     .modal-box {
       background: var(--surface);
       border-radius: var(--radius);
-      max-width: 480px;
+      max-width: 460px;
       width: 100%;
       padding: 20px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.25);
       border: 1px solid var(--border);
       position: relative;
-      max-height: 90vh;
-      overflow-y: auto;
     }
-    .modal-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .btn-modal-close {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      background: transparent;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      color: var(--text-muted);
-    }
-    .user-profile-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin: 12px 0;
-      max-height: 180px;
-      overflow-y: auto;
-    }
-    .user-profile-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 12px;
-      border: 1.5px solid var(--border);
-      border-radius: 6px;
-      cursor: pointer;
-      background: #f8fafc;
-    }
-    .user-profile-item.active { border-color: var(--primary); background: var(--primary-light); }
+    .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .btn-modal-close { position: absolute; top: 14px; right: 14px; background: transparent; border: none; font-size: 18px; cursor: pointer; color: var(--text-muted); }
 
     /* RESPONSIVIDADE PRECISA */
     @media (max-width: 1024px) {
@@ -565,11 +751,20 @@
       .grid-2, .grid-3 { grid-template-columns: 1fr; }
       .grid-vitals { grid-template-columns: 1fr 1fr; }
       #diet-formula-val, #hidra-vol { width: 100% !important; max-width: 100% !important; }
+
+      /* Popup flutuante adaptado para preencher a tela no celular */
+      .floating-popup {
+        bottom: 12px;
+        right: 8px;
+        left: 8px;
+        width: calc(100vw - 16px);
+        height: calc(100vh - 80px);
+      }
     }
 
     /* PRINT */
     @media print {
-      header, .user-bar, .subtabs-container, .btn-action-group, .btn-new-patient, .status-save, .tab-close, .modal-backdrop { display: none !important; }
+      header, .user-bar, .subtabs-container, .btn-action-group, .btn-new-patient, .status-save, .tab-close, .modal-backdrop, .fab-container, .floating-popup { display: none !important; }
       body { background: #fff; font-size: 10px; }
       .container { max-width: 100%; margin: 0; padding: 0; }
       .patient-card, .category-card, .signature-card, .prontuario-card { border: 1px solid #94a3b8; box-shadow: none; break-inside: avoid; margin-bottom: 6px; }
@@ -580,22 +775,18 @@
 </head>
 <body>
 
-  <!-- BARRA DE PERFIL & SINCRONIZAÇÃO GITHUB -->
+  <!-- BARRA SUPERIOR DE SINCRONIZAÇÃO GITHUB (SEM BLOCO DE PERFIS) -->
   <div class="user-bar">
     <div class="user-info-text">
-      <span>👨‍⚕️</span>
-      <span id="header-user-name">Dr. Médico Padrão</span>
-      <span id="header-user-crm" style="color:#38bdf8;">(CRM: ---)</span>
+      <span>🩺 PedCare Pediátrico</span>
     </div>
     <div class="user-bar-btns">
-      <!-- INDICADOR DO STATUS DA NUVEM GITHUB -->
       <span class="cloud-status-badge cloud-disconnected" id="github-status-badge" onclick="openGitHubModal()">
         ☁️ Conectar GitHub
       </span>
       <button class="btn-user-action" onclick="manualSyncGitHub()" id="btn-sync-now" style="display:none;" title="Sincronizar agora">
         🔄 Sincronizar
       </button>
-      <button class="btn-user-action" onclick="openProfileModal()">👥 Perfis</button>
     </div>
   </div>
 
@@ -603,7 +794,7 @@
   <header>
     <div class="header-top">
       <div class="header-title">
-        <span>📋 PedCare Pediátrico</span>
+        <span>📋 Prescrição & Prontuário</span>
         <span class="status-save" id="save-status">● Salvo localmente</span>
       </div>
       <div class="btn-action-group">
@@ -612,7 +803,7 @@
       </div>
     </div>
 
-    <!-- TABS BAR (ROLAGEM TOUCH) -->
+    <!-- TABS BAR -->
     <div class="tabs-bar" id="tabs-bar">
       <button class="tab-btn archive-tab" id="tab-archive-btn" onclick="showArchiveView()">
         📁 Todos (<span id="archive-count">0</span>)
@@ -626,8 +817,8 @@
     <div id="archive-view">
       <div class="archive-header">
         <div>
-          <h2 style="font-size:16px; font-weight:700;">Arquivo de Pacientes deste Perfil</h2>
-          <p style="color:var(--text-muted); font-size:11.5px;">Pacientes atribuídos ao perfil logado e salvos na nuvem.</p>
+          <h2 style="font-size:16px; font-weight:700;">Arquivo de Pacientes</h2>
+          <p style="color:var(--text-muted); font-size:11.5px;">Todos os pacientes salvos neste dispositivo e sincronizados no seu GitHub.</p>
         </div>
         <input type="text" class="search-input" id="archive-search" placeholder="Buscar paciente ou leito..." oninput="renderArchiveTable()">
       </div>
@@ -658,7 +849,7 @@
           💊 Prescrição & Doses
         </button>
         <button class="subtab-btn" id="btn-subtab-pront" onclick="switchSubTab('pront')">
-          📋 Ficha & Prontuário
+          📋 Ficha Clínica & Prontuário
         </button>
       </div>
 
@@ -942,7 +1133,6 @@
             </tr>
           </table>
 
-          <!-- MAPA GLICÊMICO (ROLAGEM TOUCH) -->
           <div class="table-scroll-wrapper">
             <table class="mapa-table">
               <thead>
@@ -1289,10 +1479,7 @@
         <!-- ASSINATURAS -->
         <div class="signature-card">
           <div class="signature-line">Enfermagem / Checagem</div>
-          <div class="signature-line">
-            <span id="sig-doc-name">Médico(a) Assistente</span><br>
-            <span id="sig-doc-crm" style="font-weight:normal; font-size:10px;">CRM: ---</span>
-          </div>
+          <div class="signature-line">Médico(a) Assistente / CRM</div>
         </div>
 
       </div>
@@ -1392,22 +1579,92 @@
     </div>
   </div>
 
-  <!-- MODAL: PERFIS DE USUÁRIO -->
-  <div class="modal-backdrop" id="modal-profiles">
-    <div class="modal-box">
-      <button class="btn-modal-close" onclick="closeModal('modal-profiles')">&times;</button>
-      <div class="modal-title">👥 Selecionar Perfil Médico</div>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Cada perfil mantém seus próprios pacientes e prescrições isoladas.</p>
-      
-      <div class="user-profile-list" id="modal-users-list"></div>
+  <!-- ============================================================== -->
+  <!-- BOTÕES FLUTUANTES (FABs) NO CANTO INFERIOR DIREITO             -->
+  <!-- ============================================================== -->
+  <div class="fab-container">
+    <!-- FAB 1: NOTAS DO PACIENTE (PARTICULAR) -->
+    <button class="fab-btn fab-patient-notes" onclick="togglePopup('popup-patient-notes')" title="Notas do Paciente Atual">
+      📌
+      <span class="fab-label">Notas do Paciente</span>
+    </button>
 
-      <div style="border-top:1px solid var(--border); padding-top:12px; margin-top:12px;">
-        <div style="font-weight:700; font-size:12px; margin-bottom:8px;">➕ Criar Novo Perfil</div>
-        <div style="display:flex; flex-direction:column; gap:6px;">
-          <input type="text" id="new-user-name" placeholder="Nome (Ex: Dra. Mariana Costa)">
-          <input type="text" id="new-user-crm" placeholder="CRM e UF (Ex: 12345-SP)">
-          <button class="btn-new-patient" onclick="handleCreateProfile()" style="margin-top:4px;">Salvar e Entrar</button>
+    <!-- FAB 2: CADERNO OBSIDIAN (UNIVERSAL COM PASTAS) -->
+    <button class="fab-btn fab-obsidian" onclick="togglePopup('popup-obsidian')" title="Caderno Clínico Obsidian (Universal)">
+      🟣
+      <span class="fab-label">Caderno Clínico (Obsidian)</span>
+    </button>
+  </div>
+
+  <!-- POPUP 1: NOTAS DO PACIENTE (PARTICULAR) -->
+  <div class="floating-popup" id="popup-patient-notes">
+    <div class="popup-header popup-header-patient">
+      <div class="popup-title">
+        <span>📌 Notas Particulares do Paciente</span>
+      </div>
+      <button class="popup-close-btn" onclick="togglePopup('popup-patient-notes')">&times;</button>
+    </div>
+    <div class="popup-body">
+      <div style="font-size:11.5px; color:var(--text-muted);">
+        Anotações específicas deste leito (pendências de exames, recados da família, preparos cirúrgicos):
+      </div>
+      <div class="input-group" style="flex:1;">
+        <textarea id="patient-general-notes" style="flex:1; width:100%; height:100%; min-height:220px; font-size:13px; line-height:1.5;" placeholder="Digite aqui lembretes e pendências particulares desta criança..." oninput="updatePatientNote('generalNotes', this.value)"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP 2: CADERNO CLÍNICO OBSIDIAN (UNIVERSAL COM PASTAS E NOTAS) -->
+  <div class="floating-popup" id="popup-obsidian">
+    <div class="popup-header popup-header-obsidian">
+      <div class="popup-title">
+        <span>🟣 Caderno Clínico Obsidian (Universal)</span>
+      </div>
+      <button class="popup-close-btn" onclick="togglePopup('popup-obsidian')">&times;</button>
+    </div>
+    <div class="popup-body">
+      <div class="obsidian-layout">
+        <!-- NAVEGAÇÃO DE PASTAS E NOTAS -->
+        <div class="obsidian-nav-bar">
+          <select id="obs-folder-select" class="folder-select" onchange="onFolderSelectChange(this.value)">
+            <!-- Pastas carregadas via JS -->
+          </select>
+          <button class="obs-btn" onclick="createFolderPrompt()" title="Criar Nova Pasta">📁+ Pasta</button>
+          
+          <select id="obs-note-select" class="note-select" onchange="onNoteSelectChange(this.value)">
+            <!-- Notas carregadas via JS -->
+          </select>
+          <button class="obs-btn" onclick="createNotePrompt()" style="color:#7c3aed; font-weight:bold;" title="Criar Nova Nota">📝+ Nota</button>
+          <button class="obs-btn btn-danger" onclick="deleteCurrentNote()" title="Excluir Nota Atual">🗑️</button>
         </div>
+
+        <!-- CONTROLE DE MODO (EDITOR VS LEITURA OBSIDIAN) -->
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <input type="text" id="obs-note-title" placeholder="Título da Nota..." style="font-weight:700; font-size:13.5px; border:1px solid var(--border); border-radius:4px; padding:4px 8px; flex:1; margin-right:8px;" oninput="onNoteTitleInput(this.value)">
+          <div style="display:inline-flex; gap:2px; background:#e2e8f0; padding:2px; border-radius:6px;">
+            <button class="obs-btn" id="btn-obs-edit" style="background:#fff;" onclick="switchObsidianTab('edit')">✏️ Editor</button>
+            <button class="obs-btn" id="btn-obs-read" style="background:transparent; border:none;" onclick="switchObsidianTab('read')">👁️ Obsidian</button>
+          </div>
+        </div>
+
+        <!-- MODO EDITOR -->
+        <div id="obs-editor-view" style="display:flex; flex-direction:column; flex:1;">
+          <div class="obsidian-toolbar">
+            <button class="obs-btn" type="button" onclick="insertObsidianMd('**', '**')"><strong>B</strong></button>
+            <button class="obs-btn" type="button" onclick="insertObsidianMd('*', '*')"><em>I</em></button>
+            <button class="obs-btn" type="button" onclick="insertObsidianMd('## ')">H2</button>
+            <button class="obs-btn" type="button" onclick="insertObsidianMd('### ')">H3</button>
+            <button class="obs-btn" type="button" onclick="insertObsidianMd('- ')">• Lista</button>
+            <button class="obs-btn" type="button" onclick="insertObsidianMd('- [ ] ')">☑ Tarefa</button>
+            <button class="obs-btn" type="button" onclick="insertObsidianMd('> [!tip]\n> ')">💡 Dica</button>
+            <button class="obs-btn" type="button" onclick="insertObsidianMd('> [!warning]\n> ')">⚠️ Alerta</button>
+            <button class="obs-btn" type="button" onclick="insertObsidianMd('#tag')">#tag</button>
+          </div>
+          <textarea id="obs-note-content" style="flex:1; min-height:220px; font-family:monospace; font-size:12.5px; line-height:1.5; border-radius:0 0 6px 6px;" placeholder="Digite anotações clínicas em Markdown..." oninput="onNoteContentInput(this.value)"></textarea>
+        </div>
+
+        <!-- MODO LEITURA FORMATADO (ESTILO OBSIDIAN) -->
+        <div id="obs-reading-view" class="obsidian-preview" style="display:none;"></div>
       </div>
     </div>
   </div>
@@ -1420,13 +1677,13 @@
       
       <div id="gh-setup-section">
         <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">
-          Para sincronizar seus pacientes entre celular, iPad e computador automaticamente:
+          Conecte seu token do GitHub para sincronizar todos os pacientes e o <strong>Caderno Obsidian</strong> entre seu iPhone, iPad e computador:
         </p>
 
         <ol style="font-size:11.5px; color:#334155; margin-left:18px; margin-bottom:14px; line-height:1.5;">
           <li>Acesse <strong>github.com</strong> &gt; <em>Settings</em> &gt; <em>Developer settings</em> &gt; <em>Personal access tokens (Tokens classic)</em>.</li>
-          <li>Gere um novo token marcando <strong>apenas a opção `gist`</strong> (privado e seguro).</li>
-          <li>Cole o Token gerado abaixo e clique em <strong>Conectar</strong>.</li>
+          <li>Gere um token marcando <strong>apenas a opção `gist`</strong> (gratuito e seguro).</li>
+          <li>Cole o Token gerado abaixo e clique em Conectar.</li>
         </ol>
 
         <div class="input-group" style="margin-bottom:12px;">
@@ -1435,7 +1692,7 @@
         </div>
 
         <button class="btn-new-patient" id="btn-connect-gh" onclick="handleConnectGitHub()" style="width:100%;">
-          Conectar e Carregar Dados da Nuvem
+          Conectar e Sincronizar Tudo
         </button>
       </div>
 
@@ -1443,7 +1700,7 @@
         <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:6px; margin-bottom:12px;">
           <strong style="color:#166534; font-size:12px;">✓ Conectado à Nuvem do GitHub</strong>
           <p style="font-size:11px; color:#14532d; margin-top:4px;">
-            Seus dados são salvos em um banco de dados privado no seu GitHub. Qualquer outro aparelho que use esse mesmo token carregará seus pacientes automaticamente!
+            Seus pacientes e todo o caderno Obsidian estão sincronizados. Ao abrir em outro dispositivo com este token, tudo será carregado na hora!
           </p>
         </div>
 
@@ -1463,103 +1720,314 @@
   </div>
 
   <script>
-    const USERS_STORAGE_KEY = 'pedcare_profiles_v1';
-    const PATIENTS_STORAGE_KEY = 'pedcare_patients_v1';
-    const ACTIVE_USER_KEY = 'pedcare_active_user_v1';
+    const PATIENTS_STORAGE_KEY = 'pedcare_patients_v7';
+    const OBSIDIAN_STORAGE_KEY = 'pedcare_obsidian_notes_v1';
     const GH_TOKEN_KEY = 'pedcare_gh_token';
     const GH_GIST_KEY = 'pedcare_gh_gist_id';
 
-    let users = [];
-    let activeUser = null;
     let patients = [];
     let currentPatientId = null;
     let currentSubTab = 'presc';
     let syncTimeout = null;
 
-    window.onload = function() {
-      loadProfiles();
-      if (!users.length) {
-        const def = { id: 'usr_' + Date.now(), name: 'Dr. Médico Padrão', crm: '00000-UF' };
-        users.push(def);
-        saveProfiles();
-        setActiveProfile(def.id);
-      } else {
-        const savedId = localStorage.getItem(ACTIVE_USER_KEY);
-        const found = users.find(u => u.id === savedId) || users[0];
-        setActiveProfile(found.id);
-      }
+    // BANCO UNIVERSAL OBSIDIAN (PASTAS E NOTAS COMPARTILHADAS)
+    let obsidianData = {
+      folders: ["Geral", "Infectologia", "Pneumologia", "Terapia Intensiva"],
+      notes: [
+        {
+          id: "note_padrao_1",
+          title: "Pneumonia Adquirida na Comunidade",
+          folder: "Pneumologia",
+          content: `# PAC em Pediatria
 
-      // Checa se já tem credencial do GitHub salva
-      initGitHubConnection();
+> [!tip] Pérola Clínica
+> Febre persistente após 48-72h de beta-lactâmico em pneumonia exige investigar derrame parapneumônico ou germe atípico.
+
+## 🔬 Etiologia por Faixa Etária
+- **< 2 meses:** *S. agalactiae*, Gram-negativos entéricos, *L. monocytogenes*
+- **2m a 5 anos:** *S. pneumoniae*, Vírus respiratórios (VSR, Rino, Metapneumovírus)
+- **> 5 anos:** *S. pneumoniae*, *Mycoplasma pneumoniae*, *Chlamydia pneumoniae*
+
+## 💊 Tratamento Empírico
+- [x] Ambulatorial: Amoxicilina 50 a 90 mg/kg/dia VO de 8/8h
+- [ ] Hospitalar sem gravidade: Ampicilina 150-200 mg/kg/dia EV de 6/6h
+- [ ] Derrame ou grave: Oxacilina + Ceftriaxona EV
+
+#pneumo #antibioticos [[Diretriz PAC]]`
+        }
+      ],
+      currentFolder: "Pneumologia",
+      currentNoteId: "note_padrao_1"
     };
 
-    /* GERENCIAMENTO DE PERFIS */
-    function loadProfiles() {
-      try {
-        const d = localStorage.getItem(USERS_STORAGE_KEY);
-        users = d ? JSON.parse(d) : [];
-      } catch (e) { users = []; }
-    }
+    window.onload = function() {
+      loadObsidianData();
+      loadAllPatients();
 
-    function saveProfiles() {
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-      triggerCloudSync();
-    }
+      if (!patients.length) {
+        createNewPatient();
+      } else {
+        switchPatientTab(patients[0].id);
+      }
 
-    function setActiveProfile(userId) {
-      activeUser = users.find(u => u.id === userId) || users[0];
-      localStorage.setItem(ACTIVE_USER_KEY, activeUser.id);
+      initGitHubConnection();
+      renderObsidianUI();
+    };
 
-      document.getElementById('header-user-name').textContent = activeUser.name;
-      document.getElementById('header-user-crm').textContent = `(CRM: ${activeUser.crm})`;
-      document.getElementById('sig-doc-name').textContent = activeUser.name;
-      document.getElementById('sig-doc-crm').textContent = `CRM: ${activeUser.crm}`;
-
-      loadPatientsForActiveUser();
-    }
-
-    function handleCreateProfile() {
-      const name = document.getElementById('new-user-name').value.trim();
-      const crm = document.getElementById('new-user-crm').value.trim();
-      if (!name) { alert('Por favor, informe o nome do médico(a).'); return; }
-
-      const newUser = { id: 'usr_' + Date.now(), name, crm: crm || '---' };
-      users.push(newUser);
-      saveProfiles();
-      setActiveProfile(newUser.id);
-      closeModal('modal-profiles');
-      document.getElementById('new-user-name').value = '';
-      document.getElementById('new-user-crm').value = '';
-    }
-
-    function openProfileModal() {
-      const listEl = document.getElementById('modal-users-list');
-      listEl.innerHTML = '';
-      users.forEach(u => {
-        const item = document.createElement('div');
-        item.className = `user-profile-item ${u.id === activeUser.id ? 'active' : ''}`;
-        item.innerHTML = `
-          <div>
-            <strong>${u.name}</strong>
-            <div style="font-size:11px; color:var(--text-muted);">CRM: ${u.crm}</div>
-          </div>
-          ${u.id === activeUser.id ? '<span style="color:#16a34a; font-weight:700;">✓ Ativo</span>' : ''}
-        `;
-        item.onclick = () => {
-          setActiveProfile(u.id);
-          closeModal('modal-profiles');
-        };
-        listEl.appendChild(item);
-      });
-      document.getElementById('modal-profiles').style.display = 'flex';
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
+    /* ============================================================== */
+    /* POPUPS FLUTUANTES (FABs)                                       */
+    /* ============================================================== */
+    function togglePopup(popupId) {
+      const popup = document.getElementById(popupId);
+      const isVisible = popup.style.display === 'flex';
+      
+      // Fecha outros popups
+      document.querySelectorAll('.floating-popup').forEach(p => p.style.display = 'none');
+      
+      if (!isVisible) {
+        popup.style.display = 'flex';
+        if (popupId === 'popup-obsidian') {
+          renderObsidianUI();
+        }
+      }
     }
 
     /* ============================================================== */
-    /* MOTOR DE SINCRONIZAÇÃO EM NUVEM VIA GITHUB REST API            */
+    /* MOTOR OBSIDIAN UNIVERSAL (PASTAS, NOTAS & MARKDOWN)           */
+    /* ============================================================== */
+    function loadObsidianData() {
+      try {
+        const d = localStorage.getItem(OBSIDIAN_STORAGE_KEY);
+        if (d) obsidianData = JSON.parse(d);
+      } catch (e) { console.error(e); }
+    }
+
+    function saveObsidianData() {
+      localStorage.setItem(OBSIDIAN_STORAGE_KEY, JSON.stringify(obsidianData));
+      triggerCloudSync();
+    }
+
+    function renderObsidianUI() {
+      // 1. Preenche pastas
+      const folderSelect = document.getElementById('obs-folder-select');
+      folderSelect.innerHTML = '';
+      obsidianData.folders.forEach(f => {
+        const opt = document.createElement('option');
+        opt.value = f;
+        opt.textContent = '📁 ' + f;
+        if (f === obsidianData.currentFolder) opt.selected = true;
+        folderSelect.appendChild(opt);
+      });
+
+      // 2. Preenche notas da pasta ativa
+      const noteSelect = document.getElementById('obs-note-select');
+      noteSelect.innerHTML = '';
+      const notesInFolder = obsidianData.notes.filter(n => n.folder === obsidianData.currentFolder);
+
+      if (!notesInFolder.length) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = '(Pasta vazia)';
+        noteSelect.appendChild(opt);
+        document.getElementById('obs-note-title').value = '';
+        document.getElementById('obs-note-content').value = '';
+        document.getElementById('obs-reading-view').innerHTML = '<em>Nenhuma nota nesta pasta. Clique em 📝+ Nota para criar.</em>';
+        return;
+      }
+
+      notesInFolder.forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n.id;
+        opt.textContent = n.title || 'Sem título';
+        if (n.id === obsidianData.currentNoteId) opt.selected = true;
+        noteSelect.appendChild(opt);
+      });
+
+      // 3. Carrega a nota ativa
+      let activeNote = obsidianData.notes.find(n => n.id === obsidianData.currentNoteId);
+      if (!activeNote && notesInFolder.length) {
+        activeNote = notesInFolder[0];
+        obsidianData.currentNoteId = activeNote.id;
+      }
+
+      if (activeNote) {
+        document.getElementById('obs-note-title').value = activeNote.title || '';
+        document.getElementById('obs-note-content').value = activeNote.content || '';
+        document.getElementById('obs-reading-view').innerHTML = parseObsidianMarkdown(activeNote.content);
+      }
+    }
+
+    function onFolderSelectChange(folderName) {
+      obsidianData.currentFolder = folderName;
+      const notesInFolder = obsidianData.notes.filter(n => n.folder === folderName);
+      obsidianData.currentNoteId = notesInFolder.length ? notesInFolder[0].id : null;
+      saveObsidianData();
+      renderObsidianUI();
+    }
+
+    function onNoteSelectChange(noteId) {
+      if (!noteId) return;
+      obsidianData.currentNoteId = noteId;
+      saveObsidianData();
+      renderObsidianUI();
+    }
+
+    function createFolderPrompt() {
+      const name = prompt('Nome da nova pasta clínica (ex: Terapia Intensiva, Nefrologia, Infecto):');
+      if (name && name.trim()) {
+        const clean = name.trim();
+        if (!obsidianData.folders.includes(clean)) {
+          obsidianData.folders.push(clean);
+          obsidianData.currentFolder = clean;
+          saveObsidianData();
+          renderObsidianUI();
+        }
+      }
+    }
+
+    function createNotePrompt() {
+      const title = prompt('Título da nova nota:', 'Nova Nota Clínica');
+      if (title && title.trim()) {
+        const newNote = {
+          id: 'note_' + Date.now(),
+          title: title.trim(),
+          folder: obsidianData.currentFolder || 'Geral',
+          content: `# ${title.trim()}\n\n> [!note]\n> Anotação criada em ${new Date().toLocaleDateString('pt-BR')}\n\n- [ ] `
+        };
+        obsidianData.notes.push(newNote);
+        obsidianData.currentNoteId = newNote.id;
+        saveObsidianData();
+        renderObsidianUI();
+      }
+    }
+
+    function deleteCurrentNote() {
+      const active = obsidianData.notes.find(n => n.id === obsidianData.currentNoteId);
+      if (!active) return;
+      if (confirm(`Excluir a nota "${active.title}"?`)) {
+        obsidianData.notes = obsidianData.notes.filter(n => n.id !== active.id);
+        const remaining = obsidianData.notes.filter(n => n.folder === obsidianData.currentFolder);
+        obsidianData.currentNoteId = remaining.length ? remaining[0].id : null;
+        saveObsidianData();
+        renderObsidianUI();
+      }
+    }
+
+    function onNoteTitleInput(val) {
+      const active = obsidianData.notes.find(n => n.id === obsidianData.currentNoteId);
+      if (active) {
+        active.title = val;
+        saveObsidianData();
+        // Atualiza título no select
+        const opt = document.querySelector(`#obs-note-select option[value="${active.id}"]`);
+        if (opt) opt.textContent = val || 'Sem título';
+      }
+    }
+
+    function onNoteContentInput(val) {
+      const active = obsidianData.notes.find(n => n.id === obsidianData.currentNoteId);
+      if (active) {
+        active.content = val;
+        saveObsidianData();
+        document.getElementById('obs-reading-view').innerHTML = parseObsidianMarkdown(val);
+      }
+    }
+
+    function switchObsidianTab(mode) {
+      const editView = document.getElementById('obs-editor-view');
+      const readView = document.getElementById('obs-reading-view');
+      const btnEdit = document.getElementById('btn-obs-edit');
+      const btnRead = document.getElementById('btn-obs-read');
+
+      if (mode === 'read') {
+        const active = obsidianData.notes.find(n => n.id === obsidianData.currentNoteId);
+        readView.innerHTML = parseObsidianMarkdown(active ? active.content : '');
+        editView.style.display = 'none';
+        readView.style.display = 'block';
+        btnRead.style.background = '#fff';
+        btnEdit.style.background = 'transparent';
+      } else {
+        editView.style.display = 'flex';
+        readView.style.display = 'none';
+        btnEdit.style.background = '#fff';
+        btnRead.style.background = 'transparent';
+      }
+    }
+
+    function insertObsidianMd(prefix, suffix = '') {
+      const textarea = document.getElementById('obs-note-content');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = textarea.value;
+      const selected = text.substring(start, end);
+      const replacement = prefix + (selected || 'texto') + suffix;
+
+      textarea.value = text.substring(0, start) + replacement + text.substring(end);
+      textarea.focus();
+      textarea.setSelectionRange(start + prefix.length, start + prefix.length + (selected.length || 5));
+      onNoteContentInput(textarea.value);
+    }
+
+    // PARSER OBSIDIAN COM CALLOUTS, CHECKLISTS, WIKILINKS E TAGS
+    function parseObsidianMarkdown(text) {
+      if (!text || !text.trim()) return '<em style="color:#94a3b8;">Nota vazia. Digite na aba Editor.</em>';
+
+      let html = text
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+      // CALLOUTS OBSIDIAN: > [!tip], > [!warning], > [!note], > [!danger]
+      html = html.replace(/^\&gt; \[!(tip|warning|danger|note)\]([^\n]*)\n((?:\&gt; .*(?:\n|$))*)/gim, function(match, type, title, body) {
+        const cleanTitle = title.trim() || type.toUpperCase();
+        const cleanBody = body.replace(/^\&gt; /gim, '').replace(/\n/g, '<br>');
+        return `<div class="obsidian-callout callout-${type.toLowerCase()}">
+          <div class="callout-title">${type === 'tip' ? '💡' : type === 'warning' ? '⚠️' : type === 'danger' ? '🛑' : '📌'} ${cleanTitle}</div>
+          <div>${cleanBody}</div>
+        </div>`;
+      });
+
+      // HEADINGS
+      html = html
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>');
+
+      // WIKILINKS [[Nome da Nota]]
+      html = html.replace(/\[\[(.*?)\]\]/g, '<span class="obsidian-wikilink">[[ $1 ]]</span>');
+
+      // #TAGS
+      html = html.replace(/(^|\s)#([a-zA-Z0-9_\-]+)/g, '$1<span class="obsidian-tag">#$2</span>');
+
+      // FORMATOS TEXTO
+      html = html
+        .replace(/\*\*\*(.*?)\*\*\*/gim, '<strong><em>$1</em></strong>')
+        .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+        .replace(/~~(.*?)~~/gim, '<del>$1</del>')
+        .replace(/`(.*?)`/gim, '<code style="background:#f1f5f9; padding:2px 5px; border-radius:4px; font-size:11.5px; color:#e11d48; font-family:monospace;">$1</code>')
+        // CHECKLISTS
+        .replace(/^- \[x\] (.*$)/gim, '<div style="display:flex; align-items:flex-start; gap:6px; margin:3px 0;"><span style="color:#16a34a; font-weight:bold;">☑</span> <span style="text-decoration:line-through; color:#94a3b8;">$1</span></div>')
+        .replace(/^- \[ \] (.*$)/gim, '<div style="display:flex; align-items:flex-start; gap:6px; margin:3px 0;"><span style="color:#64748b; font-weight:bold;">☐</span> <span>$1</span></div>')
+        // LISTAS
+        .replace(/^\- (.*$)/gim, '<li style="margin-left:18px; margin-bottom:2px;">$1</li>')
+        .replace(/^\* (.*$)/gim, '<li style="margin-left:18px; margin-bottom:2px;">$1</li>')
+        // CITAÇÕES
+        .replace(/^\&gt; (.*$)/gim, '<blockquote style="border-left:3.5px solid #7c3aed; padding:4px 10px; margin:6px 0; color:#475569; font-style:italic; background:#f5f3ff;">$1</blockquote>')
+        .replace(/\n/gim, '<br>');
+
+      return html;
+    }
+
+    function updatePatientNote(field, val) {
+      if (!currentPatientId) return;
+      const pat = patients.find(p => p.id === currentPatientId);
+      if (pat) {
+        pat[field] = val;
+        saveAllPatients();
+      }
+    }
+
+    /* ============================================================== */
+    /* MOTOR DE SINCRONIZAÇÃO EM NUVEM VIA GITHUB (SEM LOGIN COMPLEXO) */
     /* ============================================================== */
     function openGitHubModal() {
       const token = localStorage.getItem(GH_TOKEN_KEY);
@@ -1599,7 +2067,6 @@
       btn.textContent = 'Verificando e Conectando...';
 
       try {
-        // 1. Procura se já existe um gist chamado 'pedcare_database.json' nesta conta
         const res = await fetch('https://api.github.com/gists', {
           headers: {
             'Authorization': 'token ' + token,
@@ -1614,13 +2081,11 @@
         let gistId = targetGist ? targetGist.id : null;
 
         if (gistId) {
-          // Se encontrou banco existente no GitHub, baixa os dados
           localStorage.setItem(GH_TOKEN_KEY, token);
           localStorage.setItem(GH_GIST_KEY, gistId);
           await pullFromGitHub(token, gistId);
-          alert('Conectado com sucesso! Seus dados foram carregados do GitHub.');
+          alert('Conectado com sucesso! Seus dados e notas do Obsidian foram carregados.');
         } else {
-          // Se não encontrou, cria um Gist Privado inicial com os dados atuais
           const createRes = await fetch('https://api.github.com/gists', {
             method: 'POST',
             headers: {
@@ -1629,7 +2094,7 @@
               'Accept': 'application/vnd.github.v3+json'
             },
             body: JSON.stringify({
-              description: 'PedCare Pediátrico Database (Privado e Seguro)',
+              description: 'PedCare Pediátrico Database & Obsidian Notes (Privado)',
               public: false,
               files: {
                 'pedcare_database.json': {
@@ -1645,7 +2110,7 @@
 
           localStorage.setItem(GH_TOKEN_KEY, token);
           localStorage.setItem(GH_GIST_KEY, gistId);
-          alert('Banco de dados criado com sucesso no seu GitHub!');
+          alert('Banco de dados e Caderno Obsidian criados no seu GitHub!');
         }
 
         closeModal('modal-github');
@@ -1654,11 +2119,10 @@
         alert('Erro ao conectar ao GitHub: ' + err.message);
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Conectar e Carregar Dados da Nuvem';
+        btn.textContent = 'Conectar e Sincronizar Tudo';
       }
     }
 
-    // Puxa dados do GitHub e atualiza a tela
     async function pullFromGitHub(token, gistId) {
       try {
         updateCloudStatus('syncing', 'Baixando da Nuvem...');
@@ -1675,13 +2139,16 @@
         if (data.files && data.files['pedcare_database.json']) {
           const content = JSON.parse(data.files['pedcare_database.json'].content);
           if (content.patients) patients = content.patients;
-          if (content.profiles && content.profiles.length) users = content.profiles;
+          if (content.obsidianData) obsidianData = content.obsidianData;
 
           localStorage.setItem(PATIENTS_STORAGE_KEY, JSON.stringify(patients));
-          localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+          localStorage.setItem(OBSIDIAN_STORAGE_KEY, JSON.stringify(obsidianData));
 
-          // Atualiza visualização
-          setActiveProfile(activeUser ? activeUser.id : users[0].id);
+          renderTabs();
+          if (patients.length) {
+            switchPatientTab(currentPatientId || patients[0].id);
+          }
+          renderObsidianUI();
           updateCloudStatus('connected', '☁️ GitHub Sincronizado ✓');
         }
       } catch (e) {
@@ -1690,7 +2157,6 @@
       }
     }
 
-    // Envia dados para o GitHub
     async function pushToGitHub() {
       const token = localStorage.getItem(GH_TOKEN_KEY);
       const gistId = localStorage.getItem(GH_GIST_KEY);
@@ -1727,8 +2193,8 @@
       return {
         app: 'PedCare',
         updatedAt: new Date().toISOString(),
-        profiles: users,
-        patients: patients
+        patients: patients,
+        obsidianData: obsidianData
       };
     }
 
@@ -1736,7 +2202,7 @@
       clearTimeout(syncTimeout);
       syncTimeout = setTimeout(() => {
         pushToGitHub();
-      }, 2500); // Salva no GitHub 2.5s após parar de digitar
+      }, 2500);
     }
 
     function manualSyncGitHub() {
@@ -1750,7 +2216,7 @@
     }
 
     function disconnectGitHub() {
-      if (confirm('Deseja desconectar a sincronização do GitHub deste aparelho? Os dados continuarão salvos no navegador e no seu GitHub.')) {
+      if (confirm('Deseja desconectar a sincronização do GitHub deste aparelho? Os dados continuarão salvos no navegador.')) {
         localStorage.removeItem(GH_TOKEN_KEY);
         localStorage.removeItem(GH_GIST_KEY);
         closeModal('modal-github');
@@ -1764,7 +2230,11 @@
       badge.textContent = text;
     }
 
-    /* PACIENTES POR PERFIL */
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    /* PACIENTES */
     function loadAllPatients() {
       try {
         const d = localStorage.getItem(PATIENTS_STORAGE_KEY);
@@ -1775,19 +2245,7 @@
     function saveAllPatients() {
       localStorage.setItem(PATIENTS_STORAGE_KEY, JSON.stringify(patients));
       flashSaveIndicator();
-      triggerCloudSync(); // Envia automaticamente para o GitHub
-    }
-
-    function loadPatientsForActiveUser() {
-      loadAllPatients();
-      const userPatients = patients.filter(p => p.userId === activeUser.id);
-      document.getElementById('archive-count').textContent = userPatients.length;
-
-      if (!userPatients.length) {
-        createNewPatient();
-      } else {
-        switchPatientTab(userPatients[0].id);
-      }
+      triggerCloudSync();
     }
 
     function createNewPatient() {
@@ -1795,7 +2253,6 @@
       const defaultDate = new Date().toISOString().split('T')[0];
       const newPat = {
         id: newId,
-        userId: activeUser.id,
         name: 'Novo Paciente',
         bed: '',
         date: defaultDate,
@@ -1818,6 +2275,7 @@
         evacuations: '',
         flatus: '',
         labExams: '',
+        generalNotes: '', // Bloco 1 particular
         checks: {}
       };
       patients.push(newPat);
@@ -1847,10 +2305,9 @@
       container.innerHTML = '';
       container.appendChild(archiveBtn);
 
-      const userPatients = patients.filter(p => p.userId === activeUser.id);
-      document.getElementById('archive-count').textContent = userPatients.length;
+      document.getElementById('archive-count').textContent = patients.length;
 
-      userPatients.forEach(pat => {
+      patients.forEach(pat => {
         const btn = document.createElement('button');
         btn.className = `tab-btn ${pat.id === currentPatientId ? 'active' : ''}`;
         
@@ -1902,6 +2359,9 @@
       document.getElementById('pront-evacuacoes').value = pat.evacuations || '';
       document.getElementById('pront-flatos').value = pat.flatus || '';
       document.getElementById('pront-exames').value = pat.labExams || '';
+
+      // Bloco 1 particular
+      document.getElementById('patient-general-notes').value = pat.generalNotes || '';
 
       onWeightChange(pat.weight);
 
@@ -1998,8 +2458,7 @@
       const filter = (document.getElementById('archive-search').value || '').toLowerCase();
       tbody.innerHTML = '';
 
-      const userPatients = patients.filter(p => p.userId === activeUser.id);
-      const filtered = userPatients.filter(p => {
+      const filtered = patients.filter(p => {
         const name = (p.name || '').toLowerCase();
         const bed = (p.bed || '').toLowerCase();
         const mother = (p.mother || '').toLowerCase();
@@ -2007,7 +2466,7 @@
       });
 
       if (!filtered.length) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhum paciente encontrado neste perfil.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhum paciente encontrado.</td></tr>`;
         return;
       }
 
@@ -2036,9 +2495,8 @@
       if (confirm(`Deseja realmente excluir a prescrição e prontuário de ${name}?`)) {
         patients = patients.filter(p => p.id !== id);
         saveAllPatients();
-        const userPatients = patients.filter(p => p.userId === activeUser.id);
         if (currentPatientId === id) {
-          if (userPatients.length > 0) switchPatientTab(userPatients[userPatients.length - 1].id);
+          if (patients.length > 0) switchPatientTab(patients[patients.length - 1].id);
           else createNewPatient();
         } else {
           renderTabs();
@@ -2085,7 +2543,6 @@
         return;
       }
 
-      // HOLLIDAY-SEGAR
       let vol = 0;
       if (w <= 10) vol = w * 100;
       else if (w <= 20) vol = 1000 + (w - 10) * 50;
@@ -2244,7 +2701,7 @@
       const feniAtqMax = Math.min(w * 20, 1500);
       const feniManutMin = Math.min(w * 5, 400);
       const feniManutMax = Math.min(w * 8, 400);
-      setBadge('calc-feni', `Ataque: <strong>${r(feniAtqMin)} a ${r(feniAtqMax)} mg</strong> EV (apenas SF 0,9%) | Manut: <strong>${r(feniManutMin)} a ${r(feniManutMax)} mg/dia</strong> <span class="dose-max-tag">🛑 Máx: Ataque 1.500mg | Manut 400mg/dia</span>`);
+      setBadge('calc-feni', `Ataque: <strong>${r(feniAtqMin)} a ${r(feniAtqMax)} mg</strong> EV (SF 0,9%) | Manut: <strong>${r(feniManutMin)} a ${r(feniManutMax)} mg/dia</strong> <span class="dose-max-tag">🛑 Máx: Ataque 1.500mg | Manut 400mg/dia</span>`);
 
       const fenobAtqMin = Math.min(w * 15, 1000);
       const fenobAtqMax = Math.min(w * 20, 1000);
