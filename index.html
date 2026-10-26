@@ -51,7 +51,7 @@
       font-size: 13px;
     }
 
-    /* BARRA SUPERIOR DE SINCRONIZAÇÃO GITHUB */
+    /* BARRA SUPERIOR GITHUB */
     .user-bar {
       background: #021a36;
       color: #94a3b8;
@@ -141,10 +141,7 @@
     }
 
     /* DROPDOWN DE IMPRESSÃO */
-    .print-dropdown-wrapper {
-      position: relative;
-      display: inline-block;
-    }
+    .print-dropdown-wrapper { position: relative; display: inline-block; }
     .print-dropdown-menu {
       display: none;
       position: absolute;
@@ -180,15 +177,8 @@
       gap: 8px;
       transition: background 0.15s;
     }
-    .print-dropdown-menu button:hover, .print-dropdown-menu button:active {
-      background: #f1f5f9;
-      color: var(--primary-dark);
-    }
-    .print-dropdown-divider {
-      height: 1px;
-      background: var(--border-light);
-      margin: 2px 0;
-    }
+    .print-dropdown-menu button:hover { background: #f1f5f9; color: var(--primary-dark); }
+    .print-dropdown-divider { height: 1px; background: var(--border-light); margin: 2px 0; }
 
     /* TABS BAR */
     .tabs-bar {
@@ -390,7 +380,6 @@
     .cell-name { width: 250px; padding: 6px 10px; font-weight: 600; color: #1e293b; vertical-align: middle; border-left: 1px solid var(--border-light); word-break: break-word; }
     .cell-desc { padding: 6px 12px; color: #475569; vertical-align: middle; font-size: 12px; border-left: 1px solid var(--border-light); word-break: break-word; }
 
-    /* CHECKBOX VERDE TOUCH */
     .med-check-single {
       appearance: none;
       -webkit-appearance: none;
@@ -424,7 +413,6 @@
       transform: translate(-50%, -50%);
     }
 
-    /* BADGES DE DOSE CALCULADA */
     .dose-calc-badge {
       display: block;
       margin-top: 5px;
@@ -458,13 +446,7 @@
       white-space: normal;
     }
 
-    .table-scroll-wrapper {
-      width: 100%;
-      max-width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      padding: 4px 0;
-    }
+    .table-scroll-wrapper { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px 0; }
     .mapa-table { width: 100%; min-width: 480px; border-collapse: collapse; font-size: 11.5px; }
     .mapa-table th, .mapa-table td { border: 1px solid var(--border); padding: 6px 8px; text-align: center; }
     .mapa-table th { background: #f1f5f9; font-weight: 700; color: #334155; }
@@ -504,22 +486,8 @@
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
 
     /* ARQUIVO */
-    #archive-view {
-      display: none;
-      background: var(--surface);
-      border-radius: var(--radius);
-      padding: 14px;
-      border: 1px solid var(--border);
-      width: 100%;
-    }
-    .archive-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+    #archive-view { display: none; background: var(--surface); border-radius: var(--radius); padding: 14px; border: 1px solid var(--border); width: 100%; }
+    .archive-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
     .search-input { width: 100%; max-width: 320px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; }
     .archive-table { width: 100%; min-width: 540px; border-collapse: collapse; }
     .archive-table th, .archive-table td { border-bottom: 1px solid var(--border-light); padding: 8px 10px; text-align: left; }
@@ -568,16 +536,11 @@
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
     }
-    .fab-btn:hover, .fab-btn:active {
-      transform: scale(1.08);
-    }
-    .fab-patient-notes {
-      background: linear-gradient(135deg, #0284c7, #0369a1);
-    }
-    .fab-obsidian {
-      background: linear-gradient(135deg, #8b5cf6, #6d28d9);
-      box-shadow: 0 4px 16px rgba(109, 40, 217, 0.35);
-    }
+    .fab-btn:hover, .fab-btn:active { transform: scale(1.08); }
+    .fab-patient-notes { background: linear-gradient(135deg, #0284c7, #0369a1); }
+    .fab-obsidian { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 4px 16px rgba(109, 40, 217, 0.35); }
+    .fab-diagnostics { background: linear-gradient(135deg, #0d9488, #0f766e); box-shadow: 0 4px 16px rgba(13, 148, 136, 0.35); }
+    
     .fab-label {
       position: absolute;
       right: 58px;
@@ -600,8 +563,8 @@
       position: fixed;
       bottom: 80px;
       right: 18px;
-      width: min(580px, calc(100vw - 28px));
-      height: min(650px, calc(100vh - 110px));
+      width: min(640px, calc(100vw - 28px));
+      height: min(680px, calc(100vh - 100px));
       background: #ffffff;
       border-radius: 12px;
       box-shadow: 0 12px 35px rgba(15, 23, 42, 0.28);
@@ -625,6 +588,7 @@
     }
     .popup-header-patient { background: linear-gradient(135deg, #0284c7, #0369a1); }
     .popup-header-obsidian { background: linear-gradient(135deg, #7c3aed, #5b21b6); }
+    .popup-header-diag { background: linear-gradient(135deg, #0f766e, #115e59); }
     .popup-title {
       font-size: 13.5px;
       font-weight: 700;
@@ -656,80 +620,22 @@
       background: #fff;
     }
 
-    /* OBSIDIAN KNOWLEDGE BASE INTERFACE */
-    .obsidian-layout {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      gap: 8px;
-    }
-    .obsidian-nav-bar {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center;
-      background: #f8fafc;
-      padding: 6px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-    }
-    .folder-select {
-      flex: 1;
-      font-size: 12px;
-      padding: 5px 8px;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-      background: #fff;
-      font-weight: 600;
-    }
-    .note-select {
-      flex: 1.2;
-      font-size: 12px;
-      padding: 5px 8px;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-      background: #fff;
-    }
-    .obsidian-toolbar {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-      background: #f1f5f9;
-      padding: 5px;
-      border-radius: 6px 6px 0 0;
-      border: 1px solid var(--border);
-      border-bottom: none;
-    }
-    .obs-btn {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 3px 6px;
-      font-size: 11px;
-      font-weight: 600;
-      color: #334155;
-      cursor: pointer;
-    }
-    .obs-btn:active { background: #e2e8f0; }
-
-    /* ÁREA DE TRABALHO OBSIDIAN (EDITOR, SPLIT E LEITURA) */
-    .obsidian-workspace {
-      display: flex;
-      flex: 1;
-      gap: 8px;
-      min-height: 250px;
-      position: relative;
-    }
+    /* OBSIDIAN INTERFACE */
+    .obsidian-layout { display: flex; flex-direction: column; height: 100%; gap: 8px; }
+    .obsidian-nav-bar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; background: #f8fafc; padding: 6px; border-radius: 6px; border: 1px solid var(--border); }
+    .folder-select { flex: 1; font-size: 12px; padding: 5px 8px; border-radius: 4px; border: 1px solid var(--border); background: #fff; font-weight: 600; }
+    .note-select { flex: 1.2; font-size: 12px; padding: 5px 8px; border-radius: 4px; border: 1px solid var(--border); background: #fff; }
+    .obsidian-toolbar { display: flex; gap: 4px; flex-wrap: wrap; background: #f1f5f9; padding: 5px; border-radius: 6px 6px 0 0; border: 1px solid var(--border); border-bottom: none; }
+    .obs-btn { background: #fff; border: 1px solid var(--border); border-radius: 4px; padding: 3px 6px; font-size: 11px; font-weight: 600; color: #334155; cursor: pointer; }
+    
+    .obsidian-workspace { display: flex; flex: 1; gap: 8px; min-height: 250px; position: relative; }
     .obsidian-workspace.mode-edit #obs-editor-view { display: flex; width: 100%; }
     .obsidian-workspace.mode-edit #obs-reading-view { display: none; }
-
     .obsidian-workspace.mode-read #obs-editor-view { display: none; }
     .obsidian-workspace.mode-read #obs-reading-view { display: block; width: 100%; }
-
     .obsidian-workspace.mode-split #obs-editor-view { display: flex; flex: 1; min-width: 0; }
     .obsidian-workspace.mode-split #obs-reading-view { display: block; flex: 1; min-width: 0; }
 
-    /* ESTILO OBSIDIAN (MARKDOWN VIEW & HIERARQUIA DE HEADERS) */
     .obsidian-preview {
       border: 1px solid var(--border);
       border-radius: 6px;
@@ -747,35 +653,218 @@
     .obsidian-preview h4 { font-size: 13px; font-weight: 700; color: #334155; margin: 6px 0 3px; border-left: 3px solid #cbd5e1; padding-left: 6px; }
     .obsidian-preview h5 { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin: 6px 0 2px; }
 
-    .obsidian-callout {
-      border-left: 4px solid #7c3aed;
-      background: #f5f3ff;
-      border-radius: 0 6px 6px 0;
-      padding: 8px 12px;
-      margin: 8px 0;
-    }
+    .obsidian-callout { border-left: 4px solid #7c3aed; background: #f5f3ff; border-radius: 0 6px 6px 0; padding: 8px 12px; margin: 8px 0; }
     .callout-title { font-weight: 800; font-size: 12px; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
     .callout-tip { border-color: #16a34a; background: #f0fdf4; color: #166534; }
     .callout-warning { border-color: #d97706; background: #fffbeb; color: #92400e; }
     .callout-danger { border-color: #dc2626; background: #fef2f2; color: #991b1b; }
     .callout-note { border-color: #0284c7; background: #f0f9ff; color: #0369a1; }
-    
-    .obsidian-tag {
-      background: #ede9fe;
-      color: #6d28d9;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 12px;
-      font-size: 11px;
-      display: inline-block;
+    .obsidian-tag { background: #ede9fe; color: #6d28d9; font-weight: 700; padding: 2px 7px; border-radius: 12px; font-size: 11px; display: inline-block; }
+    .obsidian-wikilink { color: #7c3aed; text-decoration: underline; font-weight: 600; background: #faf5ff; padding: 1px 4px; border-radius: 3px; }
+
+    /* ============================================================== */
+    /* PAINEL DE DIAGNÓSTICO (LABS ESTRUTURADOS & IMAGENS RX/TC)      */
+    /* ============================================================== */
+    .diag-nav-tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 2px solid var(--border-light);
+      padding-bottom: 4px;
+      margin-bottom: 8px;
     }
-    .obsidian-wikilink {
-      color: #7c3aed;
-      text-decoration: underline;
+    .diag-tab-btn {
+      flex: 1;
+      padding: 7px;
+      border: none;
+      background: #f1f5f9;
+      font-weight: 700;
+      font-size: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #475569;
+    }
+    .diag-tab-btn.active { background: #0d9488; color: #fff; }
+
+    /* TABELA COMPARATIVA DE EXAMES */
+    .lab-table-container {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+      margin-top: 8px;
+    }
+    .lab-comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+      text-align: left;
+    }
+    .lab-comp-table th, .lab-comp-table td {
+      padding: 6px 9px;
+      border: 1px solid #e2e8f0;
+      vertical-align: middle;
+    }
+    .lab-comp-table th {
+      background: #f8fafc;
+      color: #334155;
+      font-weight: 700;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .lab-comp-table th:first-child { text-align: left; width: 220px; min-width: 180px; }
+    .lab-comp-table th.col-date-highlight { background: #e0f2fe; color: #0369a1; }
+    .lab-category-row {
+      background: #f1f5f9;
+      font-weight: 800;
+      color: #0f766e;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+    .lab-val-cell {
+      text-align: center;
       font-weight: 600;
-      background: #faf5ff;
-      padding: 1px 4px;
+      min-width: 120px;
+    }
+    .lab-val-cell.has-val { background: #f0fdfa; color: #0f172a; }
+    
+    .lab-badge-text {
+      display: inline-block;
+      text-align: left;
+      font-size: 11px;
+      line-height: 1.35;
+      padding: 4px 6px;
+      border-radius: 4px;
+      word-break: break-word;
+      white-space: normal;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      width: 100%;
+    }
+    .lab-badge-pos { background: #fef2f2; border-color: #fca5a5; color: #991b1b; font-weight: 700; }
+    .lab-badge-neg { background: #f0fdf4; border-color: #86efac; color: #166534; font-weight: 600; }
+
+    .btn-del-col {
+      background: transparent;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 11px;
+      margin-left: 4px;
+      padding: 1px 3px;
       border-radius: 3px;
+    }
+    .btn-del-col:hover { background: #fee2e2; }
+
+    /* ÁREA DE IMAGENS (RX / TC) COM COMENTÁRIOS */
+    .drop-image-zone {
+      border: 2px dashed #0d9488;
+      border-radius: 8px;
+      padding: 18px 12px;
+      text-align: center;
+      background: #f0fdfa;
+      color: #0f766e;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .drop-image-zone:hover { background: #ccfbf1; }
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .image-card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .image-thumb {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      cursor: pointer;
+      background: #000;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .image-card-info {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 11px;
+    }
+    .image-comment-box {
+      width: 100%;
+      min-height: 48px;
+      max-height: 95px;
+      font-size: 10.5px;
+      padding: 4px 6px;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      resize: vertical;
+      font-family: inherit;
+      color: #334155;
+      background: #f8fafc;
+      line-height: 1.35;
+    }
+    .image-comment-box:focus { background: #fff; border-color: var(--primary); }
+    .image-del-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: rgba(239, 68, 68, 0.88);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .img-zoom-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.92);
+      z-index: 3000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 14px;
+      gap: 8px;
+    }
+    .img-zoom-modal img {
+      max-width: 95vw;
+      max-height: 72vh;
+      object-fit: contain;
+      border-radius: 4px;
+      transition: filter 0.2s;
+    }
+    .img-zoom-modal.negatoscopio img { filter: invert(100%) contrast(150%); }
+    .zoom-info-bar {
+      background: rgba(15, 23, 42, 0.9);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 6px;
+      max-width: 90vw;
+      width: 600px;
+      font-size: 12px;
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
 
     /* MODAL GITHUB */
@@ -846,19 +935,14 @@
         width: calc(100vw - 16px);
         height: calc(100vh - 80px);
       }
-
-      .obsidian-workspace.mode-split {
-        flex-direction: column;
-      }
+      .obsidian-workspace.mode-split { flex-direction: column; }
     }
 
-    /* ============================================================== */
-    /* IMPRESSÃO SELETIVA E COMPACTA                                  */
-    /* ============================================================== */
+    /* IMPRESSÃO SELETIVA E COMPACTA */
     @media print {
       header, .user-bar, .subtabs-container, .btn-action-group, .btn-new-patient, 
       .status-save, .tab-close, .modal-backdrop, .fab-container, .floating-popup, 
-      #archive-view, .btn-user-action, .cloud-status-badge, .print-dropdown-menu { 
+      #archive-view, .btn-user-action, .cloud-status-badge, .print-dropdown-menu, .img-zoom-modal { 
         display: none !important; 
       }
 
@@ -895,12 +979,7 @@
         break-after: auto !important;
       }
 
-      .container {
-        max-width: 100% !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
+      .container { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
 
       .patient-card, .category-card, .prontuario-card, .signature-card {
         border: 1px solid #64748b !important;
@@ -937,11 +1016,7 @@
         border: 1px solid #cbd5e1 !important;
       }
 
-      .input-group label {
-        font-size: 8pt !important;
-        color: #334155 !important;
-        font-weight: 700 !important;
-      }
+      .input-group label { font-size: 8pt !important; color: #334155 !important; font-weight: 700 !important; }
 
       input, select, textarea {
         border: none !important;
@@ -962,98 +1037,34 @@
         white-space: pre-wrap !important;
       }
 
-      .has-selected-meds .item-table tr:not(.row-selected) {
-        display: none !important;
-      }
-      .has-selected-meds .category-card:not(.has-selected) {
-        display: none !important;
-      }
+      .has-selected-meds .item-table tr:not(.row-selected) { display: none !important; }
+      .has-selected-meds .category-card:not(.has-selected) { display: none !important; }
 
-      .category-header {
-        padding: 4px 6px !important;
-        font-size: 9pt !important;
-        background: #f1f5f9 !important;
-        color: #000 !important;
-      }
+      .category-header { padding: 4px 6px !important; font-size: 9pt !important; background: #f1f5f9 !important; color: #000 !important; }
 
-      .item-table tr {
-        border-bottom: 1px solid #e2e8f0 !important;
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-      }
-      .item-table td {
-        padding: 3px 4px !important;
-      }
-      .cell-check {
-        width: 22px !important;
-      }
-      .cell-name {
-        width: 200px !important;
-        font-size: 9pt !important;
-        color: #000 !important;
-      }
-      .cell-desc {
-        font-size: 8.5pt !important;
-        color: #1e293b !important;
-      }
+      .item-table tr { border-bottom: 1px solid #e2e8f0 !important; page-break-inside: avoid !important; break-inside: avoid !important; }
+      .item-table td { padding: 3px 4px !important; }
+      .cell-check { width: 22px !important; }
+      .cell-name { width: 200px !important; font-size: 9pt !important; color: #000 !important; }
+      .cell-desc { font-size: 8.5pt !important; color: #1e293b !important; }
 
-      .med-check-single {
-        width: 15px !important;
-        height: 15px !important;
-        border: 1.5px solid #000 !important;
-      }
-      .med-check-single:checked {
-        background: #000 !important;
-      }
-      .med-check-single:checked::after {
-        color: #fff !important;
-        font-size: 11px !important;
-      }
+      .med-check-single { width: 15px !important; height: 15px !important; border: 1.5px solid #000 !important; }
+      .med-check-single:checked { background: #000 !important; }
+      .med-check-single:checked::after { color: #fff !important; font-size: 11px !important; }
 
-      .dose-calc-badge {
-        background: #f8fafc !important;
-        border: 1px solid #cbd5e1 !important;
-        color: #000 !important;
-        font-weight: 700 !important;
-        padding: 2px 4px !important;
-        font-size: 8.5pt !important;
-        margin-top: 2px !important;
-      }
+      .dose-calc-badge { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; color: #000 !important; font-weight: 700 !important; padding: 2px 4px !important; font-size: 8.5pt !important; margin-top: 2px !important; }
+      .dose-max-tag { border: 1px solid #991b1b !important; color: #991b1b !important; background: transparent !important; font-size: 7.5pt !important; padding: 0 3px !important; }
+      .holliday-box { display: none !important; }
 
-      .dose-max-tag {
-        border: 1px solid #991b1b !important;
-        color: #991b1b !important;
-        background: transparent !important;
-        font-size: 7.5pt !important;
-        padding: 0 3px !important;
-      }
-
-      .holliday-box {
-        display: none !important;
-      }
-
-      .prontuario-section-title {
-        font-size: 9.5pt !important;
-        margin: 8px 0 4px !important;
-        padding-bottom: 2px !important;
-        color: #000 !important;
-        border-bottom: 1.5px solid #cbd5e1 !important;
-      }
-
-      .signature-card {
-        padding: 10px 8px !important;
-        margin-top: 10px !important;
-      }
-      .signature-line {
-        border-top: 1px solid #000 !important;
-        font-size: 8.5pt !important;
-      }
+      .prontuario-section-title { font-size: 9.5pt !important; margin: 8px 0 4px !important; padding-bottom: 2px !important; color: #000 !important; border-bottom: 1.5px solid #cbd5e1 !important; }
+      .signature-card { padding: 10px 8px !important; margin-top: 10px !important; }
+      .signature-line { border-top: 1px solid #000 !important; font-size: 8.5pt !important; }
     }
   </style>
 </head>
 <body>
 
-  <!-- BARRA SUPERIOR DE SINCRONIZAÇÃO GITHUB -->
+  <!-- BARRA SUPERIOR GITHUB -->
   <div class="user-bar">
     <div class="user-info-text">
       <span>🩺 PedCare Pediátrico</span>
@@ -1078,7 +1089,6 @@
       <div class="btn-action-group">
         <button class="btn-new-patient" onclick="createNewPatient()">+ Novo Paciente</button>
         
-        <!-- SELETOR DE IMPRESSÃO COM MENU DROPDOWN -->
         <div class="print-dropdown-wrapper">
           <button class="btn-sm" onclick="togglePrintDropdown(event)" style="background:#38bdf8; color:#0f172a; font-weight:700; border:none; display:flex; align-items:center; gap:5px;">
             🖨️ Imprimir ▼
@@ -1223,11 +1233,8 @@
         </div>
       </div>
 
-      <!-- ============================================================== -->
-      <!-- BLOCO 1: PRESCRIÇÃO MÉDICA                                     -->
-      <!-- ============================================================== -->
+      <!-- BLOCO 1: PRESCRIÇÃO MÉDICA -->
       <div id="subview-presc">
-        
         <!-- 1. MONITORIZAÇÃO -->
         <div class="category-card">
           <div class="category-header">1. Monitorização & Cuidados Gerais</div>
@@ -1314,50 +1321,32 @@
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_dipi_ev" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Dipirona EV (500 mg/ml)</td>
-              <td class="cell-desc">
-                20 a 25 mg/kg/dose (0,04 a 0,05 ml/kg) diluído em SF 0,9% EV de 6/6h SN.
-                <span class="dose-calc-badge empty" id="calc-dipi-ev"></span>
-              </td>
+              <td class="cell-desc">20 a 25 mg/kg/dose (0,04 a 0,05 ml/kg) diluído em SF 0,9% EV de 6/6h SN.<span class="dose-calc-badge empty" id="calc-dipi-ev"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_dipi_gts" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Dipirona gotas (500 mg/ml)</td>
-              <td class="cell-desc">
-                1 gota/kg/dose VO de 6/6h SN.
-                <span class="dose-calc-badge empty" id="calc-dipi-gts"></span>
-              </td>
+              <td class="cell-desc">1 gota/kg/dose VO de 6/6h SN.<span class="dose-calc-badge empty" id="calc-dipi-gts"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_hidroxi" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Hidroxizina (2 mg/ml)</td>
-              <td class="cell-desc">
-                0,5 a 1 mg/kg/dose VO de 8/8h ou 12/12h SN.
-                <span class="dose-calc-badge empty" id="calc-hidroxi"></span>
-              </td>
+              <td class="cell-desc">0,5 a 1 mg/kg/dose VO de 8/8h ou 12/12h SN.<span class="dose-calc-badge empty" id="calc-hidroxi"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_ibu" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Ibuprofeno gotas (100 mg/ml)</td>
-              <td class="cell-desc">
-                1 gota/kg/dose (10 mg/kg/dose) VO de 8/8h.
-                <span class="dose-calc-badge empty" id="calc-ibu"></span>
-              </td>
+              <td class="cell-desc">1 gota/kg/dose (10 mg/kg/dose) VO de 8/8h.<span class="dose-calc-badge empty" id="calc-ibu"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_para" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Paracetamol gotas (200 mg/ml)</td>
-              <td class="cell-desc">
-                1 gota/kg/dose (10-15 mg/kg/dose) VO de 6/6h SN.
-                <span class="dose-calc-badge empty" id="calc-para"></span>
-              </td>
+              <td class="cell-desc">1 gota/kg/dose (10-15 mg/kg/dose) VO de 6/6h SN.<span class="dose-calc-badge empty" id="calc-para"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_tromet" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Trometamol Cetorolaco</td>
-              <td class="cell-desc">
-                0,5 mg/kg/dose EV ou VO de 8/8h (máx 48-72h).
-                <span class="dose-calc-badge empty" id="calc-tromet"></span>
-              </td>
+              <td class="cell-desc">0,5 mg/kg/dose EV ou VO de 8/8h (máx 48-72h).<span class="dose-calc-badge empty" id="calc-tromet"></span></td>
             </tr>
           </table>
         </div>
@@ -1369,66 +1358,42 @@
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_clister" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Clister / Enema pediátrico</td>
-              <td class="cell-desc">
-                2 a 3 ml/kg via retal ACM.
-                <span class="dose-calc-badge empty" id="calc-clister"></span>
-              </td>
+              <td class="cell-desc">2 a 3 ml/kg via retal ACM.<span class="dose-calc-badge empty" id="calc-clister"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_floratil" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Floratil (S. boulardii)</td>
-              <td class="cell-desc">
-                1 envelope/cápsula (100 a 250 mg) VO 12/12h.
-                <span class="dose-calc-badge empty" id="calc-floratil">Dose usual: 1 envelope VO 12/12h <span class="dose-max-tag">🛑 Dose Máx: 500 mg/dia</span></span>
-              </td>
+              <td class="cell-desc">1 envelope/cápsula (100 a 250 mg) VO 12/12h.<span class="dose-calc-badge empty" id="calc-floratil">Dose usual: 1 envelope VO 12/12h <span class="dose-max-tag">🛑 Dose Máx: 500 mg/dia</span></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_florax" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Florax flaconete (5 ml)</td>
-              <td class="cell-desc">
-                1 flaconete VO de 12/12h.
-                <span class="dose-calc-badge empty" id="calc-florax">Dose usual: 1 flaconete VO 12/12h <span class="dose-max-tag">🛑 Dose Máx: 2 flaconetes/dia</span></span>
-              </td>
+              <td class="cell-desc">1 flaconete VO de 12/12h.<span class="dose-calc-badge empty" id="calc-florax">Dose usual: 1 flaconete VO 12/12h <span class="dose-max-tag">🛑 Dose Máx: 2 flaconetes/dia</span></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_lactulona" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Lactulona (667 mg/ml)</td>
-              <td class="cell-desc">
-                1 ml/kg/dia VO dividido em 12/12h ou dose única.
-                <span class="dose-calc-badge empty" id="calc-lactulona"></span>
-              </td>
+              <td class="cell-desc">1 ml/kg/dia VO dividido em 12/12h ou dose única.<span class="dose-calc-badge empty" id="calc-lactulona"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_omeprazol" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Omeprazol</td>
-              <td class="cell-desc">
-                1 mg/kg/dia EV ou VO 1x/dia em jejum.
-                <span class="dose-calc-badge empty" id="calc-omeprazol"></span>
-              </td>
+              <td class="cell-desc">1 mg/kg/dia EV ou VO 1x/dia em jejum.<span class="dose-calc-badge empty" id="calc-omeprazol"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_ondans" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Ondansetrona</td>
-              <td class="cell-desc">
-                0,15 mg/kg/dose EV ou VO de 8/8h.
-                <span class="dose-calc-badge empty" id="calc-ondans"></span>
-              </td>
+              <td class="cell-desc">0,15 mg/kg/dose EV ou VO de 8/8h.<span class="dose-calc-badge empty" id="calc-ondans"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_peg" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Polietilenoglicol (PEG 4000)</td>
-              <td class="cell-desc">
-                Manutenção: 0,4 a 0,8 g/kg/dia | Desimpactação: 1 a 1,5 g/kg/dia VO.
-                <span class="dose-calc-badge empty" id="calc-peg"></span>
-              </td>
+              <td class="cell-desc">Manutenção: 0,4 a 0,8 g/kg/dia | Desimpactação: 1 a 1,5 g/kg/dia VO.<span class="dose-calc-badge empty" id="calc-peg"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_simet" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Simeticona gotas (75 mg/ml)</td>
-              <td class="cell-desc">
-                1 gota/kg VO de 8/8h.
-                <span class="dose-calc-badge empty" id="calc-simet"></span>
-              </td>
+              <td class="cell-desc">1 gota/kg VO de 8/8h.<span class="dose-calc-badge empty" id="calc-simet"></span></td>
             </tr>
           </table>
         </div>
@@ -1445,31 +1410,22 @@
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="glic_sg10" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">SG 10% (Hipoglicemia)</td>
-              <td class="cell-desc">
-                2 ml/kg EV em bolus se HGT &lt; 60 mg/dL (evitar G50% em pediatria).
-                <span class="dose-calc-badge empty" id="calc-sg10"></span>
-              </td>
+              <td class="cell-desc">2 ml/kg EV em bolus se HGT &lt; 60 mg/dL.<span class="dose-calc-badge empty" id="calc-sg10"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="glic_nph" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)" style="color:#0369a1;">Insulina NPH (3 Tomadas)</td>
-              <td class="cell-desc">
-                <strong>0,5 a 1,0 UI/kg/dia SC</strong> fracionada: <strong>1/2 manhã | 1/4 tarde | 1/4 noite</strong>.
-                <span class="dose-calc-badge empty" id="calc-nph" style="background:#e0f2fe; color:#0369a1; border-color:#7dd3fc;"></span>
-              </td>
+              <td class="cell-desc"><strong>0,5 a 1,0 UI/kg/dia SC</strong> fracionada: <strong>1/2 manhã | 1/4 tarde | 1/4 noite</strong>.<span class="dose-calc-badge empty" id="calc-nph"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="glic_glargina" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Insulina Glargina</td>
-              <td class="cell-desc">
-                0,2 a 0,4 UI/kg/dia SC 1x/dia sempre no mesmo horário.
-                <span class="dose-calc-badge empty" id="calc-glargina"></span>
-              </td>
+              <td class="cell-desc">0,2 a 0,4 UI/kg/dia SC 1x/dia.<span class="dose-calc-badge empty" id="calc-glargina"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="glic_regular_mapa" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Insulina Regular SC</td>
-              <td class="cell-desc">Correção de hiperglicemia conforme escala móvel abaixo pelo peso do paciente.</td>
+              <td class="cell-desc">Correção de hiperglicemia conforme escala móvel pelo peso do paciente.</td>
             </tr>
           </table>
 
@@ -1478,46 +1434,18 @@
               <thead>
                 <tr>
                   <th style="width:28%;">Glicemia Capilar (HGT)</th>
-                  <th>Faixa 1 (&lt; 15 kg)<br><span class="tier-badge">Lactente / Pré-escolar</span></th>
+                  <th>Faixa 1 (&lt; 15 kg)<br><span class="tier-badge">Lactente</span></th>
                   <th>Faixa 2 (15 a 30 kg)<br><span class="tier-badge">Escolar</span></th>
                   <th>Faixa 3 (&gt; 30 kg)<br><span class="tier-badge">Adolescente</span></th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>&lt; 70 mg/dL</td>
-                  <td colspan="3" style="color:var(--danger); font-weight:700; background:#fef2f2;">Hipoglicemia: SG 10% 2 ml/kg EV em bolus</td>
-                </tr>
-                <tr>
-                  <td>70 a 180 mg/dL</td>
-                  <td>0 UI</td>
-                  <td>0 UI</td>
-                  <td>0 UI</td>
-                </tr>
-                <tr>
-                  <td>181 a 240 mg/dL</td>
-                  <td><strong>0,5 UI SC</strong></td>
-                  <td><strong>1,0 UI SC</strong></td>
-                  <td><strong>2,0 UI SC</strong></td>
-                </tr>
-                <tr>
-                  <td>241 a 300 mg/dL</td>
-                  <td><strong>1,0 UI SC</strong></td>
-                  <td><strong>2,0 UI SC</strong></td>
-                  <td><strong>3,0 UI SC</strong></td>
-                </tr>
-                <tr>
-                  <td>301 a 350 mg/dL</td>
-                  <td><strong>1,5 UI SC</strong></td>
-                  <td><strong>3,0 UI SC</strong></td>
-                  <td><strong>4,0 UI SC</strong></td>
-                </tr>
-                <tr>
-                  <td>&gt; 350 mg/dL</td>
-                  <td><strong>2,0 UI SC</strong> + avisar médico</td>
-                  <td><strong>4,0 UI SC</strong> + avisar médico</td>
-                  <td><strong>5,0 UI SC</strong> + avisar médico</td>
-                </tr>
+                <tr><td>&lt; 70 mg/dL</td><td colspan="3" style="color:var(--danger); font-weight:700; background:#fef2f2;">SG 10% 2 ml/kg EV em bolus</td></tr>
+                <tr><td>70 a 180 mg/dL</td><td>0 UI</td><td>0 UI</td><td>0 UI</td></tr>
+                <tr><td>181 a 240 mg/dL</td><td><strong>0,5 UI SC</strong></td><td><strong>1,0 UI SC</strong></td><td><strong>2,0 UI SC</strong></td></tr>
+                <tr><td>241 a 300 mg/dL</td><td><strong>1,0 UI SC</strong></td><td><strong>2,0 UI SC</strong></td><td><strong>3,0 UI SC</strong></td></tr>
+                <tr><td>301 a 350 mg/dL</td><td><strong>1,5 UI SC</strong></td><td><strong>3,0 UI SC</strong></td><td><strong>4,0 UI SC</strong></td></tr>
+                <tr><td>&gt; 350 mg/dL</td><td><strong>2,0 UI SC</strong> + avisar</td><td><strong>4,0 UI SC</strong> + avisar</td><td><strong>5,0 UI SC</strong> + avisar</td></tr>
               </tbody>
             </table>
           </div>
@@ -1530,58 +1458,37 @@
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_amica" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Amicacina</td>
-              <td class="cell-desc">
-                15 mg/kg/dia EV ou IM (1x/dia ou fracionada de 12/12h).
-                <span class="dose-calc-badge empty" id="calc-amica"></span>
-              </td>
+              <td class="cell-desc">15 mg/kg/dia EV ou IM (1x/dia ou fracionada de 12/12h).<span class="dose-calc-badge empty" id="calc-amica"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_amox_clav" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Amoxicilina + Clavulanato</td>
-              <td class="cell-desc">
-                50 a 90 mg/kg/dia (base amoxicilina) VO de 8/8h ou 12/12h.
-                <span class="dose-calc-badge empty" id="calc-amoxclav"></span>
-              </td>
+              <td class="cell-desc">50 a 90 mg/kg/dia (base amoxicilina) VO de 8/8h ou 12/12h.<span class="dose-calc-badge empty" id="calc-amoxclav"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_penic_crist" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Benzilpenicilina Cristalina</td>
-              <td class="cell-desc">
-                100.000 a 200.000 UI/kg/dia EV fracionada de 4/4h ou 6/6h.
-                <span class="dose-calc-penic empty" id="calc-penic"></span>
-              </td>
+              <td class="cell-desc">100.000 a 200.000 UI/kg/dia EV fracionada de 4/4h ou 6/6h.<span class="dose-calc-penic empty" id="calc-penic"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_cefepime" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Cefepime</td>
-              <td class="cell-desc">
-                100 a 150 mg/kg/dia EV fracionada de 8/8h.
-                <span class="dose-calc-badge empty" id="calc-cefepime"></span>
-              </td>
+              <td class="cell-desc">100 a 150 mg/kg/dia EV fracionada de 8/8h.<span class="dose-calc-badge empty" id="calc-cefepime"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_ceftriax" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Ceftriaxona</td>
-              <td class="cell-desc">
-                50 a 100 mg/kg/dia EV (1x/dia ou fracionada de 12/12h).
-                <span class="dose-calc-badge empty" id="calc-ceftriax"></span>
-              </td>
+              <td class="cell-desc">50 a 100 mg/kg/dia EV (1x/dia ou fracionada de 12/12h).<span class="dose-calc-badge empty" id="calc-ceftriax"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_clinda" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Clindamicina</td>
-              <td class="cell-desc">
-                20 a 40 mg/kg/dia EV fracionada de 6/6h.
-                <span class="dose-calc-badge empty" id="calc-clinda"></span>
-              </td>
+              <td class="cell-desc">20 a 40 mg/kg/dia EV fracionada de 6/6h.<span class="dose-calc-badge empty" id="calc-clinda"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_mero" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Meropenem</td>
-              <td class="cell-desc">
-                60 a 120 mg/kg/dia EV fracionada de 8/8h.
-                <span class="dose-calc-badge empty" id="calc-mero"></span>
-              </td>
+              <td class="cell-desc">60 a 120 mg/kg/dia EV fracionada de 8/8h.<span class="dose-calc-badge empty" id="calc-mero"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_neom_pom" onchange="toggleMedication(this)"></td>
@@ -1591,34 +1498,22 @@
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_neom_vo" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Neomicina VO</td>
-              <td class="cell-desc">
-                50 a 100 mg/kg/dia VO fracionada de 6/6h.
-                <span class="dose-calc-badge empty" id="calc-neom-vo"></span>
-              </td>
+              <td class="cell-desc">50 a 100 mg/kg/dia VO fracionada de 6/6h.<span class="dose-calc-badge empty" id="calc-neom-vo"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_oxacilina" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Oxacilina</td>
-              <td class="cell-desc">
-                100 a 200 mg/kg/dia EV fracionada de 6/6h.
-                <span class="dose-calc-badge empty" id="calc-oxacilina"></span>
-              </td>
+              <td class="cell-desc">100 a 200 mg/kg/dia EV fracionada de 6/6h.<span class="dose-calc-badge empty" id="calc-oxacilina"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_piptazo" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Piperacilina + Tazobactam</td>
-              <td class="cell-desc">
-                240 a 300 mg/kg/dia EV fracionada de 6/6h ou 8/8h.
-                <span class="dose-calc-badge empty" id="calc-piptazo"></span>
-              </td>
+              <td class="cell-desc">240 a 300 mg/kg/dia EV fracionada de 6/6h ou 8/8h.<span class="dose-calc-badge empty" id="calc-piptazo"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_vanco" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Vancomicina</td>
-              <td class="cell-desc">
-                40 a 60 mg/kg/dia EV fracionada de 6/6h (infusão em 60 min).
-                <span class="dose-calc-badge empty" id="calc-vanco"></span>
-              </td>
+              <td class="cell-desc">40 a 60 mg/kg/dia EV fracionada de 6/6h (infusão em 60 min).<span class="dose-calc-badge empty" id="calc-vanco"></span></td>
             </tr>
           </table>
         </div>
@@ -1630,12 +1525,12 @@
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_atrovent" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Atrovent (Ipratrópio 0,25 mg/ml)</td>
-              <td class="cell-desc">&lt; 1 ano: 10 gotas | &gt; 1 ano: 20 gotas + 3 ml SF 0,9% NBZ. <span class="dose-max-tag">🛑 Dose Máx: 20 gotas (250 mcg)</span></td>
+              <td class="cell-desc">&lt; 1 ano: 10 gotas | &gt; 1 ano: 20 gotas + 3 ml SF 0,9% NBZ. <span class="dose-max-tag">🛑 Dose Máx: 20 gotas</span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_clenil_a" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Clenil A (Flaconete p/ NBZ)</td>
-              <td class="cell-desc">1/2 a 1 flaconete + 2 a 3 ml SF 0,9% via nebulização de 12/12h. <span class="dose-max-tag">🛑 Dose Máx: 1 flaconete 12/12h</span></td>
+              <td class="cell-desc">1/2 a 1 flaconete + 2 a 3 ml SF 0,9% via nebulização de 12/12h. <span class="dose-max-tag">🛑 Dose Máx: 1 flaconete</span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_clenil_hfa" onchange="toggleMedication(this)"></td>
@@ -1645,39 +1540,27 @@
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_dexa" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Dexametasona</td>
-              <td class="cell-desc">
-                0,15 a 0,3 mg/kg/dose EV ou VO de 12/12h.
-                <span class="dose-calc-badge empty" id="calc-dexa"></span>
-              </td>
+              <td class="cell-desc">0,15 a 0,3 mg/kg/dose EV ou VO de 12/12h.<span class="dose-calc-badge empty" id="calc-dexa"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_hidro" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Hidrocortisona EV</td>
-              <td class="cell-desc">
-                Ataque: 5 a 10 mg/kg EV | Manutenção: 5 mg/kg/dia de 6/6h.
-                <span class="dose-calc-badge empty" id="calc-hidro"></span>
-              </td>
+              <td class="cell-desc">Ataque: 5 a 10 mg/kg EV | Manutenção: 5 mg/kg/dia de 6/6h.<span class="dose-calc-badge empty" id="calc-hidro"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_predni" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Prednisolona sol. oral (3 mg/ml)</td>
-              <td class="cell-desc">
-                1 a 2 mg/kg/dia VO 1x/dia pela manhã.
-                <span class="dose-calc-badge empty" id="calc-predni"></span>
-              </td>
+              <td class="cell-desc">1 a 2 mg/kg/dia VO 1x/dia pela manhã.<span class="dose-calc-badge empty" id="calc-predni"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_salbu_nbz" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Salbutamol NBZ (5 mg/ml)</td>
-              <td class="cell-desc">
-                1 gota / 3 kg (mínimo 5 gotas) + 3 ml SF 0,9%.
-                <span class="dose-calc-badge empty" id="calc-salbu-nbz"></span>
-              </td>
+              <td class="cell-desc">1 gota / 3 kg (mínimo 5 gotas) + 3 ml SF 0,9%.<span class="dose-calc-badge empty" id="calc-salbu-nbz"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_salbu_spray" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Salbutamol spray (100 mcg)</td>
-              <td class="cell-desc">2 a 4 puffs com espaçador valvulado facial SN. <span class="dose-max-tag">🛑 Dose Máx: 8-10 puffs em crise</span></td>
+              <td class="cell-desc">2 a 4 puffs com espaçador valvulado facial SN. <span class="dose-max-tag">🛑 Dose Máx: 8-10 puffs</span></td>
             </tr>
           </table>
         </div>
@@ -1689,82 +1572,52 @@
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_valpro" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Ácido Valproico / Divalproato</td>
-              <td class="cell-desc">
-                Início: 10 a 15 mg/kg/dia | Manutenção: 20 a 40 mg/kg/dia VO.
-                <span class="dose-calc-badge empty" id="calc-valpro"></span>
-              </td>
+              <td class="cell-desc">Início: 10 a 15 mg/kg/dia | Manutenção: 20 a 40 mg/kg/dia VO.<span class="dose-calc-badge empty" id="calc-valpro"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_carba" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Carbamazepina</td>
-              <td class="cell-desc">
-                Início: 5 a 10 mg/kg/dia | Manutenção: 10 a 20 mg/kg/dia VO.
-                <span class="dose-calc-badge empty" id="calc-carba"></span>
-              </td>
+              <td class="cell-desc">Início: 5 a 10 mg/kg/dia | Manutenção: 10 a 20 mg/kg/dia VO.<span class="dose-calc-badge empty" id="calc-carba"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_cloba" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Clobazam</td>
-              <td class="cell-desc">
-                Início: 0,2 a 0,5 mg/kg/dia | Manutenção: até 0,5 a 1 mg/kg/dia VO.
-                <span class="dose-calc-badge empty" id="calc-cloba"></span>
-              </td>
+              <td class="cell-desc">Início: 0,2 a 0,5 mg/kg/dia | Manutenção: até 0,5 a 1 mg/kg/dia VO.<span class="dose-calc-badge empty" id="calc-cloba"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_escet" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Escetamina</td>
-              <td class="cell-desc">
-                EV lento: 0,5 a 1 mg/kg/dose | IM: 2 a 3 mg/kg/dose.
-                <span class="dose-calc-badge empty" id="calc-escet"></span>
-              </td>
+              <td class="cell-desc">EV lento: 0,5 a 1 mg/kg/dose | IM: 2 a 3 mg/kg/dose.<span class="dose-calc-badge empty" id="calc-escet"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_feni" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Fenitoína</td>
-              <td class="cell-desc">
-                Ataque: 15 a 20 mg/kg EV em SF 0,9% em 20 min | Manutenção: 5 a 8 mg/kg/dia.
-                <span class="dose-calc-badge empty" id="calc-feni"></span>
-              </td>
+              <td class="cell-desc">Ataque: 15 a 20 mg/kg EV em SF 0,9% em 20 min | Manutenção: 5 a 8 mg/kg/dia.<span class="dose-calc-badge empty" id="calc-feni"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_fenob" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Fenobarbital</td>
-              <td class="cell-desc">
-                Ataque: 15 a 20 mg/kg EV lento (1 mg/kg/min) | Manutenção: 3 a 5 mg/kg/dia.
-                <span class="dose-calc-badge empty" id="calc-fenob"></span>
-              </td>
+              <td class="cell-desc">Ataque: 15 a 20 mg/kg EV lento (1 mg/kg/min) | Manutenção: 3 a 5 mg/kg/dia.<span class="dose-calc-badge empty" id="calc-fenob"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_gaba" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Gabapentina</td>
-              <td class="cell-desc">
-                Início: 10 a 15 mg/kg/dia | Manutenção: 20 a 40 mg/kg/dia VO.
-                <span class="dose-calc-badge empty" id="calc-gaba"></span>
-              </td>
+              <td class="cell-desc">Início: 10 a 15 mg/kg/dia | Manutenção: 20 a 40 mg/kg/dia VO.<span class="dose-calc-badge empty" id="calc-gaba"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_levet" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Levetiracetam</td>
-              <td class="cell-desc">
-                Início: 20 a 30 mg/kg/dia | Titulação: 40 a 60 mg/kg/dia | Ataque: 40 a 60 mg/kg.
-                <span class="dose-calc-badge empty" id="calc-levet"></span>
-              </td>
+              <td class="cell-desc">Início: 20 a 30 mg/kg/dia | Titulação: 40 a 60 mg/kg/dia | Ataque: 40 a 60 mg/kg.<span class="dose-calc-badge empty" id="calc-levet"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_mida" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Midazolam</td>
-              <td class="cell-desc">
-                Sedação: 0,1 a 0,2 mg/kg EV | Crise: 0,2 mg/kg EV ou 0,3 mg/kg nasal.
-                <span class="dose-calc-badge empty" id="calc-mida"></span>
-              </td>
+              <td class="cell-desc">Sedação: 0,1 a 0,2 mg/kg EV | Crise: 0,2 mg/kg EV ou 0,3 mg/kg nasal.<span class="dose-calc-badge empty" id="calc-mida"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_risper" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Risperidona</td>
-              <td class="cell-desc">
-                &lt; 20 kg: iniciar 0,25 mg VO à noite | &ge; 20 kg: iniciar 0,5 mg VO à noite.
-                <span class="dose-calc-badge empty" id="calc-risper"></span>
-              </td>
+              <td class="cell-desc">&lt; 20 kg: iniciar 0,25 mg VO à noite | &ge; 20 kg: iniciar 0,5 mg VO à noite.<span class="dose-calc-badge empty" id="calc-risper"></span></td>
             </tr>
           </table>
         </div>
@@ -1776,55 +1629,36 @@
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="hemo_adrena" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Adrenalina BIC</td>
-              <td class="cell-desc">
-                0,05 a 1 mcg/kg/min contínua em acesso exclusivo.
-                <span class="dose-calc-badge empty" id="calc-adrena"></span>
-              </td>
+              <td class="cell-desc">0,05 a 1 mcg/kg/min contínua em acesso exclusivo.<span class="dose-calc-badge empty" id="calc-adrena"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="hemo_capto" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Captopril</td>
-              <td class="cell-desc">
-                0,1 a 0,3 mg/kg/dose VO SN se PA &gt; P95 + 12 mmHg.
-                <span class="dose-calc-badge empty" id="calc-capto"></span>
-              </td>
+              <td class="cell-desc">0,1 a 0,3 mg/kg/dose VO SN se PA &gt; P95 + 12 mmHg.<span class="dose-calc-badge empty" id="calc-capto"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="hemo_furo" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Furosemida</td>
-              <td class="cell-desc">
-                1 mg/kg/dose EV ou VO de 12/12h ou 24/24h.
-                <span class="dose-calc-badge empty" id="calc-furo"></span>
-              </td>
+              <td class="cell-desc">1 mg/kg/dose EV ou VO de 12/12h ou 24/24h.<span class="dose-calc-badge empty" id="calc-furo"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="hemo_hidrala" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Hidralazina</td>
-              <td class="cell-desc">
-                0,1 a 0,2 mg/kg/dose EV lento SN se Urgência Hipertensiva.
-                <span class="dose-calc-badge empty" id="calc-hidrala"></span>
-              </td>
+              <td class="cell-desc">0,1 a 0,2 mg/kg/dose EV lento SN se Urgência Hipertensiva.<span class="dose-calc-badge empty" id="calc-hidrala"></span></td>
             </tr>
             <tr>
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="hemo_nora" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Noradrenalina BIC</td>
-              <td class="cell-desc">
-                0,05 a 1 mcg/kg/min contínua em acesso venoso central.
-                <span class="dose-calc-badge empty" id="calc-nora"></span>
-              </td>
+              <td class="cell-desc">0,05 a 1 mcg/kg/min contínua em acesso venoso central.<span class="dose-calc-badge empty" id="calc-nora"></span></td>
             </tr>
           </table>
         </div>
-
       </div>
 
-      <!-- ============================================================== -->
-      <!-- BLOCO 2: PRONTUÁRIO & FICHA CLÍNICA (EVOLUÇÃO E EXAMES)        -->
-      <!-- ============================================================== -->
+      <!-- BLOCO 2: PRONTUÁRIO & FICHA CLÍNICA -->
       <div id="subview-pront" style="display:none;">
         <div class="prontuario-card">
           <div class="prontuario-section-title">Dados Clínicos & Motivo da Internação</div>
-          
           <div class="grid-2" style="margin-bottom:10px;">
             <div class="input-group">
               <label>Motivo da Internação</label>
@@ -1841,14 +1675,14 @@
             <textarea id="pront-history" rows="4" placeholder="História da doença atual, antecedentes mórbidos, imunizações..." oninput="updateProntuarioField('clinicalHistory', this.value)"></textarea>
           </div>
 
-          <div class="prontuario-section-title">Exames Laboratoriais & Imagem</div>
+          <div class="prontuario-section-title">Exames Laboratoriais & Imagem (Resumo Geral)</div>
           <div class="input-group">
-            <textarea id="pront-exames" rows="4" placeholder="Hemograma, PCR, Gasometria, RX, Tomografias..." oninput="updateProntuarioField('labExams', this.value)"></textarea>
+            <textarea id="pront-exames" rows="3" placeholder="Resumo geral de exames, culturas pendentes..." oninput="updateProntuarioField('labExams', this.value)"></textarea>
           </div>
         </div>
       </div>
 
-      <!-- ASSINATURAS (IMPRESSAS NO FINAL DA PRESCRIÇÃO E/OU FICHA) -->
+      <!-- ASSINATURAS -->
       <div class="signature-card">
         <div class="signature-line">Enfermagem / Checagem</div>
         <div class="signature-line">Médico(a) Assistente / CRM</div>
@@ -1859,6 +1693,10 @@
 
   <!-- BOTÕES FLUTUANTES (FABs) -->
   <div class="fab-container">
+    <button class="fab-btn fab-diagnostics" onclick="togglePopup('popup-diagnostics')" title="Painel de Exames (Labs & Imagem)">
+      🔬
+      <span class="fab-label">Exames & Imagens</span>
+    </button>
     <button class="fab-btn fab-patient-notes" onclick="togglePopup('popup-patient-notes')" title="Notas do Paciente Atual">
       📌
       <span class="fab-label">Notas do Paciente</span>
@@ -1869,12 +1707,86 @@
     </button>
   </div>
 
+  <!-- POPUP: PAINEL DE DIAGNÓSTICO (UNIVERSAL DE LABS & CULTURAS + IMAGEM) -->
+  <div class="floating-popup" id="popup-diagnostics">
+    <div class="popup-header popup-header-diag">
+      <div class="popup-title">
+        <span>🔬 Exames Laboratoriais, Culturas & Imagem</span>
+      </div>
+      <button class="popup-close-btn" onclick="togglePopup('popup-diagnostics')">&times;</button>
+    </div>
+    <div class="popup-body">
+      
+      <div class="diag-nav-tabs">
+        <button class="diag-tab-btn active" id="btn-diag-lab" onclick="switchDiagTab('lab')">🧪 Laboratório & Culturas</button>
+        <button class="diag-tab-btn" id="btn-diag-img" onclick="switchDiagTab('img')">🩻 Imagens & Laudos</button>
+      </div>
+
+      <!-- ABA 1: LABORATÓRIO UNIVERSAL -->
+      <div id="diag-view-lab" style="display:flex; flex-direction:column; gap:8px;">
+        <div style="font-size:11.5px; color:var(--text-muted);">
+          Cole o texto do hemograma, bioquímica ou culturas abaixo e clique em <strong>Processar</strong>:
+        </div>
+
+        <textarea id="raw-lab-input" rows="3" style="width:100%; font-family:monospace; font-size:12px; border:1px solid var(--border); border-radius:6px; padding:6px 8px;" placeholder="Ex: LAB 26/10: HEM 4.8 // HB 14,2 // HT 42,1 // VCM 88 // HCM 29,5 // CHCM 33,5 // RDW 12,8% // LEU 7.850 // BAST 3% // NEUT 62% // EOS 2% // BAS 1% // LINF 28% // MON 4% // PLAQ 248.000 // VPM 9,8 // URE 32 // CR 0,9 // UROCULTURA: E. coli > 100.000 UFC/ml (Sensível a Amica)..."></textarea>
+
+        <div style="display:flex; gap:6px; justify-content:space-between; align-items:center;">
+          <button class="btn-sm" onclick="parseAndAddLab()" style="background:#0d9488; color:#fff; font-weight:700; border:none; padding:7px 14px;">
+            ⚡ Processar & Adicionar à Tabela
+          </button>
+          <button class="btn-sm btn-danger" onclick="clearLabHistory()" title="Limpar histórico de exames deste paciente">
+            🗑️ Limpar Labs
+          </button>
+        </div>
+
+        <div class="lab-table-container" id="lab-table-container">
+          <div style="padding:16px; text-align:center; color:var(--text-muted); font-size:12px;">
+            Nenhum exame processado ainda. Cole os dados acima e clique em <strong>Processar</strong>!
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA 2: IMAGENS (RX / TC / USG) COM COMENTÁRIOS E LAUDOS -->
+      <div id="diag-view-img" style="display:none; flex-direction:column; gap:8px;">
+        <div style="font-size:11.5px; color:var(--text-muted);">
+          Cole imagens de raio-X ou tomografia com <strong>Ctrl+V</strong> ou selecione o arquivo. Cada imagem conta com seu próprio campo de laudo/comentários clínicos:
+        </div>
+
+        <div class="drop-image-zone" id="drop-image-zone" onclick="document.getElementById('img-file-input').click()">
+          <span style="font-size:24px;">🩻</span><br>
+          <strong>Clique para selecionar ou dê Ctrl+V aqui</strong><br>
+          <span style="font-size:11px; color:#64748b;">Suporta Radiografia (RX), Tomografia (TC) e Ultrassom</span>
+          <input type="file" id="img-file-input" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+        </div>
+
+        <div class="image-grid" id="image-grid-container"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL DE ZOOM COM NEGATOSCÓPIO E LAUDO EM TELA CHEIA -->
+  <div class="img-zoom-modal" id="img-zoom-modal" onclick="closeImgZoom(event)">
+    <div style="display:flex; gap:8px; z-index:10;">
+      <button class="btn-sm" style="background:#334155; color:#fff; border:none;" onclick="toggleNegatoscopio(event)">🌓 Modo Negatoscópio (Inverter)</button>
+      <button class="btn-sm btn-danger" onclick="closeImgZoomDirect()">✕ Fechar</button>
+    </div>
+    
+    <img id="zoom-img-target" src="" alt="Exame Ampliado">
+    
+    <div class="zoom-info-bar" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <strong id="zoom-title" style="font-size:13px; color:#38bdf8;">RX Tórax</strong>
+        <span style="font-size:11px; color:#94a3b8;">Laudo / Anotações do exame:</span>
+      </div>
+      <textarea id="zoom-comment" class="image-comment-box" style="width:100%; min-height:48px; background:#1e293b; color:#f8fafc; border:1px solid #334155;" placeholder="Digite o laudo ou observações desta imagem..." oninput="updateImageComment(this.dataset.imgId, this.value)"></textarea>
+    </div>
+  </div>
+
   <!-- POPUP 1: NOTAS DO PACIENTE -->
   <div class="floating-popup" id="popup-patient-notes">
     <div class="popup-header popup-header-patient">
-      <div class="popup-title">
-        <span>📌 Notas Particulares do Paciente</span>
-      </div>
+      <div class="popup-title"><span>📌 Notas Particulares do Paciente</span></div>
       <button class="popup-close-btn" onclick="togglePopup('popup-patient-notes')">&times;</button>
     </div>
     <div class="popup-body">
@@ -1887,17 +1799,14 @@
     </div>
   </div>
 
-  <!-- POPUP 2: CADERNO CLÍNICO OBSIDIAN (AUTO-CONVERSÃO, H1-H5 E HIERARQUIA TAB) -->
+  <!-- POPUP 2: CADERNO CLÍNICO OBSIDIAN -->
   <div class="floating-popup" id="popup-obsidian">
     <div class="popup-header popup-header-obsidian">
-      <div class="popup-title">
-        <span>🟣 Caderno Clínico Obsidian</span>
-      </div>
+      <div class="popup-title"><span>🟣 Caderno Clínico Obsidian</span></div>
       <button class="popup-close-btn" onclick="togglePopup('popup-obsidian')">&times;</button>
     </div>
     <div class="popup-body">
       <div class="obsidian-layout">
-        <!-- BARRA DE PASTAS E NOTAS -->
         <div class="obsidian-nav-bar">
           <select id="obs-folder-select" class="folder-select" onchange="onFolderSelectChange(this.value)"></select>
           <button class="obs-btn" onclick="createFolderPrompt()" title="Criar Nova Pasta">📁+ Pasta</button>
@@ -1907,7 +1816,6 @@
           <button class="obs-btn btn-danger" onclick="deleteCurrentNote()" title="Excluir Nota Atual">🗑️</button>
         </div>
 
-        <!-- CONTROLE DE MODOS: LEITURA AUTO, LIVE SPLIT E EDITOR -->
         <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap;">
           <input type="text" id="obs-note-title" placeholder="Título da Nota..." style="font-weight:700; font-size:13.5px; border:1px solid var(--border); border-radius:4px; padding:4px 8px; flex:1; min-width:140px;" oninput="onNoteTitleInput(this.value)">
           <div style="display:inline-flex; gap:2px; background:#e2e8f0; padding:2px; border-radius:6px;">
@@ -1917,10 +1825,7 @@
           </div>
         </div>
 
-        <!-- ESPAÇO DE TRABALHO FLEXÍVEL -->
         <div class="obsidian-workspace mode-read" id="obs-workspace">
-          
-          <!-- EDITOR COM TOOLBAR COMPLETA (H1 ATÉ H5 + PONTOS) -->
           <div id="obs-editor-view" style="display:flex; flex-direction:column; flex:1;">
             <div class="obsidian-toolbar">
               <button class="obs-btn" type="button" onclick="insertObsidianMd('# ')" title="Header 1">H1</button>
@@ -1936,13 +1841,11 @@
               <button class="obs-btn" type="button" onclick="insertObsidianMd('> [!warning]\n> ')">⚠️ Alerta</button>
               <button class="obs-btn" type="button" onclick="insertObsidianMd('#tag')">#tag</button>
             </div>
-            <textarea id="obs-note-content" style="flex:1; min-height:220px; font-family:monospace; font-size:12.5px; line-height:1.5; border-radius:0 0 6px 6px;" placeholder="Digite anotações clínicas em Markdown... (Pressione Tab e Shift+Tab nas listas para criar hierarquia)" onkeydown="handleNoteKeyDown(event)" oninput="onNoteContentInput(this.value)"></textarea>
+            <textarea id="obs-note-content" style="flex:1; min-height:220px; font-family:monospace; font-size:12.5px; line-height:1.5; border-radius:0 0 6px 6px;" placeholder="Digite anotações em Markdown..." onkeydown="handleNoteKeyDown(event)" oninput="onNoteContentInput(this.value)"></textarea>
           </div>
 
-          <!-- MODO LEITURA / PREVIEW FORMATADO AUTOMÁTICO EM MARKDOWN -->
           <div id="obs-reading-view" class="obsidian-preview"></div>
         </div>
-
       </div>
     </div>
   </div>
@@ -1955,7 +1858,7 @@
       
       <div id="gh-setup-section">
         <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">
-          Conecte seu token do GitHub para sincronizar todos os pacientes e o <strong>Caderno Obsidian</strong> entre aparelhos:
+          Conecte seu token do GitHub para sincronizar todos os pacientes, exames, imagens e o <strong>Caderno Obsidian</strong>:
         </p>
 
         <ol style="font-size:11.5px; color:#334155; margin-left:18px; margin-bottom:14px; line-height:1.5;">
@@ -1977,9 +1880,7 @@
       <div id="gh-active-section" style="display:none;">
         <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:6px; margin-bottom:12px;">
           <strong style="color:#166534; font-size:12px;">✓ Conectado à Nuvem do GitHub</strong>
-          <p style="font-size:11px; color:#14532d; margin-top:4px;">
-            Seus pacientes e todo o caderno Obsidian estão sincronizados.
-          </p>
+          <p style="font-size:11px; color:#14532d; margin-top:4px;">Seus dados clínicos e exames estão sincronizados.</p>
         </div>
 
         <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:14px;">
@@ -2008,7 +1909,164 @@
     let currentSubTab = 'presc';
     let syncTimeout = null;
     let selectedPrintMode = 'all';
-    let currentObsidianMode = 'read'; // 'read', 'split', 'edit'
+    let currentObsidianMode = 'read';
+    let currentDiagTab = 'lab';
+
+    /* ============================================================== */
+    /* ESTRUTURAÇÃO DO HEMOGRAMA COMPLETO E DEMAIS PAINÉIS CLÍNICOS   */
+    /* ============================================================== */
+    const STANDARD_LAB_PANELS = [
+      {
+        name: "🔴 1. ERITROGRAMA — Série Vermelha",
+        tests: [
+          { key: "HEM", label: "Hemácias (HEM)" },
+          { key: "HB", label: "Hemoglobina (HB)" },
+          { key: "HT", label: "Hematócrito (HT)" },
+          { key: "VCM", label: "Volume Corpuscular Médio (VCM)" },
+          { key: "HCM", label: "Hemoglobina Corpuscular Média (HCM)" },
+          { key: "CHCM", label: "Concentração de Hb Corpuscular Média (CHCM)" },
+          { key: "RDW", label: "Índice de Anisocitose (RDW)" }
+        ]
+      },
+      {
+        name: "⚪ 2. LEUCOGRAMA — Série Branca",
+        tests: [
+          { key: "LEU", label: "Leucócitos Totais (LEUCO)" },
+          { key: "BAST", label: "Bastonetes" },
+          { key: "NEUT", label: "Neutrófilos Segmentados (NEUT)" },
+          { key: "EOS", label: "Eosinófilos (EOS)" },
+          { key: "BAS", label: "Basófilos (BASO)" },
+          { key: "LINF", label: "Linfócitos (LINF)" },
+          { key: "MON", label: "Monócitos (MONO)" }
+        ]
+      },
+      {
+        name: "🩹 3. PLAQUETOGRAMA — Série Plaquetária",
+        tests: [
+          { key: "PLAQ", label: "Plaquetas (PLAQ)" },
+          { key: "VPM", label: "Volume Plaquetário Médio (VPM)" },
+          { key: "PDW", label: "PDW" },
+          { key: "PCT_PLAQ", label: "Plaquetócrito (PCT)" }
+        ]
+      },
+      {
+        name: "💧 Função Renal & Eletrólitos",
+        tests: [
+          { key: "URE", label: "Ureia" },
+          { key: "CR", label: "Creatinina" },
+          { key: "NA", label: "Sódio (Na)" },
+          { key: "K", label: "Potássio (K)" },
+          { key: "CA", label: "Cálcio Iônico" },
+          { key: "MG", label: "Magnésio" }
+        ]
+      },
+      {
+        name: "🫁 Gasometria & Ácido-Básico",
+        tests: [
+          { key: "PH", label: "pH" },
+          { key: "PCO2", label: "pCO2" },
+          { key: "PO2", label: "pO2" },
+          { key: "HCO3", label: "Bicarbonato (HCO3)" },
+          { key: "BE", label: "Base Excess (BE)" },
+          { key: "LACT", label: "Lactato" }
+        ]
+      },
+      {
+        name: "🧪 Função Hepática & Enzimas",
+        tests: [
+          { key: "TGO", label: "TGO (AST)" },
+          { key: "TGP", label: "TGP (ALT)" },
+          { key: "FA", label: "Fosfatase Alcalina" },
+          { key: "GGT", label: "Gama-GT" },
+          { key: "BT", label: "Bilirrubina Total" },
+          { key: "BD", label: "Bilirrubina Direta" },
+          { key: "BI", label: "Bilirrubina Indireta" },
+          { key: "ALB", label: "Albumina" }
+        ]
+      },
+      {
+        name: "🧬 Inflamatório & Metabólico",
+        tests: [
+          { key: "PCR", label: "Proteína C Reativa (PCR)" },
+          { key: "GLI", label: "Glicemia" },
+          { key: "PCT", label: "Procalcitonina" },
+          { key: "FERRITINA", label: "Ferritina" }
+        ]
+      },
+      {
+        name: "⏱️ Coagulação",
+        tests: [
+          { key: "TP", label: "TP" },
+          { key: "INR", label: "INR" },
+          { key: "TTPA", label: "TTPA" }
+        ]
+      },
+      {
+        name: "🧫 Microbiologia & Culturas",
+        tests: []
+      },
+      {
+        name: "🔬 Urinálise & Fluidos Biológicos",
+        tests: []
+      },
+      {
+        name: "🦠 Sorologias & Testes Rápidos",
+        tests: []
+      },
+      {
+        name: "🩺 Hormônios & Endócrino",
+        tests: []
+      },
+      {
+        name: "🫀 Perfil Lipídico",
+        tests: [
+          { key: "CT", label: "Colesterol Total" },
+          { key: "HDL", label: "HDL" },
+          { key: "LDL", label: "LDL" },
+          { key: "TG", label: "Triglicerídeos" }
+        ]
+      },
+      {
+        name: "📋 Exames Complementares & Outros",
+        tests: []
+      }
+    ];
+
+    // DICIONÁRIO DE ALIASES RECONHECIDOS
+    const ALIAS_MAP = {
+      // 1. ERITROGRAMA
+      'HEM': 'HEM', 'HEMACIA': 'HEM', 'HEMACIAS': 'HEM', 'ERITROCITOS': 'HEM', 'ERITROCITO': 'HEM', 'RBC': 'HEM',
+      'HB': 'HB', 'HGB': 'HB', 'HEMOGLOBINA': 'HB',
+      'HT': 'HT', 'HTC': 'HT', 'HCT': 'HT', 'HEMATOCRITO': 'HT',
+      'VCM': 'VCM', 'MCV': 'VCM',
+      'HCM': 'HCM', 'MCH': 'HCM',
+      'CHCM': 'CHCM', 'MCHC': 'CHCM',
+      'RDW': 'RDW', 'RDW-CV': 'RDW', 'RDW-SD': 'RDW', 'ANISOCITOSE': 'RDW',
+
+      // 2. LEUCOGRAMA
+      'LEU': 'LEU', 'LEUCO': 'LEU', 'LEUCOCITOS': 'LEU', 'LEUCOS': 'LEU', 'LEUCOCITOS TOTAIS': 'LEU', 'LEUCO TOTAIS': 'LEU', 'WBC': 'LEU',
+      'BAST': 'BAST', 'BASTOES': 'BAST', 'BASTAO': 'BAST', 'BASTONETES': 'BAST', 'BASTONETE': 'BAST', 'BASTS': 'BAST',
+      'NEUT': 'NEUT', 'NEUTROFILOS': 'NEUT', 'NEUTROFILO': 'NEUT', 'SEG': 'NEUT', 'SEGS': 'NEUT', 'SEGMENTADOS': 'NEUT', 'SEGMENTADO': 'NEUT', 'PMN': 'NEUT',
+      'EOS': 'EOS', 'EOSINOFILOS': 'EOS', 'EOSINOFILO': 'EOS', 'EOSINO': 'EOS',
+      'BAS': 'BAS', 'BASO': 'BAS', 'BASOFILOS': 'BAS', 'BASOFILO': 'BAS',
+      'LINF': 'LINF', 'LINFOCITOS': 'LINF', 'LINFOCITO': 'LINF', 'LINFO': 'LINF',
+      'MON': 'MON', 'MONO': 'MON', 'MONOCITOS': 'MON', 'MONOCITO': 'MON',
+
+      // 3. PLAQUETOGRAMA
+      'PLAQ': 'PLAQ', 'PLA': 'PLAQ', 'PLAQUETAS': 'PLAQ', 'PLAQUETA': 'PLAQ', 'PLT': 'PLAQ',
+      'VPM': 'VPM', 'MPV': 'VPM',
+      'PDW': 'PDW',
+      'PLAQUETOCRITO': 'PCT_PLAQ', 'PCT_PLAQ': 'PCT_PLAQ', 'PCT-PLAQ': 'PCT_PLAQ',
+
+      // BIOQUÍMICA & DEMAIS EXAMES
+      'UREIA': 'URE', 'CREAT': 'CR', 'CREATININA': 'CR',
+      'SODIO': 'NA', 'POTASSIO': 'K', 'CALCIO': 'CA', 'CAI': 'CA', 'MAGNESIO': 'MG',
+      'AST': 'TGO', 'ALT': 'TGP', 'FOSFATASE': 'FA', 'GAMA': 'GGT', 'GAMAGT': 'GGT',
+      'ALBUMINA': 'ALB', 'GLICEMIA': 'GLI', 'GLICOSE': 'GLI', 'LACTATO': 'LACT',
+      'RNI': 'INR', 'TTPA': 'TTPA', 'KTTP': 'TTPA',
+      'COLESTEROL': 'CT', 'TRIGLICERIDEOS': 'TG', 'TRIGLICERIDES': 'TG',
+      'GASOMETRIA': 'GASO'
+    };
 
     let obsidianData = {
       folders: ["Geral", "Infectologia", "Pneumologia", "Terapia Intensiva"],
@@ -2026,26 +2084,20 @@
 > [!tip] Pérola Clínica
 > Febre persistente após 48-72h de beta-lactâmico em pneumonia exige investigar derrame parapneumônico ou germe atípico.
 
-## 🔬 Etiologia por Faixa Etária (Hierarquia de Lista com Tab)
+## 🔬 Etiologia por Faixa Etária
 - < 2 meses:
   - Streptococcus agalactiae
   - Gram-negativos entéricos
-    - Escherichia coli
-    - Klebsiella pneumoniae
-  - Listeria monocytogenes
 - 2 meses a 5 anos:
-  - Vírus respiratórios (VSR, Rino, Metapneumovírus)
+  - Vírus respiratórios (VSR, Rino)
   - Streptococcus pneumoniae
 - > 5 anos:
   - Streptococcus pneumoniae
   - Mycoplasma pneumoniae
-    - Apresentação arrastada
-    - Cefaleia e tosse seca
 
 ## 💊 Tratamento Empírico
 - [x] Ambulatorial: Amoxicilina 50 a 90 mg/kg/dia VO de 8/8h
-- [ ] Hospitalar sem gravidade: Ampicilina 150-200 mg/kg/dia EV de 6/6h
-- [ ] Derrame ou grave: Oxacilina + Ceftriaxona EV
+- [ ] Hospitalar: Ampicilina 150-200 mg/kg/dia EV de 6/6h
 
 #pneumo #antibioticos [[Diretriz PAC]]`
         }
@@ -2066,10 +2118,494 @@
 
       initGitHubConnection();
       renderObsidianUI();
+      setupPasteListener();
     };
 
     /* ============================================================== */
-    /* MOTOR OBSIDIAN COM AUTO-CONVERSÃO, LIVE SPLIT E HIERARQUIA TAB */
+    /* CLASSIFICADOR AUTOMÁTICO DE EXAMES                             */
+    /* ============================================================== */
+    function categorizeExam(key, label) {
+      const k = (key + ' ' + label).toUpperCase();
+
+      // 1. Eritrograma
+      if (['HEM', 'HB', 'HT', 'VCM', 'HCM', 'CHCM', 'RDW'].includes(key) ||
+          k.includes('HEMOGLOBINA') || k.includes('HEMATOCRITO') || k.includes('HEMACIA')) {
+        return '🔴 1. ERITROGRAMA — Série Vermelha';
+      }
+
+      // 2. Leucograma
+      if (['LEU', 'BAST', 'NEUT', 'EOS', 'BAS', 'LINF', 'MON'].includes(key) ||
+          k.includes('LEUCOCIT') || k.includes('NEUTROFIL') || k.includes('BASTONETE')) {
+        return '⚪ 2. LEUCOGRAMA — Série Branca';
+      }
+
+      // 3. Plaquetograma
+      if (['PLAQ', 'VPM', 'PDW', 'PCT_PLAQ'].includes(key) || k.includes('PLAQUET')) {
+        return '🩹 3. PLAQUETOGRAMA — Série Plaquetária';
+      }
+
+      // 4. Microbiologia & Culturas
+      if (k.includes('CULT') || k.includes('HEMO') || k.includes('UROC') || k.includes('COPRO') || 
+          k.includes('ANTIBIOGRAMA') || k.includes('TSA') || k.includes('GRAM') || k.includes('BAAR') || 
+          k.includes('SWAB') || k.includes('SECRECAO') || k.includes('PUNCAO') || k.includes('CATETER') ||
+          k.includes('ISOLADO') || k.includes('GERME')) {
+        return '🧫 Microbiologia & Culturas';
+      }
+
+      // 5. Função Renal & Eletrólitos
+      if (['URE', 'CR', 'NA', 'K', 'CA', 'CAI', 'MG', 'P', 'FOSFORO', 'CL', 'CLORO', 'CLEARANCE'].includes(key) ||
+          k.includes('UREIA') || k.includes('CREATIN') || k.includes('SODIO') || k.includes('POTASSIO') || k.includes('CALCIO') || k.includes('MAGNESIO')) {
+        return '💧 Função Renal & Eletrólitos';
+      }
+
+      // 6. Gasometria
+      if (['PH', 'PCO2', 'PO2', 'HCO3', 'BE', 'SATO2', 'LACT', 'LACTATO'].includes(key) || k.includes('GASO')) {
+        return '🫁 Gasometria & Ácido-Básico';
+      }
+
+      // 7. Função Hepática & Enzimas
+      if (['TGO', 'TGP', 'FA', 'GGT', 'BT', 'BD', 'BI', 'ALB', 'TAP', 'AMILASE', 'LIPASE', 'LDH'].includes(key) ||
+          k.includes('TRANSAMINASE') || k.includes('BILIRRUBINA') || k.includes('ALBUMINA') || k.includes('FOSFATASE')) {
+        return '🧪 Função Hepática & Enzimas';
+      }
+
+      // 8. Inflamatório & Metabólico
+      if (['PCR', 'GLI', 'PCT', 'PROCALCITONINA', 'FERRITINA', 'VHS', 'CPK', 'CKMB', 'TROPONINA'].includes(key) ||
+          k.includes('PROTEINA C') || k.includes('GLICEMIA') || k.includes('FERRITINA') || k.includes('PROCALC')) {
+        return '🧬 Inflamatório & Metabólico';
+      }
+
+      // 9. Coagulação
+      if (['TP', 'INR', 'TTPA', 'FIBRINOGENIO', 'DD', 'DIMERO'].includes(key) ||
+          k.includes('PROTROMBINA') || k.includes('TROMBOPLASTINA') || k.includes('COAGULOGRAMA')) {
+        return '⏱️ Coagulação';
+      }
+
+      // 10. Urinálise & Fluidos Biológicos
+      if (['EAS', 'EQU', 'URINA', 'URINA1', 'LIQUOR', 'LCR', 'LCR_LEU', 'PROTEINURIA'].includes(key) ||
+          k.includes('URINA') || k.includes('LIQUOR') || k.includes('LCR') || k.includes('SEDIMENTO')) {
+        return '🔬 Urinálise & Fluidos Biológicos';
+      }
+
+      // 11. Sorologias & Testes Rápidos
+      if (['VDRL', 'HIV', 'HBSAG', 'ANTI-HBC', 'ANTI-HCV', 'COVID', 'DENGUE', 'VSR', 'INFLUENZA', 'IGG', 'IGM'].includes(key) ||
+          k.includes('SOROL') || k.includes('TESTE RAPIDO') || k.includes('ANTIGENO') || k.includes('REAGENTE') || k.includes('NS1')) {
+        return '🦠 Sorologias & Testes Rápidos';
+      }
+
+      // 12. Hormônios & Endócrino
+      if (['TSH', 'T4L', 'T3', 'CORTISOL', 'PTH', 'INSULINA', 'PROLACTINA', 'ACTH'].includes(key) ||
+          k.includes('TIREOIDE') || k.includes('HORMON') || k.includes('T4 LIVRE')) {
+        return '🩺 Hormônios & Endócrino';
+      }
+
+      // 13. Perfil Lipídico
+      if (['CT', 'HDL', 'LDL', 'VLDL', 'TG'].includes(key) || k.includes('COLESTEROL') || k.includes('TRIGLICER')) {
+        return '🫀 Perfil Lipídico';
+      }
+
+      return '📋 Exames Complementares & Outros';
+    }
+
+    function toTitleCase(str) {
+      return str.toLowerCase().replace(/(?:^|\s|-|\/)\S/g, function(m) { return m.toUpperCase(); });
+    }
+
+    /* ============================================================== */
+    /* PARSER UNIVERSAL (NUMÉRICO, CULTURAS E TEXTO LIVRE)            */
+    /* ============================================================== */
+    function parseAndAddLab() {
+      const textarea = document.getElementById('raw-lab-input');
+      const text = textarea.value.trim();
+      if (!text) {
+        alert('Cole o texto dos exames antes de processar.');
+        return;
+      }
+
+      const pat = patients.find(p => p.id === currentPatientId);
+      if (!pat) return;
+
+      if (!pat.labHistory) pat.labHistory = [];
+      if (!pat.customLabDefs) pat.customLabDefs = {};
+
+      // 1. Extração da data
+      let dateFound = null;
+      const dateMatch = text.match(/(?:LAB|EXAMES|DATA|CULTURAS)?\s*(\d{1,2}[\/\-\.]\d{1,2}(?:[\/\-\.]\d{2,4})?)/i);
+      if (dateMatch) {
+        dateFound = dateMatch[1];
+      } else {
+        const today = new Date();
+        dateFound = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}`;
+      }
+
+      let cleanText = text.replace(/(?:LAB|EXAMES|DATA|CULTURAS)?\s*\d{1,2}[\/\-\.]\d{1,2}(?:[\/\-\.]\d{2,4})?[:\s-]*/i, '');
+
+      // 2. Quebra por delimitadores usuais (//, quebras de linha, ponto e vírgula, pipe)
+      const tokens = cleanText.split(/(?:\/{2,}|\n|;|\|)/);
+      const parsedValues = {};
+
+      tokens.forEach(rawToken => {
+        let token = rawToken.trim();
+        if (!token) return;
+
+        token = token.replace(/^[-*•\d\.]+\s*/, '').trim();
+
+        let rawKey = '';
+        let rawVal = '';
+
+        if (token.includes(':') || token.includes('=')) {
+          const sepIdx = token.search(/[:=]/);
+          rawKey = token.substring(0, sepIdx).trim();
+          rawVal = token.substring(sepIdx + 1).trim();
+        } else {
+          const spaceMatch = token.match(/^([a-zA-ZÀ-ÖØ-öø-ÿ0-9_\-]+(?:\s+[a-zA-ZÀ-ÖØ-öø-ÿ0-9_\-]+)?)\s+([0-9]+(?:[\.,][0-9]+)?.*|[a-zA-Z].*)$/i);
+          if (spaceMatch) {
+            rawKey = spaceMatch[1].trim();
+            rawVal = spaceMatch[2].trim();
+          }
+        }
+
+        if (rawKey && rawVal) {
+          rawKey = rawKey.replace(/^(?:LAB|EXAMES|RESULTADOS)\s*/i, '').trim();
+          const upperKey = rawKey.toUpperCase();
+          let normalizedKey = ALIAS_MAP[upperKey] || upperKey;
+
+          // Distinção inteligente entre Plaquetócrito (PCT_PLAQ) e Procalcitonina (PCT)
+          if (normalizedKey === 'PCT') {
+            if (rawVal.includes('%') || parseFloat(rawVal.replace(',', '.')) < 0.8 || rawToken.toUpperCase().includes('PLAQ')) {
+              normalizedKey = 'PCT_PLAQ';
+            }
+          }
+
+          parsedValues[normalizedKey] = rawVal;
+
+          if (!pat.customLabDefs[normalizedKey]) {
+            let label = rawKey;
+            for (let panel of STANDARD_LAB_PANELS) {
+              const f = panel.tests.find(t => t.key === normalizedKey);
+              if (f) { label = f.label; break; }
+            }
+            if (label === rawKey) label = toTitleCase(rawKey);
+
+            pat.customLabDefs[normalizedKey] = {
+              label: label,
+              category: categorizeExam(normalizedKey, label)
+            };
+          }
+        }
+      });
+
+      if (Object.keys(parsedValues).length === 0) {
+        alert('Não foi possível identificar exames válidos.');
+        return;
+      }
+
+      // 3. Atualiza ou cria a coluna da data no paciente
+      const existingDateIdx = pat.labHistory.findIndex(entry => entry.date === dateFound);
+      if (existingDateIdx >= 0) {
+        pat.labHistory[existingDateIdx].values = { ...pat.labHistory[existingDateIdx].values, ...parsedValues };
+      } else {
+        pat.labHistory.push({
+          date: dateFound,
+          values: parsedValues
+        });
+      }
+
+      saveAllPatients();
+      renderLabTable();
+      textarea.value = '';
+    }
+
+    function renderLabTable() {
+      const container = document.getElementById('lab-table-container');
+      const pat = patients.find(p => p.id === currentPatientId);
+
+      if (!pat || !pat.labHistory || pat.labHistory.length === 0) {
+        container.innerHTML = `
+          <div style="padding:16px; text-align:center; color:var(--text-muted); font-size:12px;">
+            Nenhum exame processado ainda. Cole os dados acima e clique em <strong>Processar</strong>!
+          </div>`;
+        return;
+      }
+
+      const dates = pat.labHistory.map(entry => entry.date);
+      const customDefs = pat.customLabDefs || {};
+      const dynamicPanels = JSON.parse(JSON.stringify(STANDARD_LAB_PANELS));
+
+      const allPatientKeys = new Set();
+      pat.labHistory.forEach(entry => {
+        Object.keys(entry.values).forEach(k => allPatientKeys.add(k));
+      });
+
+      allPatientKeys.forEach(k => {
+        let isAlreadyInPanel = false;
+        for (let p of dynamicPanels) {
+          if (p.tests.some(t => t.key === k)) { isAlreadyInPanel = true; break; }
+        }
+
+        if (!isAlreadyInPanel) {
+          const def = customDefs[k] || { label: toTitleCase(k), category: categorizeExam(k, k) };
+          let targetCategory = def.category || '📋 Exames Complementares & Outros';
+          let panel = dynamicPanels.find(p => p.name === targetCategory);
+          if (!panel) {
+            panel = dynamicPanels.find(p => p.name === '📋 Exames Complementares & Outros');
+          }
+          panel.tests.push({ key: k, label: def.label });
+        }
+      });
+
+      let tableHtml = `<table class="lab-comp-table"><thead><tr><th>Painel / Exame</th>`;
+      dates.forEach((d, idx) => {
+        const isLatest = (idx === dates.length - 1);
+        tableHtml += `<th class="${isLatest ? 'col-date-highlight' : ''}">
+          ${d} ${isLatest ? '⚡' : ''}
+          <button class="btn-del-col" onclick="deleteLabDate('${d}')" title="Excluir exames deste dia">✕</button>
+        </th>`;
+      });
+      tableHtml += `</tr></thead><tbody>`;
+
+      let hasRenderedAnyRow = false;
+
+      dynamicPanels.forEach(panel => {
+        // Regra estrita: exibe apenas os parâmetros que tenham valor em pelo menos uma data
+        const presentTests = panel.tests.filter(t => pat.labHistory.some(entry => entry.values[t.key] !== undefined && entry.values[t.key] !== null && String(entry.values[t.key]).trim() !== ''));
+        
+        if (presentTests.length > 0) {
+          hasRenderedAnyRow = true;
+          tableHtml += `<tr class="lab-category-row"><td colspan="${dates.length + 1}">${panel.name}</td></tr>`;
+
+          presentTests.forEach(test => {
+            tableHtml += `<tr><td><strong>${test.label}</strong></td>`;
+
+            pat.labHistory.forEach(entry => {
+              const val = entry.values[test.key];
+              if (val !== undefined && val !== null && String(val).trim() !== '') {
+                const valStr = String(val);
+                const isLongOrText = valStr.length > 10 || /[a-zA-Z]/.test(valStr);
+
+                let badgeClass = '';
+                const upperVal = valStr.toUpperCase();
+                if (/POSITIV|REAGENT|CRESCIMENTO|ISOLAD|RESISTENT|DESVIO|ALTO|ALTERAD/i.test(upperVal)) {
+                  badgeClass = 'lab-badge-pos';
+                } else if (/NEGATIV|NÃO REAGENT|SEM CRESCIMENTO|NORMAL/i.test(upperVal)) {
+                  badgeClass = 'lab-badge-neg';
+                }
+
+                if (isLongOrText) {
+                  tableHtml += `<td class="lab-val-cell has-val"><span class="lab-badge-text ${badgeClass}">${valStr}</span></td>`;
+                } else {
+                  tableHtml += `<td class="lab-val-cell has-val">${valStr}</td>`;
+                }
+              } else {
+                // Se não apareceu nesta data específica, coloca o traço "-"
+                tableHtml += `<td class="lab-val-cell" style="color:#94a3b8;">-</td>`;
+              }
+            });
+
+            tableHtml += `</tr>`;
+          });
+        }
+      });
+
+      tableHtml += `</tbody></table>`;
+      container.innerHTML = hasRenderedAnyRow ? tableHtml : `<div style="padding:16px; text-align:center; color:var(--text-muted); font-size:12px;">Nenhum exame identificado.</div>`;
+    }
+
+    function deleteLabDate(dateToDelete) {
+      const pat = patients.find(p => p.id === currentPatientId);
+      if (!pat || !pat.labHistory) return;
+      if (confirm(`Excluir todos os exames da data ${dateToDelete}?`)) {
+        pat.labHistory = pat.labHistory.filter(e => e.date !== dateToDelete);
+        saveAllPatients();
+        renderLabTable();
+      }
+    }
+
+    function clearLabHistory() {
+      const pat = patients.find(p => p.id === currentPatientId);
+      if (!pat) return;
+      if (confirm('Deseja limpar todo o histórico de exames laboratoriais e culturas deste paciente?')) {
+        pat.labHistory = [];
+        pat.customLabDefs = {};
+        saveAllPatients();
+        renderLabTable();
+      }
+    }
+
+    /* ============================================================== */
+    /* ABA DE IMAGENS MÉDICAS COM LAUDOS / COMENTÁRIOS INTEGRADOS     */
+    /* ============================================================== */
+    function switchDiagTab(tab) {
+      currentDiagTab = tab;
+      document.getElementById('diag-view-lab').style.display = (tab === 'lab') ? 'flex' : 'none';
+      document.getElementById('diag-view-img').style.display = (tab === 'img') ? 'flex' : 'none';
+
+      document.getElementById('btn-diag-lab').classList.toggle('active', tab === 'lab');
+      document.getElementById('btn-diag-img').classList.toggle('active', tab === 'img');
+
+      if (tab === 'lab') renderLabTable();
+      if (tab === 'img') renderImageGrid();
+    }
+
+    function setupPasteListener() {
+      window.addEventListener('paste', function(e) {
+        const diagPopup = document.getElementById('popup-diagnostics');
+        if (diagPopup.style.display === 'flex' && currentDiagTab === 'img') {
+          const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+          for (let item of items) {
+            if (item.type.indexOf('image') !== -1) {
+              const file = item.getAsFile();
+              processAndStoreImage(file);
+              e.preventDefault();
+              break;
+            }
+          }
+        }
+      });
+    }
+
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (file) processAndStoreImage(file);
+    }
+
+    function processAndStoreImage(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const maxDim = 1200;
+          let w = img.width;
+          let h = img.height;
+
+          if (w > maxDim || h > maxDim) {
+            if (w > h) { h = (h * maxDim) / w; w = maxDim; }
+            else { w = (w * maxDim) / h; h = maxDim; }
+          }
+
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          saveImageToPatient(compressedBase64);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function saveImageToPatient(base64Data) {
+      const pat = patients.find(p => p.id === currentPatientId);
+      if (!pat) return;
+
+      if (!pat.images) pat.images = [];
+      const title = prompt('Título do exame (ex: RX Tórax PA/Perfil, TC Crânio, USG Abdome):', 'RX Tórax');
+      if (title === null) return;
+
+      const comment = prompt('Laudo / Observações do exame (opcional):', '') || '';
+
+      pat.images.push({
+        id: 'img_' + Date.now(),
+        date: new Date().toLocaleDateString('pt-BR'),
+        title: title || 'Imagem Médica',
+        comment: comment,
+        data: base64Data
+      });
+
+      saveAllPatients();
+      renderImageGrid();
+    }
+
+    function updateImageComment(imgId, val) {
+      const pat = patients.find(p => p.id === currentPatientId);
+      if (!pat || !pat.images) return;
+      const img = pat.images.find(i => i.id === imgId);
+      if (img) {
+        img.comment = val;
+        saveAllPatients();
+        // Sincroniza em tempo real com o textarea correspondente no card ou no modal
+        const cardBox = document.querySelector(`.image-comment-box[data-img-id="${imgId}"]`);
+        if (cardBox && cardBox.value !== val) cardBox.value = val;
+        const zoomBox = document.getElementById('zoom-comment');
+        if (zoomBox && zoomBox.dataset.imgId === imgId && zoomBox.value !== val) zoomBox.value = val;
+      }
+    }
+
+    function renderImageGrid() {
+      const container = document.getElementById('image-grid-container');
+      const pat = patients.find(p => p.id === currentPatientId);
+
+      if (!pat || !pat.images || pat.images.length === 0) {
+        container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:16px; font-size:12px;">Nenhuma imagem anexada. Cole com <strong>Ctrl+V</strong> ou selecione acima.</div>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      pat.images.forEach(img => {
+        const card = document.createElement('div');
+        card.className = 'image-card';
+        card.innerHTML = `
+          <button class="image-del-btn" onclick="deletePatientImage('${img.id}')" title="Excluir imagem">&times;</button>
+          <img class="image-thumb" src="${img.data}" onclick="openImgZoom('${img.id}')" title="Clique para ampliar">
+          <div class="image-card-info">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+              <strong style="color:#0f172a;">${img.title}</strong>
+              <span style="color:#64748b; font-size:9.5px;">${img.date}</span>
+            </div>
+            <textarea class="image-comment-box" data-img-id="${img.id}" placeholder="Laudo / comentários..." oninput="updateImageComment('${img.id}', this.value)">${img.comment || ''}</textarea>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function deletePatientImage(imgId) {
+      const pat = patients.find(p => p.id === currentPatientId);
+      if (!pat || !pat.images) return;
+      if (confirm('Deseja excluir esta imagem?')) {
+        pat.images = pat.images.filter(i => i.id !== imgId);
+        saveAllPatients();
+        renderImageGrid();
+      }
+    }
+
+    function openImgZoom(imgId) {
+      const pat = patients.find(p => p.id === currentPatientId);
+      if (!pat || !pat.images) return;
+      const img = pat.images.find(i => i.id === imgId);
+      if (!img) return;
+
+      const modal = document.getElementById('img-zoom-modal');
+      const target = document.getElementById('zoom-img-target');
+      const titleEl = document.getElementById('zoom-title');
+      const commentEl = document.getElementById('zoom-comment');
+
+      modal.classList.remove('negatoscopio');
+      target.src = img.data;
+      titleEl.textContent = `${img.title} (${img.date})`;
+      commentEl.value = img.comment || '';
+      commentEl.dataset.imgId = img.id;
+      modal.style.display = 'flex';
+    }
+
+    function closeImgZoom(e) {
+      if (e.target.id === 'img-zoom-modal') closeImgZoomDirect();
+    }
+
+    function closeImgZoomDirect() {
+      document.getElementById('img-zoom-modal').style.display = 'none';
+    }
+
+    function toggleNegatoscopio(e) {
+      e.stopPropagation();
+      document.getElementById('img-zoom-modal').classList.toggle('negatoscopio');
+    }
+
+    /* ============================================================== */
+    /* MOTOR OBSIDIAN                                                 */
     /* ============================================================== */
     function loadObsidianData() {
       try {
@@ -2105,7 +2641,7 @@
         noteSelect.appendChild(opt);
         document.getElementById('obs-note-title').value = '';
         document.getElementById('obs-note-content').value = '';
-        document.getElementById('obs-reading-view').innerHTML = '<em>Nenhuma nota nesta pasta. Clique em 📝+ Nota para criar.</em>';
+        document.getElementById('obs-reading-view').innerHTML = '<em>Nenhuma nota nesta pasta.</em>';
         return;
       }
 
@@ -2126,11 +2662,9 @@
       if (activeNote) {
         document.getElementById('obs-note-title').value = activeNote.title || '';
         document.getElementById('obs-note-content').value = activeNote.content || '';
-        // Converte automaticamente para markdown
         document.getElementById('obs-reading-view').innerHTML = parseObsidianMarkdown(activeNote.content || '');
       }
 
-      // Aplica o modo ativo (Padrão: Auto-Leitura formatada)
       switchObsidianTab(currentObsidianMode);
     }
 
@@ -2150,7 +2684,7 @@
     }
 
     function createFolderPrompt() {
-      const name = prompt('Nome da nova pasta clínica (ex: Terapia Intensiva, Nefrologia, Infecto):');
+      const name = prompt('Nome da nova pasta clínica (ex: UTI, Pneumo, Infecto):');
       if (name && name.trim()) {
         const clean = name.trim();
         if (!obsidianData.folders.includes(clean)) {
@@ -2173,7 +2707,7 @@
         };
         obsidianData.notes.push(newNote);
         obsidianData.currentNoteId = newNote.id;
-        currentObsidianMode = 'edit'; // Abre direto no editor ao criar
+        currentObsidianMode = 'edit';
         saveObsidianData();
         renderObsidianUI();
       }
@@ -2207,7 +2741,6 @@
         active.content = val;
         saveObsidianData();
       }
-      // Converte automaticamente em tempo real
       document.getElementById('obs-reading-view').innerHTML = parseObsidianMarkdown(val);
     }
 
@@ -2224,7 +2757,6 @@
       btnSplit.style.background = (mode === 'split') ? '#fff' : 'transparent';
       btnEdit.style.background = (mode === 'edit') ? '#fff' : 'transparent';
 
-      // Garante que o preview esteja sempre sincronizado
       const active = obsidianData.notes.find(n => n.id === obsidianData.currentNoteId);
       document.getElementById('obs-reading-view').innerHTML = parseObsidianMarkdown(active ? active.content : '');
     }
@@ -2243,112 +2775,85 @@
       onNoteContentInput(textarea.value);
     }
 
-    /* CONTROLE DE TAB E ENTER NAS LISTAS (HIERARQUIA INDEFINIDA) */
     function handleNoteKeyDown(e) {
       const textarea = e.target;
       const { selectionStart, selectionEnd, value } = textarea;
 
-      // 1. TECLA TAB / SHIFT + TAB (DESLOCAMENTO DE PONTOS / HIERARQUIA)
       if (e.key === 'Tab') {
         e.preventDefault();
-
         const startLinePos = value.lastIndexOf('\n', selectionStart - 1) + 1;
         let endLinePos = value.indexOf('\n', selectionEnd);
         if (endLinePos === -1) endLinePos = value.length;
 
-        const selectedText = value.substring(startLinePos, endLinePos);
-        const lines = selectedText.split('\n');
+        const lines = value.substring(startLinePos, endLinePos).split('\n');
 
         if (e.shiftKey) {
-          // Deslocar para a esquerda (Recuo de Nível)
           let firstLineRemoved = 0;
           let totalRemoved = 0;
-
           const unindented = lines.map((line, idx) => {
             let removed = 0;
-            if (line.startsWith('\t')) {
-              removed = 1;
-              line = line.substring(1);
-            } else if (line.startsWith('    ')) {
-              removed = 4;
-              line = line.substring(4);
-            } else if (line.startsWith('  ')) {
-              removed = 2;
-              line = line.substring(2);
-            } else if (line.startsWith(' ')) {
-              removed = 1;
-              line = line.substring(1);
-            }
+            if (line.startsWith('\t')) { removed = 1; line = line.substring(1); }
+            else if (line.startsWith('  ')) { removed = 2; line = line.substring(2); }
+            else if (line.startsWith(' ')) { removed = 1; line = line.substring(1); }
             if (idx === 0) firstLineRemoved = removed;
             totalRemoved += removed;
             return line;
           });
-
           textarea.value = value.substring(0, startLinePos) + unindented.join('\n') + value.substring(endLinePos);
           textarea.selectionStart = Math.max(startLinePos, selectionStart - firstLineRemoved);
           textarea.selectionEnd = Math.max(startLinePos, selectionEnd - totalRemoved);
         } else {
-          // Deslocar para a direita (Hierarquia com 2 espaços padrão Obsidian)
           const indentStr = '  ';
           const indented = lines.map(line => indentStr + line);
-
           textarea.value = value.substring(0, startLinePos) + indented.join('\n') + value.substring(endLinePos);
           textarea.selectionStart = selectionStart + indentStr.length;
           textarea.selectionEnd = selectionEnd + (indentStr.length * lines.length);
         }
-
         onNoteContentInput(textarea.value);
         return;
       }
 
-      // 2. TECLA ENTER (CONTINUAÇÃO INTELIGENTE DE PONTOS E TAREFAS)
       if (e.key === 'Enter') {
         const curLineStart = value.lastIndexOf('\n', selectionStart - 1) + 1;
         const curLine = value.substring(curLineStart, selectionStart);
 
-        // Caso Tarefa: e.g. "  - [ ] ", "    - [x] "
         const taskMatch = curLine.match(/^([ \t]*)([-*])\s+\[([ xX])\]\s*(.*)$/);
         if (taskMatch) {
           e.preventDefault();
           const indent = taskMatch[1];
           const content = taskMatch[4];
-
           if (!content.trim()) {
-            // Remove a tarefa vazia
             textarea.value = value.substring(0, curLineStart) + value.substring(selectionStart);
             textarea.selectionStart = textarea.selectionEnd = curLineStart;
           } else {
-            const nextTask = '\n' + indent + '- [ ] ';
-            textarea.value = value.substring(0, selectionStart) + nextTask + value.substring(selectionEnd);
-            textarea.selectionStart = textarea.selectionEnd = selectionStart + nextTask.length;
+            const next = '\n' + indent + '- [ ] ';
+            textarea.value = value.substring(0, selectionStart) + next + value.substring(selectionEnd);
+            textarea.selectionStart = textarea.selectionEnd = selectionStart + next.length;
           }
           onNoteContentInput(textarea.value);
           return;
         }
 
-        // Caso Lista com Pontos: e.g. "  - ", "    * "
         const listMatch = curLine.match(/^([ \t]*)([-*])\s+(.*)$/);
         if (listMatch) {
           e.preventDefault();
           const indent = listMatch[1];
           const bullet = listMatch[2];
           const content = listMatch[3];
-
           if (!content.trim()) {
-            // Se o ponto estiver vazio, recua hierarquia ou cancela
             if (indent.length >= 2) {
               const newIndent = indent.substring(2);
-              const replaceLine = newIndent + bullet + ' ';
-              textarea.value = value.substring(0, curLineStart) + replaceLine + value.substring(selectionStart);
-              textarea.selectionStart = textarea.selectionEnd = curLineStart + replaceLine.length;
+              const repl = newIndent + bullet + ' ';
+              textarea.value = value.substring(0, curLineStart) + repl + value.substring(selectionStart);
+              textarea.selectionStart = textarea.selectionEnd = curLineStart + repl.length;
             } else {
               textarea.value = value.substring(0, curLineStart) + value.substring(selectionStart);
               textarea.selectionStart = textarea.selectionEnd = curLineStart;
             }
           } else {
-            const nextBullet = '\n' + indent + bullet + ' ';
-            textarea.value = value.substring(0, selectionStart) + nextBullet + value.substring(selectionEnd);
-            textarea.selectionStart = textarea.selectionEnd = selectionStart + nextBullet.length;
+            const next = '\n' + indent + bullet + ' ';
+            textarea.value = value.substring(0, selectionStart) + next + value.substring(selectionEnd);
+            textarea.selectionStart = textarea.selectionEnd = selectionStart + next.length;
           }
           onNoteContentInput(textarea.value);
           return;
@@ -2356,13 +2861,11 @@
       }
     }
 
-    /* PARSER MARKDOWN COMPLETO: HEADERS ATÉ H5 & HIERARQUIA INFINITA DE PONTOS */
     function parseObsidianMarkdown(text) {
       if (!text || !text.trim()) return '<em style="color:#94a3b8;">Nota vazia. Digite ou use a barra de ferramentas.</em>';
 
       let html = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-      // CALLOUTS OBSIDIAN
       html = html.replace(/^\&gt; \[!(tip|warning|danger|note)\]([^\n]*)\n((?:\&gt; .*(?:\n|$))*)/gim, function(match, type, title, body) {
         const cleanTitle = title.trim() || type.toUpperCase();
         const cleanBody = body.replace(/^\&gt; /gim, '').replace(/\n/g, '<br>');
@@ -2372,7 +2875,6 @@
         </div>`;
       });
 
-      // HEADERS DO H1 ATÉ H5 (ORDEM DECRESCENTE PARA NÃO CONFLITAR)
       html = html
         .replace(/^##### (.*$)/gim, '<h5>$1</h5>')
         .replace(/^#### (.*$)/gim, '<h4>$1</h4>')
@@ -2380,34 +2882,27 @@
         .replace(/^## (.*$)/gim, '<h2>$1</h2>')
         .replace(/^# (.*$)/gim, '<h1>$1</h1>');
 
-      // WIKILINKS & TAGS
       html = html
         .replace(/\[\[(.*?)\]\]/g, '<span class="obsidian-wikilink">[[ $1 ]]</span>')
         .replace(/(^|\s)#([a-zA-Z0-9_\-]+)/g, '$1<span class="obsidian-tag">#$2</span>');
 
-      // TAREFAS (CHECKLISTS COM HIERARQUIA DE ESPAÇAMENTO INDEFINIDA)
       html = html.replace(/^([ \t]*)[-*]\s+\[([xX])\]\s+(.*$)/gim, function(match, indent, check, content) {
         const depth = Math.floor(indent.replace(/\t/g, '  ').length / 2);
-        const padding = (depth * 20) + 6;
-        return `<div style="display:flex; align-items:flex-start; gap:6px; margin:3px 0 3px ${padding}px;"><span style="color:#16a34a; font-weight:bold;">☑</span> <span style="text-decoration:line-through; color:#94a3b8;">${content}</span></div>`;
+        return `<div style="display:flex; align-items:flex-start; gap:6px; margin:3px 0 3px ${(depth * 20) + 6}px;"><span style="color:#16a34a; font-weight:bold;">☑</span> <span style="text-decoration:line-through; color:#94a3b8;">${content}</span></div>`;
       });
 
       html = html.replace(/^([ \t]*)[-*]\s+\[ \]\s+(.*$)/gim, function(match, indent, content) {
         const depth = Math.floor(indent.replace(/\t/g, '  ').length / 2);
-        const padding = (depth * 20) + 6;
-        return `<div style="display:flex; align-items:flex-start; gap:6px; margin:3px 0 3px ${padding}px;"><span style="color:#64748b; font-weight:bold;">☐</span> <span>${content}</span></div>`;
+        return `<div style="display:flex; align-items:flex-start; gap:6px; margin:3px 0 3px ${(depth * 20) + 6}px;"><span style="color:#64748b; font-weight:bold;">☐</span> <span>${content}</span></div>`;
       });
 
-      // LISTAS COM PONTOS (HIERARQUIA PROGRESSIVA INFINITA)
       const bulletIcons = ['•', '◦', '▪', '▫', '–'];
       html = html.replace(/^([ \t]*)[-*]\s+(.*$)/gim, function(match, indent, content) {
         const depth = Math.floor(indent.replace(/\t/g, '  ').length / 2);
         const icon = bulletIcons[Math.min(depth, bulletIcons.length - 1)];
-        const padding = (depth * 20) + 6;
-        return `<div style="display:flex; align-items:baseline; gap:8px; margin:2.5px 0 2.5px ${padding}px;"><span style="color:#7c3aed; font-weight:900; font-size:12px; width:12px; text-align:center; flex-shrink:0;">${icon}</span> <span>${content}</span></div>`;
+        return `<div style="display:flex; align-items:baseline; gap:8px; margin:2.5px 0 2.5px ${(depth * 20) + 6}px;"><span style="color:#7c3aed; font-weight:900; font-size:12px; width:12px; text-align:center; flex-shrink:0;">${icon}</span> <span>${content}</span></div>`;
       });
 
-      // FORMATAÇÃO DE TEXTO
       html = html
         .replace(/\*\*\*(.*?)\*\*\*/gim, '<strong><em>$1</em></strong>')
         .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
@@ -2502,6 +2997,10 @@
       if (!isVisible) {
         popup.style.display = 'flex';
         if (popupId === 'popup-obsidian') renderObsidianUI();
+        if (popupId === 'popup-diagnostics') {
+          if (currentDiagTab === 'lab') renderLabTable();
+          else renderImageGrid();
+        }
       }
     }
 
@@ -2734,6 +3233,9 @@
         clinicalHistory: '',
         labExams: '',
         generalNotes: '',
+        labHistory: [],
+        customLabDefs: {},
+        images: [],
         checks: {}
       };
       patients.push(newPat);
@@ -2830,6 +3332,9 @@
         const tr = chk.closest('tr');
         if (tr) tr.classList.toggle('row-selected', isChecked);
       });
+
+      renderLabTable();
+      renderImageGrid();
     }
 
     function syncPatientField(field, val) {
@@ -3003,7 +3508,6 @@
       holLabel.textContent = `${Math.round(vol)} ml / 24h`;
       setBadge('calc-holliday-taxa', `⚡ Taxa Basal: ${r(vol / 24, 1)} ml/h em Bomba`);
 
-      // 4. ANALGÉSICOS
       const dipiEvMin = Math.min(w * 20, 1000);
       const dipiEvMax = Math.min(w * 25, 1000);
       setBadge('calc-dipi-ev', `Dose: <strong>${r(dipiEvMin)} a ${r(dipiEvMax)} mg</strong> EV (${r(dipiEvMin / 500, 2)} a ${r(dipiEvMax / 500, 2)} ml) de 6/6h <span class="dose-max-tag">🛑 Máx: 1.000 mg/dose (4g/dia)</span>`);
@@ -3024,7 +3528,6 @@
       const trometDose = Math.min(w * 0.5, w < 50 ? 15 : 30);
       setBadge('calc-tromet', `Dose: <strong>${r(trometDose)} mg</strong> EV/VO de 8/8h <span class="dose-max-tag">🛑 Máx: 15mg (<50kg) | 30mg (≥50kg)</span>`);
 
-      // 5. GASTROINTESTINAL
       const clisterVolMin = Math.min(w * 2, 130);
       const clisterVolMax = Math.min(w * 3, 130);
       setBadge('calc-clister', `Volume: <strong>${r(clisterVolMin)} a ${r(clisterVolMax)} ml</strong> retal <span class="dose-max-tag">🛑 Máx: 130 ml</span>`);
@@ -3047,7 +3550,6 @@
       const simetGts = Math.min(Math.round(w), 30);
       setBadge('calc-simet', `Dose: <strong>${simetGts} gotas</strong> VO de 8/8h <span class="dose-max-tag">🛑 Máx: 30 gotas/dose</span>`);
 
-      // 6. INSULINAS & GLICEMIA
       const sg10Vol = Math.min(w * 2, 200);
       setBadge('calc-sg10', `Bolus: <strong>${r(sg10Vol)} ml EV</strong> em bolus se HGT &lt; 60 mg/dL <span class="dose-max-tag">🛑 Máx: 100 a 200 ml</span>`);
       
@@ -3064,7 +3566,6 @@
 
       setBadge('calc-glargina', `Dose: <strong>${r(w * 0.2)} a ${r(w * 0.4)} UI/dia SC</strong> 1x/dia <span class="dose-max-tag">🛑 Teto inicial: 0,4 a 0,5 UI/kg/dia</span>`);
 
-      // 7. ANTIBIÓTICOS
       const amicaDose = Math.min(w * 15, 1500);
       setBadge('calc-amica', `Dose: <strong>${r(amicaDose)} mg/dia</strong> EV/IM (1x/dia ou ${r(amicaDose / 2)} mg 12/12h) <span class="dose-max-tag">🛑 Máx: 1.500 mg/dia</span>`);
 
@@ -3108,7 +3609,6 @@
       const vancoMax = Math.min(w * 60, 2000);
       setBadge('calc-vanco', `Total: <strong>${r(vancoMin)} a ${r(vancoMax)} mg/dia</strong> EV (6/6h: ${r(vancoMin/4)} a ${r(vancoMax/4)} mg) <span class="dose-max-tag">🛑 Máx: 1.000 mg/dose (2g/dia)</span>`);
 
-      // 8. RESPIRATÓRIO & CORTICOIDES
       const dexaMin = Math.min(w * 0.15, 10);
       const dexaMax = Math.min(w * 0.3, 16);
       setBadge('calc-dexa', `Dose: <strong>${r(dexaMin)} a ${r(dexaMax)} mg/dose</strong> EV ou VO 12/12h <span class="dose-max-tag">🛑 Máx: 10 a 16 mg/dia</span>`);
@@ -3125,7 +3625,6 @@
       const salbuGts = Math.min(Math.max(Math.round(w / 3), 5), 15);
       setBadge('calc-salbu-nbz', `Dose: <strong>${salbuGts} gotas</strong> + 3 ml SF 0,9% <span class="dose-max-tag">🛑 Máx: 15 a 20 gotas</span>`);
 
-      // 9. NEUROLOGIA
       const valproInicMin = Math.min(w * 10, 3000);
       const valproInicMax = Math.min(w * 15, 3000);
       const valproManutMin = Math.min(w * 20, 3000);
@@ -3185,7 +3684,6 @@
         ? 'Dose: <strong>0,25 mg VO 1x/dia</strong> à noite <span class="dose-max-tag">🛑 Máx: 0,75 a 1,0 mg/dia (< 20 kg)</span>' 
         : 'Dose: <strong>0,5 mg VO 1x/dia</strong> à noite <span class="dose-max-tag">🛑 Máx: 1,5 a 2,5 mg/dia (≥ 20 kg)</span>');
 
-      // 10. HEMODINÂMICO
       setBadge('calc-adrena', `Infusão: <strong>${r(w * 0.05, 2)} a ${r(w * 1.0, 1)} mcg/min</strong> contínua <span class="dose-max-tag">🛑 Teto: 1,0 a 1,5 mcg/kg/min</span>`);
 
       const captoMin = Math.min(w * 0.1, 25);
@@ -3204,3 +3702,4 @@
   </script>
 </body>
 </html>
+
