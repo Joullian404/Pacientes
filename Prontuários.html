@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Prescrição Pediátrica & Prontuário (com Doses Máximas)</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --primary-light: #e0f2fe;
+      --accent: #16a34a;
+      --accent-dark: #15803d;
+      --bg-page: #f1f5f9;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #cbd5e1;
+      --border-light: #e2e8f0;
+      --danger: #ef4444;
+      --calc-bg: #f0fdfa;
+      --calc-text: #0f766e;
+      --calc-border: #99f6e4;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text);
+      line-height: 1.35;
+      font-size: 13px;
+    }
+
+    /* HEADER */
+    header {
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 20px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .header-title {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .status-save {
+      font-size: 11px;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      padding: 3px 8px;
+      border-radius: 12px;
+    }
+    .btn-action-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* TABS */
+    .tabs-bar {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .tab-btn {
+      background: #1e293b;
+      color: #94a3b8;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { background: #334155; color: #fff; }
+    .tab-btn.active { background: var(--surface); color: var(--primary-dark); }
+    .tab-btn.archive-tab { background: #047857; color: #fff; }
+    .tab-btn.archive-tab.active { background: #059669; }
+    .tab-close {
+      font-size: 12px;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tab-close:hover { background: rgba(0,0,0,0.2); color: var(--danger); }
+    .btn-new-patient {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 5px;
+    }
+    .btn-new-patient:hover { background: var(--primary-dark); }
+
+    /* CONTAINER */
+    .container {
+      max-width: 1180px;
+      margin: 15px auto 40px;
+      padding: 0 15px;
+    }
+
+    /* SUB-ABAS */
+    .subtabs-container {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .subtab-btn {
+      background: #e2e8f0;
+      color: #334155;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .subtab-btn:hover { background: #cbd5e1; }
+    .subtab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
+    }
+
+    /* CARD DO PACIENTE */
+    .patient-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 15px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      margin-bottom: 15px;
+    }
+    .patient-fields-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr 1.5fr;
+      gap: 10px;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .input-group label {
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .input-group input, .input-group select, .input-group textarea {
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 6px 8px;
+      font-size: 13px;
+      outline: none;
+      font-family: inherit;
+    }
+    .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-light);
+    }
+    .input-weight-highlight {
+      border: 2px solid var(--primary) !important;
+      background: #f0f9ff;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+
+    /* TABELA DE MEDICAÇÕES */
+    .category-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      margin-bottom: 15px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .category-header {
+      background: #f8fafc;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #334155;
+      border-bottom: 1px solid var(--border);
+    }
+    .item-table { width: 100%; border-collapse: collapse; }
+    .item-table tr { border-bottom: 1px solid var(--border-light); transition: background 0.15s; }
+    .item-table tr:last-child { border-bottom: none; }
+    .item-table tr.row-selected { background: #f0fdf4 !important; }
+    
+    .cell-check { width: 45px; padding: 6px 10px; text-align: center; vertical-align: middle; }
+    .cell-name { width: 250px; padding: 6px 10px; font-weight: 600; color: #1e293b; vertical-align: middle; border-left: 1px solid var(--border-light); }
+    .cell-desc { padding: 6px 12px; color: #475569; vertical-align: middle; font-size: 12px; border-left: 1px solid var(--border-light); }
+
+    /* CHECKBOX VERDE ÚNICA */
+    .med-check-single {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border: 2px solid #94a3b8;
+      border-radius: 5px;
+      background: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.2s ease;
+      vertical-align: middle;
+    }
+    .med-check-single:hover { border-color: var(--accent); background: #f0fdf4; }
+    .med-check-single:checked {
+      background-color: var(--accent);
+      border-color: var(--accent-dark);
+      box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.25);
+    }
+    .med-check-single:checked::after {
+      content: '✓';
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 900;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* BADGE DE CÁLCULO E DOSE MÁXIMA */
+    .dose-calc-badge {
+      display: block;
+      margin-top: 4px;
+      background: var(--calc-bg);
+      color: var(--calc-text);
+      border: 1px solid var(--calc-border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 11.5px;
+      font-weight: 600;
+      width: fit-content;
+    }
+    .dose-calc-badge.empty { display: none; }
+    
+    .dose-max-tag {
+      display: inline-block;
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+
+    /* MAPA GLICÊMICO */
+    .mapa-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 11.5px; }
+    .mapa-table th, .mapa-table td { border: 1px solid var(--border); padding: 5px 8px; text-align: center; }
+    .mapa-table th { background: #f1f5f9; font-weight: 700; color: #334155; }
+    .mapa-table td:first-child { text-align: left; font-weight: 600; }
+    .tier-badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #e2e8f0; }
+
+    /* HOLLIDAY CALLOUT */
+    .holliday-box {
+      background: #f0fdfa;
+      border: 1px solid #99f6e4;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin: 8px 10px;
+      font-size: 11.5px;
+      color: #115e59;
+    }
+
+    /* PRONTUÁRIO */
+    .prontuario-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 20px;
+      margin-bottom: 15px;
+    }
+    .prontuario-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      text-transform: uppercase;
+      border-bottom: 2px solid var(--primary-light);
+      padding-bottom: 5px;
+      margin: 15px 0 10px;
+    }
+    .prontuario-section-title:first-child { margin-top: 0; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .grid-vitals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+
+    /* ARQUIVO */
+    #archive-view {
+      display: none;
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 20px;
+      border: 1px solid var(--border);
+    }
+    .archive-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .search-input { width: 280px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; }
+    .archive-table { width: 100%; border-collapse: collapse; }
+    .archive-table th, .archive-table td { border-bottom: 1px solid var(--border-light); padding: 8px 10px; text-align: left; }
+    .archive-table th { background: #f8fafc; font-size: 11px; text-transform: uppercase; color: var(--text-muted); }
+    .btn-sm { padding: 4px 8px; border-radius: 4px; font-size: 11px; border: 1px solid var(--border); background: #fff; cursor: pointer; }
+    .btn-sm.btn-danger { color: var(--danger); border-color: #fca5a5; }
+
+    /* ASSINATURAS */
+    .signature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
+    .signature-line { width: 320px; border-top: 1px solid #475569; text-align: center; padding-top: 4px; font-size: 11px; font-weight: 600; }
+
+    /* PRINT */
+    @media print {
+      header, .subtabs-container, .btn-action-group, .btn-new-patient, .status-save, .tab-close { display: none !important; }
+      body { background: #fff; font-size: 10.5px; }
+      .container { max-width: 100%; margin: 0; padding: 0; }
+      .patient-card, .category-card, .signature-card, .prontuario-card { border: 1px solid #94a3b8; box-shadow: none; break-inside: avoid; margin-bottom: 8px; }
+      .med-check-single:checked { background: #000 !important; }
+      .dose-calc-badge { background: #f8fafc; border: 1px solid #cbd5e1; color: #000; font-weight: 700; }
+      .dose-max-tag { border: 1px solid #991b1b; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-top">
+      <div class="header-title">
+        <span>📋 Prescrição Pediátrica & Prontuário Clínico</span>
+        <span class="status-save" id="save-status">● Salvo localmente</span>
+      </div>
+      <div class="btn-action-group">
+        <button class="btn-new-patient" onclick="createNewPatient()">+ Novo Paciente</button>
+        <button class="btn-sm" onclick="window.print()" style="background:#38bdf8; color:#0f172a; font-weight:700; border:none; padding:6px 12px;">🖨️ Imprimir / PDF</button>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-bar" id="tabs-bar">
+      <button class="tab-btn archive-tab" id="tab-archive-btn" onclick="showArchiveView()">
+        📁 Todos os Pacientes (<span id="archive-count">0</span>)
+      </button>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- ARQUIVO GERAL -->
+    <div id="archive-view">
+      <div class="archive-header">
+        <div>
+          <h2 style="font-size:18px; font-weight:700;">Arquivo de Pacientes</h2>
+          <p style="color:var(--text-muted); font-size:12px;">Prontuários e prescrições armazenadas na memória deste computador.</p>
+        </div>
+        <input type="text" class="search-input" id="archive-search" placeholder="Buscar por paciente ou leito..." oninput="renderArchiveTable()">
+      </div>
+      <table class="archive-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Mãe</th>
+            <th>Leito</th>
+            <th>Data</th>
+            <th>Peso</th>
+            <th>Alergias</th>
+            <th style="text-align:right;">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="archive-list-body"></tbody>
+      </table>
+    </div>
+
+    <!-- PACIENTE ATIVO -->
+    <div id="patient-main-view">
+      
+      <!-- SUB-ABAS -->
+      <div class="subtabs-container">
+        <button class="subtab-btn active" id="btn-subtab-presc" onclick="switchSubTab('presc')">
+          💊 Prescrição Médica & Doses Calculadas
+        </button>
+        <button class="subtab-btn" id="btn-subtab-pront" onclick="switchSubTab('pront')">
+          📋 Ficha Clínica & Prontuário de Internação
+        </button>
+      </div>
+
+      <!-- HEADER DO PACIENTE -->
+      <div class="patient-card">
+        <div class="patient-fields-grid">
+          <div class="input-group">
+            <label>Nome do Paciente</label>
+            <input type="text" id="p-name" placeholder="Nome completo..." oninput="syncPatientField('name', this.value)">
+          </div>
+          <div class="input-group">
+            <label>Leito</label>
+            <input type="text" id="p-bed" placeholder="Ex: 14-A" oninput="syncPatientField('bed', this.value)">
+          </div>
+          <div class="input-group">
+            <label>Data</label>
+            <input type="date" id="p-date" oninput="syncPatientField('date', this.value)">
+          </div>
+          <div class="input-group">
+            <label>Idade</label>
+            <input type="text" id="p-age" placeholder="Ex: 2 anos" oninput="syncPatientField('age', this.value)">
+          </div>
+          <div class="input-group">
+            <label>Peso (kg) *Cálculo*</label>
+            <input type="number" step="0.1" id="p-weight" class="input-weight-highlight" placeholder="Ex: 12.5" oninput="onWeightChange(this.value)">
+          </div>
+          <div class="input-group">
+            <label>Alergias</label>
+            <input type="text" id="p-allergies" placeholder="Nega / Descrever..." oninput="syncPatientField('allergies', this.value)">
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- SUB-ABA 1: PRESCRIÇÃO MÉDICA -->
+      <!-- ============================================================== -->
+      <div id="subview-presc">
+        
+        <!-- 1. MONITORIZAÇÃO -->
+        <div class="category-card">
+          <div class="category-header">1. Monitorização & Cuidados Gerais</div>
+          <table class="item-table">
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="cuid_cab30" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Cabeceira elevada a 30°</td>
+              <td class="cell-desc">Manter alinhamento cervical + desobstrução e aspiração de vias aéreas SN.</td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="cuid_oral" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Higiene oral</td>
+              <td class="cell-desc">Realizar com gaze umedecida em SF 0,9% 3x/dia após refeições.</td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="cuid_o2" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Oxigenoterapia</td>
+              <td class="cell-desc">O₂ sob cateter nasal (1 a 3 L/min) ou máscara facial se SatO₂ &lt; 94%.</td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="cuid_ssvv" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Sinais Vitais & Diurese</td>
+              <td class="cell-desc">Aferir FC, FR, PA, Temperatura e SatO₂ completos + balanço de diurese de 6/6h.</td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- 2. DIETAS -->
+        <div class="category-card">
+          <div class="category-header">2. Dietas Infantis</div>
+          <table class="item-table">
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="diet_materno" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Aleitamento Materno</td>
+              <td class="cell-desc">Em livre demanda exclusiva.</td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="diet_branda" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Dieta Branda / Pastosa</td>
+              <td class="cell-desc">Dieta branda ou pastosa pediátrica conforme aceitação.</td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="diet_zero" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Dieta Zero</td>
+              <td class="cell-desc">Jejum rigoroso; manter acesso venoso pérvio e hidratação parenteral.</td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="diet_formula" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Fórmula Infantil</td>
+              <td class="cell-desc">
+                Fórmula para a idade: <input type="text" id="diet-formula-val" placeholder="Ex: 120 ml VO 3/3h" style="border:1px solid #cbd5e1; border-radius:4px; padding:2px 6px; width:220px;" oninput="syncPatientField('diet_formula_detail', this.value)">
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- 3. HIDRATAÇÃO HOLLIDAY -->
+        <div class="category-card">
+          <div class="category-header">3. Hidratação Venosa (Holliday-Segar)</div>
+          <table class="item-table">
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="hidra_holliday" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Soro Holliday-Segar</td>
+              <td class="cell-desc">
+                Volume basal calculado: <strong id="holliday-calc-sugg">--- ml/24h</strong> em BIC.
+                <span class="dose-calc-badge empty" id="calc-holliday-taxa"></span>
+                Prescrito: <input type="text" id="hidra-vol" placeholder="Ex: SG 5% 400ml + SF 0.9% 100ml + KCl 10% 5ml" style="border:1px solid #cbd5e1; border-radius:4px; padding:2px 6px; width:340px; margin-top:3px;" oninput="syncPatientField('hidra_detail', this.value)">
+              </td>
+            </tr>
+          </table>
+          <div class="holliday-box">
+            <strong>Regra de Holliday:</strong> Até 10kg (100ml/kg) | 10 a 20kg (1000ml + 50ml/kg &gt;10) | &gt;20kg (1500ml + 20ml/kg &gt;20).<br>
+            <em>Solução padrão: SG 5% (400 ml) + SF 0,9% (100 ml) + KCl 10% (5 a 10 ml)</em>
+          </div>
+        </div>
+
+        <!-- 4. ANALGÉSICOS -->
+        <div class="category-card">
+          <div class="category-header">4. Analgésicos, Anti-inflamatórios & Anti-histamínicos</div>
+          <table class="item-table">
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_dipi_ev" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Dipirona EV (500 mg/ml)</td>
+              <td class="cell-desc">
+                20 a 25 mg/kg/dose (0,04 a 0,05 ml/kg) diluído em SF 0,9% EV de 6/6h SN.
+                <span class="dose-calc-badge empty" id="calc-dipi-ev"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_dipi_gts" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Dipirona gotas (500 mg/ml)</td>
+              <td class="cell-desc">
+                1 gota/kg/dose VO de 6/6h SN.
+                <span class="dose-calc-badge empty" id="calc-dipi-gts"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_hidroxi" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Hidroxizina (2 mg/ml)</td>
+              <td class="cell-desc">
+                0,5 a 1 mg/kg/dose VO de 8/8h ou 12/12h SN.
+                <span class="dose-calc-badge empty" id="calc-hidroxi"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_ibu" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Ibuprofeno gotas (100 mg/ml)</td>
+              <td class="cell-desc">
+                1 gota/kg/dose (10 mg/kg/dose) VO de 8/8h.
+                <span class="dose-calc-badge empty" id="calc-ibu"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_para" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Paracetamol gotas (200 mg/ml)</td>
+              <td class="cell-desc">
+                1 gota/kg/dose (10-15 mg/kg/dose) VO de 6/6h SN.
+                <span class="dose-calc-badge empty" id="calc-para"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_tromet" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Trometamol Cetorolaco</td>
+              <td class="cell-desc">
+                0,5 mg/kg/dose EV ou VO de 8/8h (uso máx por 48-72h).
+                <span class="dose-calc-badge empty" id="calc-tromet"></span>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- 5. GASTROINTESTINAL -->
+        <div class="category-card">
+          <div class="category-header">5. Gastrointestinal, Antieméticos & Probióticos</div>
+          <table class="item-table">
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_clister" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Clister / Enema pediátrico</td>
+              <td class="cell-desc">
+                2 a 3 ml/kg via retal ACM.
+                <span class="dose-calc-badge empty" id="calc-clister"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_floratil" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Floratil (S. boulardii)</td>
+              <td class="cell-desc">
+                1 envelope/cápsula (100 a 250 mg) diluído em água VO 12/12h.
+                <span class="dose-calc-badge empty" id="calc-floratil">Dose usual: 1 envelope VO 12/12h <span class="dose-max-tag">🛑 Dose Máx: 500 mg/dia</span></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_florax" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Florax flaconete (5 ml)</td>
+              <td class="cell-desc">
+                1 flaconete VO de 12/12h.
+                <span class="dose-calc-badge empty" id="calc-florax">Dose usual: 1 flaconete VO 12/12h <span class="dose-max-tag">🛑 Dose Máx: 2 flaconetes/dia</span></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_lactulona" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Lactulona (667 mg/ml)</td>
+              <td class="cell-desc">
+                1 ml/kg/dia VO dividido em 12/12h ou dose única.
+                <span class="dose-calc-badge empty" id="calc-lactulona"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_omeprazol" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Omeprazol</td>
+              <td class="cell-desc">
+                1 mg/kg/dia EV ou VO 1x/dia em jejum.
+                <span class="dose-calc-badge empty" id="calc-omeprazol"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_ondans" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Ondansetrona</td>
+              <td class="cell-desc">
+                0,15 mg/kg/dose EV ou VO de 8/8h.
+                <span class="dose-calc-badge empty" id="calc-ondans"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_peg" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Polietilenoglicol (PEG 4000)</td>
+              <td class="cell-desc">
+                Manutenção: 0,4 a 0,8 g/kg/dia | Desimpactação: 1 a 1,5 g/kg/dia VO em água.
+                <span class="dose-calc-badge empty" id="calc-peg"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="med_simet" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Simeticona gotas (75 mg/ml)</td>
+              <td class="cell-desc">
+                1 gota/kg VO de 8/8h.
+                <span class="dose-calc-badge empty" id="calc-simet"></span>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- 6. GLICEMIA & INSULINAS -->
+        <div class="category-card">
+          <div class="category-header">6. Controle Glicêmico & Insulinoterapia</div>
+          <table class="item-table">
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="glic_hgt" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">HGT de 6/6h</td>
+              <td class="cell-desc">Aferir antes das refeições e às 03:00h (alvo: 70 a 140 mg/dL).</td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="glic_sg10" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">SG 10% (Hipoglicemia)</td>
+              <td class="cell-desc">
+                2 ml/kg EV em bolus se HGT &lt; 60 mg/dL (evitar G50% em pediatria).
+                <span class="dose-calc-badge empty" id="calc-sg10"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="glic_nph" onchange="toggleMedication(this)"></td>
+              <td class="cell-name" style="color:#0369a1;">Insulina NPH (3 Tomadas)</td>
+              <td class="cell-desc">
+                <strong>0,5 a 1,0 UI/kg/dia SC</strong> fracionada: <strong>1/2 manhã | 1/4 tarde | 1/4 noite</strong>.
+                <span class="dose-calc-badge empty" id="calc-nph" style="background:#e0f2fe; color:#0369a1; border-color:#7dd3fc;"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="glic_glargina" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Insulina Glargina</td>
+              <td class="cell-desc">
+                0,2 a 0,4 UI/kg/dia SC 1x/dia sempre no mesmo horário.
+                <span class="dose-calc-badge empty" id="calc-glargina"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="glic_regular_mapa" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Insulina Regular SC</td>
+              <td class="cell-desc">Correção de hiperglicemia conforme escala móvel abaixo pelo peso do paciente.</td>
+            </tr>
+          </table>
+
+          <!-- MAPA GLICÊMICO -->
+          <div style="padding: 8px 12px;">
+            <table class="mapa-table">
+              <thead>
+                <tr>
+                  <th style="width:28%;">Glicemia Capilar (HGT)</th>
+                  <th>Faixa 1 (&lt; 15 kg)<br><span class="tier-badge">Lactente / Pré-escolar</span></th>
+                  <th>Faixa 2 (15 a 30 kg)<br><span class="tier-badge">Escolar</span></th>
+                  <th>Faixa 3 (&gt; 30 kg)<br><span class="tier-badge">Adolescente</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>&lt; 70 mg/dL</td>
+                  <td colspan="3" style="color:var(--danger); font-weight:700; background:#fef2f2;">Hipoglicemia: SG 10% 2 ml/kg EV em bolus</td>
+                </tr>
+                <tr>
+                  <td>70 a 180 mg/dL</td>
+                  <td>0 UI</td>
+                  <td>0 UI</td>
+                  <td>0 UI</td>
+                </tr>
+                <tr>
+                  <td>181 a 240 mg/dL</td>
+                  <td><strong>0,5 UI SC</strong></td>
+                  <td><strong>1,0 UI SC</strong></td>
+                  <td><strong>2,0 UI SC</strong></td>
+                </tr>
+                <tr>
+                  <td>241 a 300 mg/dL</td>
+                  <td><strong>1,0 UI SC</strong></td>
+                  <td><strong>2,0 UI SC</strong></td>
+                  <td><strong>3,0 UI SC</strong></td>
+                </tr>
+                <tr>
+                  <td>301 a 350 mg/dL</td>
+                  <td><strong>1,5 UI SC</strong></td>
+                  <td><strong>3,0 UI SC</strong></td>
+                  <td><strong>4,0 UI SC</strong></td>
+                </tr>
+                <tr>
+                  <td>&gt; 350 mg/dL</td>
+                  <td><strong>2,0 UI SC</strong> + avisar médico</td>
+                  <td><strong>4,0 UI SC</strong> + avisar médico</td>
+                  <td><strong>5,0 UI SC</strong> + avisar médico</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 7. ANTIBIÓTICOS -->
+        <div class="category-card">
+          <div class="category-header">7. Antibióticos & Antimicrobianos</div>
+          <table class="item-table">
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_amica" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Amicacina</td>
+              <td class="cell-desc">
+                15 mg/kg/dia EV ou IM (1x/dia ou fracionada de 12/12h).
+                <span class="dose-calc-badge empty" id="calc-amica"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_amox_clav" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Amoxicilina + Clavulanato</td>
+              <td class="cell-desc">
+                50 a 90 mg/kg/dia (base amoxicilina) VO fracionada de 8/8h ou 12/12h.
+                <span class="dose-calc-badge empty" id="calc-amoxclav"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_penic_crist" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Benzilpenicilina Cristalina</td>
+              <td class="cell-desc">
+                100.000 a 200.000 UI/kg/dia EV fracionada de 4/4h ou 6/6h.
+                <span class="dose-calc-badge empty" id="calc-penic"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_cefepime" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Cefepime</td>
+              <td class="cell-desc">
+                100 a 150 mg/kg/dia EV fracionada de 8/8h.
+                <span class="dose-calc-badge empty" id="calc-cefepime"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_ceftriax" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Ceftriaxona</td>
+              <td class="cell-desc">
+                50 a 100 mg/kg/dia EV (1x/dia ou fracionada de 12/12h).
+                <span class="dose-calc-badge empty" id="calc-ceftriax"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_clinda" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Clindamicina</td>
+              <td class="cell-desc">
+                20 a 40 mg/kg/dia EV fracionada de 6/6h.
+                <span class="dose-calc-badge empty" id="calc-clinda"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_mero" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Meropenem</td>
+              <td class="cell-desc">
+                60 a 120 mg/kg/dia EV fracionada de 8/8h (20 a 40 mg/kg/dose).
+                <span class="dose-calc-badge empty" id="calc-mero"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_neom_pom" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Neomicina + Bacitracina Pomada</td>
+              <td class="cell-desc">Aplicar fina camada sobre a lesão 2 a 3x/dia após limpeza local.</td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_neom_vo" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Neomicina VO</td>
+              <td class="cell-desc">
+                50 a 100 mg/kg/dia VO fracionada de 6/6h (descontaminação enteral).
+                <span class="dose-calc-badge empty" id="calc-neom-vo"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_oxacilina" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Oxacilina</td>
+              <td class="cell-desc">
+                100 a 200 mg/kg/dia EV fracionada de 6/6h.
+                <span class="dose-calc-badge empty" id="calc-oxacilina"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_piptazo" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Piperacilina + Tazobactam</td>
+              <td class="cell-desc">
+                240 a 300 mg/kg/dia EV fracionada de 6/6h ou 8/8h (infusão em 30 min a 3h).
+                <span class="dose-calc-badge empty" id="calc-piptazo"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="atb_vanco" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Vancomicina</td>
+              <td class="cell-desc">
+                40 a 60 mg/kg/dia EV fracionada de 6/6h (infusão lenta em 60 min).
+                <span class="dose-calc-badge empty" id="calc-vanco"></span>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- 8. RESPIRATÓRIO -->
+        <div class="category-card">
+          <div class="category-header">8. Respiratório & Corticoides</div>
+          <table class="item-table">
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_atrovent" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Atrovent (Ipratrópio 0,25 mg/ml)</td>
+              <td class="cell-desc">&lt; 1 ano: 10 gotas | &gt; 1 ano: 20 gotas + 3 ml SF 0,9% em nebulização. <span class="dose-max-tag">🛑 Dose Máx: 20 gotas (250 mcg) por NBZ</span></td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_clenil_a" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Clenil A (Flaconete p/ NBZ)</td>
+              <td class="cell-desc">1/2 a 1 flaconete + 2 a 3 ml SF 0,9% via nebulização de 12/12h. <span class="dose-max-tag">🛑 Dose Máx: 1 flaconete 12/12h</span></td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_clenil_hfa" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Clenil HFA spray (50 ou 250mcg)</td>
+              <td class="cell-desc">1 a 2 puffs de 12/12h com espaçador valvulado facial.</td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_dexa" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Dexametasona</td>
+              <td class="cell-desc">
+                0,15 a 0,3 mg/kg/dose EV ou VO de 12/12h.
+                <span class="dose-calc-badge empty" id="calc-dexa"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_hidro" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Hidrocortisona EV</td>
+              <td class="cell-desc">
+                Ataque: 5 a 10 mg/kg EV | Manutenção: 5 mg/kg/dia fracionada de 6/6h.
+                <span class="dose-calc-badge empty" id="calc-hidro"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_predni" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Prednisolona sol. oral (3 mg/ml)</td>
+              <td class="cell-desc">
+                1 a 2 mg/kg/dia VO 1x/dia pela manhã.
+                <span class="dose-calc-badge empty" id="calc-predni"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_salbu_nbz" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Salbutamol NBZ (5 mg/ml)</td>
+              <td class="cell-desc">
+                1 gota / 3 kg (mínimo 5 gotas) + 3 ml SF 0,9%.
+                <span class="dose-calc-badge empty" id="calc-salbu-nbz"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="resp_salbu_spray" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Salbutamol spray (100 mcg)</td>
+              <td class="cell-desc">2 a 4 puffs com espaçador valvulado facial SN se sibilância. <span class="dose-max-tag">🛑 Dose Máx: 8-10 puffs em crise</span></td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- 9. NEUROLOGIA -->
+        <div class="category-card">
+          <div class="category-header">9. Neurologia, Anticonvulsivantes & Sedação</div>
+          <table class="item-table">
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_valpro" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Ácido Valproico / Divalproato</td>
+              <td class="cell-desc">
+                Início: 10 a 15 mg/kg/dia | Manutenção: 20 a 40 mg/kg/dia VO de 8/8h ou 12/12h.
+                <span class="dose-calc-badge empty" id="calc-valpro"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_carba" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Carbamazepina</td>
+              <td class="cell-desc">
+                Início: 5 a 10 mg/kg/dia | Manutenção: 10 a 20 mg/kg/dia VO de 8/8h ou 12/12h.
+                <span class="dose-calc-badge empty" id="calc-carba"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_cloba" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Clobazam</td>
+              <td class="cell-desc">
+                Início: 0,2 a 0,5 mg/kg/dia | Manutenção: até 0,5 a 1 mg/kg/dia VO de 12/12h.
+                <span class="dose-calc-badge empty" id="calc-cloba"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_escet" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Escetamina</td>
+              <td class="cell-desc">
+                EV lento: 0,5 a 1 mg/kg/dose | IM: 2 a 3 mg/kg/dose (sedação).
+                <span class="dose-calc-badge empty" id="calc-escet"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_feni" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Fenitoína</td>
+              <td class="cell-desc">
+                Ataque: 15 a 20 mg/kg EV em SF 0,9% em 20 min | Manutenção: 5 a 8 mg/kg/dia.
+                <span class="dose-calc-badge empty" id="calc-feni"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_fenob" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Fenobarbital</td>
+              <td class="cell-desc">
+                Ataque: 15 a 20 mg/kg EV lento (1 mg/kg/min) | Manutenção: 3 a 5 mg/kg/dia VO/EV.
+                <span class="dose-calc-badge empty" id="calc-fenob"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_gaba" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Gabapentina</td>
+              <td class="cell-desc">
+                Início: 10 a 15 mg/kg/dia | Manutenção: 20 a 40 mg/kg/dia VO de 8/8h.
+                <span class="dose-calc-badge empty" id="calc-gaba"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_levet" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Levetiracetam</td>
+              <td class="cell-desc">
+                Início: 20 a 30 mg/kg/dia | Titulação: 40 a 60 mg/kg/dia | Ataque: 40 a 60 mg/kg EV.
+                <span class="dose-calc-badge empty" id="calc-levet"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_mida" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Midazolam</td>
+              <td class="cell-desc">
+                Sedação: 0,1 a 0,2 mg/kg EV | Crise: 0,2 mg/kg EV ou 0,3 mg/kg via nasal/bucal.
+                <span class="dose-calc-badge empty" id="calc-mida"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="neuro_risper" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Risperidona</td>
+              <td class="cell-desc">
+                &lt; 20 kg: iniciar 0,25 mg VO à noite | &ge; 20 kg: iniciar 0,5 mg VO à noite.
+                <span class="dose-calc-badge empty" id="calc-risper"></span>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- 10. SUPORTE HEMODINÂMICO -->
+        <div class="category-card">
+          <div class="category-header">10. Anti-hipertensivos & Suporte Hemodinâmico</div>
+          <table class="item-table">
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="hemo_adrena" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Adrenalina BIC</td>
+              <td class="cell-desc">
+                0,05 a 1 mcg/kg/min contínua em acesso exclusivo.
+                <span class="dose-calc-badge empty" id="calc-adrena"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="hemo_capto" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Captopril</td>
+              <td class="cell-desc">
+                0,1 a 0,3 mg/kg/dose VO SN se PA &gt; P95 + 12 mmHg.
+                <span class="dose-calc-badge empty" id="calc-capto"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="hemo_furo" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Furosemida</td>
+              <td class="cell-desc">
+                1 mg/kg/dose EV ou VO de 12/12h ou 24/24h.
+                <span class="dose-calc-badge empty" id="calc-furo"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="hemo_hidrala" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Hidralazina</td>
+              <td class="cell-desc">
+                0,1 a 0,2 mg/kg/dose EV lento SN se Urgência Hipertensiva.
+                <span class="dose-calc-badge empty" id="calc-hidrala"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="hemo_nora" onchange="toggleMedication(this)"></td>
+              <td class="cell-name">Noradrenalina BIC</td>
+              <td class="cell-desc">
+                0,05 a 1 mcg/kg/min contínua em acesso venoso central.
+                <span class="dose-calc-badge empty" id="calc-nora"></span>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- ASSINATURAS -->
+        <div class="signature-card">
+          <div class="signature-line">Enfermagem / Checagem</div>
+          <div class="signature-line">Médico(a) Assistente / CRM</div>
+        </div>
+
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- SUB-ABA 2: PRONTUÁRIO & FICHA CLÍNICA -->
+      <!-- ============================================================== -->
+      <div id="subview-pront" style="display:none;">
+        <div class="prontuario-card">
+          <div class="prontuario-section-title">Dados Clínicos & Identificação Completa</div>
+          
+          <div class="grid-2" style="margin-bottom:12px;">
+            <div class="input-group">
+              <label>Nome da Mãe</label>
+              <input type="text" id="pront-mother" placeholder="Nome completo da genitora..." oninput="updateProntuarioField('mother', this.value)">
+            </div>
+            <div class="input-group">
+              <label>Sexo</label>
+              <select id="pront-sex" onchange="updateProntuarioField('sex', this.value)">
+                <option value="">Selecione...</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Feminino">Feminino</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-bottom:12px;">
+            <div class="input-group">
+              <label>Motivo da Internação</label>
+              <input type="text" id="pront-reason" placeholder="Hipótese diagnóstica / Queixa principal..." oninput="updateProntuarioField('reason', this.value)">
+            </div>
+            <div class="input-group">
+              <label>Comorbidades</label>
+              <input type="text" id="pront-comorbidities" placeholder="Asma, cardiopatia congênita, epilepsia, DM1..." oninput="updateProntuarioField('comorbidities', this.value)">
+            </div>
+          </div>
+
+          <div class="input-group" style="margin-bottom:16px;">
+            <label>História Clínica / Anamnese / Evolução</label>
+            <textarea id="pront-history" rows="5" placeholder="História da doença atual, antecedentes mórbidos, imunizações e desenvolvimento..." oninput="updateProntuarioField('clinicalHistory', this.value)"></textarea>
+          </div>
+
+          <div class="prontuario-section-title">Sinais Vitais & Dados Antropométricos</div>
+          <div class="grid-vitals" style="margin-bottom:10px;">
+            <div class="input-group">
+              <label>FC (Frequência Cardíaca)</label>
+              <input type="text" id="pront-fc" placeholder="bpm" oninput="updateProntuarioField('fc', this.value)">
+            </div>
+            <div class="input-group">
+              <label>PA (Pressão Arterial)</label>
+              <input type="text" id="pront-pa" placeholder="Ex: 90x60 mmHg" oninput="updateProntuarioField('pa', this.value)">
+            </div>
+            <div class="input-group">
+              <label>Peso (kg)</label>
+              <input type="number" step="0.1" id="pront-peso" class="input-weight-highlight" placeholder="kg" oninput="onWeightChange(this.value); document.getElementById('p-weight').value = this.value;">
+            </div>
+            <div class="input-group">
+              <label>FR (Frequência Resp.)</label>
+              <input type="text" id="pront-fr" placeholder="irpm" oninput="updateProntuarioField('fr', this.value)">
+            </div>
+          </div>
+
+          <div class="grid-3" style="margin-bottom:16px;">
+            <div class="input-group">
+              <label>TX (Temperatura Axilar)</label>
+              <input type="text" id="pront-tx" placeholder="Ex: 36.8 °C" oninput="updateProntuarioField('tx', this.value)">
+            </div>
+            <div class="input-group">
+              <label>Altura / Comprimento</label>
+              <input type="text" id="pront-altura" placeholder="Ex: 92 cm" oninput="updateProntuarioField('height', this.value)">
+            </div>
+            <div class="input-group">
+              <label>Diurese</label>
+              <input type="text" id="pront-diurese" placeholder="Ex: 2.1 ml/kg/h ou 450ml/24h" oninput="updateProntuarioField('diuresis', this.value)">
+            </div>
+          </div>
+
+          <div class="prontuario-section-title">Eliminações & Trânsito Gastrointestinal</div>
+          <div class="grid-2" style="margin-bottom:16px;">
+            <div class="input-group">
+              <label>Evacuações</label>
+              <input type="text" id="pront-evacuacoes" placeholder="Ex: 2x/dia pastosas, ausência de sangue ou muco..." oninput="updateProntuarioField('evacuations', this.value)">
+            </div>
+            <div class="input-group">
+              <label>Flatos</label>
+              <input type="text" id="pront-flatos" placeholder="Ex: Presentes e normais..." oninput="updateProntuarioField('flatus', this.value)">
+            </div>
+          </div>
+
+          <div class="prontuario-section-title">Exames Laboratoriais & Imagem</div>
+          <div class="input-group">
+            <textarea id="pront-exames" rows="5" placeholder="Hemograma, PCR, Ureia, Creatinina, Gasometria, RX de tórax, Urina tipo 1..." oninput="updateProntuarioField('labExams', this.value)"></textarea>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'pediatric_prescriptions_db_v4';
+    let patients = [];
+    let currentPatientId = null;
+    let currentSubTab = 'presc';
+
+    window.onload = function() {
+      loadDatabase();
+      if (!patients.length) {
+        createNewPatient();
+      } else {
+        switchPatientTab(patients[0].id);
+      }
+    };
+
+    function switchSubTab(sub) {
+      currentSubTab = sub;
+      document.getElementById('subview-presc').style.display = (sub === 'presc') ? 'block' : 'none';
+      document.getElementById('subview-pront').style.display = (sub === 'pront') ? 'block' : 'none';
+
+      document.getElementById('btn-subtab-presc').classList.toggle('active', sub === 'presc');
+      document.getElementById('btn-subtab-pront').classList.toggle('active', sub === 'pront');
+    }
+
+    function loadDatabase() {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        patients = data ? JSON.parse(data) : [];
+      } catch (e) {
+        patients = [];
+      }
+      updateArchiveCount();
+    }
+
+    function saveDatabase() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(patients));
+      updateArchiveCount();
+      flashSaveIndicator();
+    }
+
+    function flashSaveIndicator() {
+      const el = document.getElementById('save-status');
+      el.textContent = '● Salvo ✓';
+      el.style.color = '#4ade80';
+      setTimeout(() => {
+        el.textContent = '● Salvo localmente';
+        el.style.color = '#38bdf8';
+      }, 1000);
+    }
+
+    function updateArchiveCount() {
+      document.getElementById('archive-count').textContent = patients.length;
+    }
+
+    function createNewPatient() {
+      const newId = 'pac_' + Date.now();
+      const defaultDate = new Date().toISOString().split('T')[0];
+      const newPat = {
+        id: newId,
+        name: 'Novo Paciente',
+        bed: '',
+        date: defaultDate,
+        age: '',
+        weight: '',
+        allergies: 'Nega',
+        diet_formula_detail: '',
+        hidra_detail: '',
+        mother: '',
+        sex: '',
+        reason: '',
+        comorbidities: '',
+        clinicalHistory: '',
+        fc: '',
+        pa: '',
+        fr: '',
+        tx: '',
+        height: '',
+        diuresis: '',
+        evacuations: '',
+        flatus: '',
+        labExams: '',
+        checks: {}
+      };
+      patients.push(newPat);
+      saveDatabase();
+      renderTabs();
+      switchPatientTab(newId);
+    }
+
+    function switchPatientTab(id) {
+      currentPatientId = id;
+      document.getElementById('archive-view').style.display = 'none';
+      document.getElementById('patient-main-view').style.display = 'block';
+
+      renderTabs();
+      loadPatientDataIntoForm(id);
+      switchSubTab(currentSubTab);
+    }
+
+    function showArchiveView() {
+      currentPatientId = null;
+      document.getElementById('patient-main-view').style.display = 'none';
+      document.getElementById('archive-view').style.display = 'block';
+
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('tab-archive-btn').classList.add('active');
+
+      renderArchiveTable();
+    }
+
+    function renderTabs() {
+      const container = document.getElementById('tabs-bar');
+      const archiveBtn = document.getElementById('tab-archive-btn');
+      container.innerHTML = '';
+      container.appendChild(archiveBtn);
+
+      patients.forEach(pat => {
+        const btn = document.createElement('button');
+        btn.className = `tab-btn ${pat.id === currentPatientId ? 'active' : ''}`;
+        
+        const spanTitle = document.createElement('span');
+        spanTitle.textContent = (pat.name && pat.name.trim() !== '') ? pat.name : 'Sem nome';
+        if (pat.bed) spanTitle.textContent += ` (${pat.bed})`;
+        btn.appendChild(spanTitle);
+
+        const closeBtn = document.createElement('span');
+        closeBtn.className = 'tab-close';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.title = 'Excluir Paciente';
+        closeBtn.onclick = function(e) {
+          e.stopPropagation();
+          deletePatient(pat.id);
+        };
+        btn.appendChild(closeBtn);
+
+        btn.onclick = () => switchPatientTab(pat.id);
+        container.appendChild(btn);
+      });
+    }
+
+    function loadPatientDataIntoForm(id) {
+      const pat = patients.find(p => p.id === id);
+      if (!pat) return;
+
+      document.getElementById('p-name').value = pat.name || '';
+      document.getElementById('p-bed').value = pat.bed || '';
+      document.getElementById('p-date').value = pat.date || '';
+      document.getElementById('p-age').value = pat.age || '';
+      document.getElementById('p-weight').value = pat.weight || '';
+      document.getElementById('p-allergies').value = pat.allergies || '';
+      document.getElementById('diet-formula-val').value = pat.diet_formula_detail || '';
+      document.getElementById('hidra-vol').value = pat.hidra_detail || '';
+
+      document.getElementById('pront-mother').value = pat.mother || '';
+      document.getElementById('pront-sex').value = pat.sex || '';
+      document.getElementById('pront-reason').value = pat.reason || '';
+      document.getElementById('pront-comorbidities').value = pat.comorbidities || '';
+      document.getElementById('pront-history').value = pat.clinicalHistory || '';
+      document.getElementById('pront-fc').value = pat.fc || '';
+      document.getElementById('pront-pa').value = pat.pa || '';
+      document.getElementById('pront-peso').value = pat.weight || '';
+      document.getElementById('pront-fr').value = pat.fr || '';
+      document.getElementById('pront-tx').value = pat.tx || '';
+      document.getElementById('pront-altura').value = pat.height || '';
+      document.getElementById('pront-diurese').value = pat.diuresis || '';
+      document.getElementById('pront-evacuacoes').value = pat.evacuations || '';
+      document.getElementById('pront-flatos').value = pat.flatus || '';
+      document.getElementById('pront-exames').value = pat.labExams || '';
+
+      onWeightChange(pat.weight);
+
+      document.querySelectorAll('.med-check-single').forEach(chk => {
+        const item = chk.dataset.item;
+        const isChecked = !!(pat.checks && pat.checks[item]);
+        chk.checked = isChecked;
+        const tr = chk.closest('tr');
+        if (tr) tr.classList.toggle('row-selected', isChecked);
+      });
+    }
+
+    function syncPatientField(field, val) {
+      if (!currentPatientId) return;
+      const pat = patients.find(p => p.id === currentPatientId);
+      if (pat) {
+        pat[field] = val;
+        saveDatabase();
+        if (field === 'name' || field === 'bed') renderTabs();
+      }
+    }
+
+    function updateProntuarioField(field, val) {
+      if (!currentPatientId) return;
+      const pat = patients.find(p => p.id === currentPatientId);
+      if (pat) {
+        pat[field] = val;
+        saveDatabase();
+      }
+    }
+
+    function toggleMedication(chk) {
+      if (!currentPatientId) return;
+      const pat = patients.find(p => p.id === currentPatientId);
+      if (pat) {
+        if (!pat.checks) pat.checks = {};
+        pat.checks[chk.dataset.item] = chk.checked;
+        saveDatabase();
+      }
+      const tr = chk.closest('tr');
+      if (tr) tr.classList.toggle('row-selected', chk.checked);
+    }
+
+    function onWeightChange(val) {
+      syncPatientField('weight', val);
+      document.getElementById('p-weight').value = val || '';
+      document.getElementById('pront-peso').value = val || '';
+      const w = parseFloat(val);
+      calculateAllDoses(w);
+    }
+
+    // ==============================================================
+    // MOTOR DE CÁLCULO DE DOSES DINÂMICAS & DOSES MÁXIMAS
+    // ==============================================================
+    function setBadge(id, text) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (!text) {
+        el.classList.add('empty');
+        el.textContent = '';
+      } else {
+        el.classList.remove('empty');
+        el.innerHTML = text;
+      }
+    }
+
+    function r(num, dec = 1) {
+      return Number(num.toFixed(dec)).toLocaleString('pt-BR');
+    }
+
+    function calculateAllDoses(w) {
+      const holLabel = document.getElementById('holliday-calc-sugg');
+      if (isNaN(w) || w <= 0) {
+        holLabel.textContent = '--- ml/24h';
+        document.querySelectorAll('.dose-calc-badge').forEach(b => {
+          if (!b.id.includes('calc-flor')) b.classList.add('empty');
+        });
+        return;
+      }
+
+      // HOLLIDAY-SEGAR
+      let vol = 0;
+      if (w <= 10) vol = w * 100;
+      else if (w <= 20) vol = 1000 + (w - 10) * 50;
+      else vol = 1500 + (w - 20) * 20;
+
+      holLabel.textContent = `${Math.round(vol)} ml / 24h`;
+      setBadge('calc-holliday-taxa', `⚡ Taxa Basal: ${r(vol / 24, 1)} ml/h em Bomba Contínua`);
+
+      // 4. ANALGÉSICOS
+      // Dipirona EV (20 a 25 mg/kg; máx 1000mg/dose e 4000mg/dia)
+      const dipiEvMin = Math.min(w * 20, 1000);
+      const dipiEvMax = Math.min(w * 25, 1000);
+      setBadge('calc-dipi-ev', `Dose calculada: <strong>${r(dipiEvMin)} a ${r(dipiEvMax)} mg</strong> EV (${r(dipiEvMin / 500, 2)} a ${r(dipiEvMax / 500, 2)} ml) de 6/6h <span class="dose-max-tag">🛑 Dose Máx: 1.000 mg/dose (4.000 mg/dia)</span>`);
+
+      // Dipirona gotas (1 gts/kg; máx 40 gts/dose e 160 gts/dia)
+      const dipiGts = Math.min(Math.round(w), 40);
+      setBadge('calc-dipi-gts', `Dose calculada: <strong>${dipiGts} gotas</strong> VO de 6/6h SN <span class="dose-max-tag">🛑 Dose Máx: 40 gotas/dose (160 gts/dia)</span>`);
+
+      // Hidroxizina (0,5 a 1 mg/kg; máx 50mg/dia <6a e 100mg/dia >=6a)
+      const hidroxMin = Math.min(w * 0.5, 25);
+      const hidroxMax = Math.min(w * 1.0, 50);
+      setBadge('calc-hidroxi', `Dose calculada: <strong>${r(hidroxMin)} a ${r(hidroxMax)} mg</strong> VO (${r(hidroxMin / 2)} a ${r(hidroxMax / 2)} ml) <span class="dose-max-tag">🛑 Dose Máx: 50 a 100 mg/dia</span>`);
+
+      // Ibuprofeno gotas (10 mg/kg; máx 40 gts/400mg por dose; 2400mg/dia)
+      const ibuGts = Math.min(Math.round(w), 40);
+      setBadge('calc-ibu', `Dose calculada: <strong>${ibuGts} gotas</strong> VO de 8/8h (${r(ibuGts * 5)} mg) <span class="dose-max-tag">🛑 Dose Máx: 40 gotas/dose (400 mg/dose | máx 1.200 a 2.400 mg/dia)</span>`);
+
+      // Paracetamol gotas (10 a 15 mg/kg; máx 35 gts/dose e 75 mg/kg/dia até 4000mg)
+      const paraGts = Math.min(Math.round(w), 35);
+      setBadge('calc-para', `Dose calculada: <strong>${paraGts} gotas</strong> VO de 6/6h SN (${r(paraGts * 10)} mg) <span class="dose-max-tag">🛑 Dose Máx: 35-50 gotas/dose (máx 75 mg/kg/dia até 3.000-4.000 mg/dia)</span>`);
+
+      // Trometamol Cetorolaco (0,5 mg/kg; máx 15mg <50kg ou 30mg >=50kg; máx 60mg/dia)
+      const trometDose = Math.min(w * 0.5, w < 50 ? 15 : 30);
+      setBadge('calc-tromet', `Dose calculada: <strong>${r(trometDose)} mg</strong> EV/VO de 8/8h <span class="dose-max-tag">🛑 Dose Máx: 15 mg (<50kg) ou 30 mg (≥50kg) por dose | máx 60 mg/dia</span>`);
+
+      // 5. GASTROINTESTINAL
+      const clisterVolMin = Math.min(w * 2, 130);
+      const clisterVolMax = Math.min(w * 3, 130);
+      setBadge('calc-clister', `Volume calculado: <strong>${r(clisterVolMin)} a ${r(clisterVolMax)} ml</strong> retal <span class="dose-max-tag">🛑 Dose Máx: 130 ml/aplicação</span>`);
+
+      const lactulonaVol = Math.min(w * 1, 60);
+      setBadge('calc-lactulona', `Dose calculada: <strong>${r(lactulonaVol)} ml/dia</strong> VO (ou ${r(lactulonaVol / 2)} ml 12/12h) <span class="dose-max-tag">🛑 Dose Máx: 40 a 60 ml/dia</span>`);
+
+      const omeprazolDose = Math.min(w * 1, 40);
+      setBadge('calc-omeprazol', `Dose calculada: <strong>${r(omeprazolDose)} mg/dia</strong> EV ou VO 1x/dia em jejum <span class="dose-max-tag">🛑 Dose Máx: 20 mg (<20kg) ou 40 mg (≥20kg) por dia</span>`);
+
+      const ondansDose = Math.min(w * 0.15, 8);
+      setBadge('calc-ondans', `Dose calculada: <strong>${r(ondansDose)} mg</strong> EV/VO de 8/8h (${r(ondansDose / 2, 1)} ml ampola 2mg/ml) <span class="dose-max-tag">🛑 Dose Máx: 8 mg/dose (24 mg/dia)</span>`);
+
+      const pegManutMin = Math.min(w * 0.4, 17);
+      const pegManutMax = Math.min(w * 0.8, 34);
+      const pegDesimpMin = Math.min(w * 1, 85);
+      const pegDesimpMax = Math.min(w * 1.5, 85);
+      setBadge('calc-peg', `Manutenção: <strong>${r(pegManutMin)} a ${r(pegManutMax)} g/dia</strong> | Desimpactação: <strong>${r(pegDesimpMin)} a ${r(pegDesimpMax)} g/dia</strong> <span class="dose-max-tag">🛑 Dose Máx Manut: 34 g/dia | Desimp: 85-100 g/dia</span>`);
+
+      const simetGts = Math.min(Math.round(w), 30);
+      setBadge('calc-simet', `Dose calculada: <strong>${simetGts} gotas</strong> VO de 8/8h <span class="dose-max-tag">🛑 Dose Máx: 30 gotas/dose (120 gts/dia)</span>`);
+
+      // 6. INSULINAS & GLICEMIA
+      const sg10Vol = Math.min(w * 2, 200);
+      setBadge('calc-sg10', `Bolus calculado: <strong>${r(sg10Vol)} ml EV</strong> em bolus se HGT &lt; 60 mg/dL <span class="dose-max-tag">🛑 Dose Máx Bolus: 100 a 200 ml</span>`);
+      
+      // INSULINA NPH (0,5 a 1,0 UI/kg/dia fracionada em 3 tomadas)
+      const nphTotalMin = w * 0.5;
+      const nphTotalMax = w * 1.0;
+      setBadge('calc-nph', `
+        Dose Total Diária: <strong>${r(nphTotalMin)} a ${r(nphTotalMax)} UI/dia SC</strong> <span class="dose-max-tag">🛑 Teto inicial usual: 1,0 a 1,2 UI/kg/dia</span><br>
+        ☀️ <strong>Manhã (1/2):</strong> ${r(nphTotalMin * 0.5)} a ${r(nphTotalMax * 0.5)} UI SC &nbsp;|&nbsp; 
+        🌤️ <strong>Tarde (1/4):</strong> ${r(nphTotalMin * 0.25)} a ${r(nphTotalMax * 0.25)} UI SC &nbsp;|&nbsp; 
+        🌙 <strong>Noite (1/4):</strong> ${r(nphTotalMin * 0.25)} a ${r(nphTotalMax * 0.25)} UI SC
+      `);
+
+      setBadge('calc-glargina', `Dose calculada: <strong>${r(w * 0.2)} a ${r(w * 0.4)} UI/dia SC</strong> 1x/dia <span class="dose-max-tag">🛑 Teto inicial: 0,4 a 0,5 UI/kg/dia</span>`);
+
+      // 7. ANTIBIÓTICOS
+      const amicaDose = Math.min(w * 15, 1500);
+      setBadge('calc-amica', `Dose calculada: <strong>${r(amicaDose)} mg/dia</strong> EV ou IM (1x/dia ou ${r(amicaDose / 2)} mg 12/12h) <span class="dose-max-tag">🛑 Dose Máx: 1.500 mg/dia</span>`);
+
+      const amoxMin = Math.min(w * 50, 3000);
+      const amoxMax = Math.min(w * 90, 3000);
+      setBadge('calc-amoxclav', `Total diário: <strong>${r(amoxMin)} a ${r(amoxMax)} mg/dia</strong> VO (se 8/8h: ${r(amoxMin/3)} a ${r(amoxMax/3)} mg/dose) <span class="dose-max-tag">🛑 Dose Máx: 1.000 mg/dose (3.000 mg/dia)</span>`);
+
+      const penicMin = Math.min(w * 100000, 24000000);
+      const penicMax = Math.min(w * 200000, 24000000);
+      setBadge('calc-penic', `Total diário: <strong>${penicMin.toLocaleString('pt-BR')} a ${penicMax.toLocaleString('pt-BR')} UI/dia</strong> EV (se 4/4h: ${r(penicMin/6, 0)} a ${r(penicMax/6, 0)} UI/dose) <span class="dose-max-tag">🛑 Dose Máx: 24.000.000 UI/dia</span>`);
+
+      const cefepimeMin = Math.min(w * 100, 6000);
+      const cefepimeMax = Math.min(w * 150, 6000);
+      setBadge('calc-cefepime', `Total diário: <strong>${r(cefepimeMin)} a ${r(cefepimeMax)} mg/dia</strong> EV (se 8/8h: ${r(cefepimeMin/3)} a ${r(cefepimeMax/3)} mg/dose) <span class="dose-max-tag">🛑 Dose Máx: 2.000 mg/dose (6.000 mg/dia)</span>`);
+
+      const ceftriaxMin = Math.min(w * 50, 4000);
+      const ceftriaxMax = Math.min(w * 100, 4000);
+      setBadge('calc-ceftriax', `Dose calculada: <strong>${r(ceftriaxMin)} a ${r(ceftriaxMax)} mg/dia</strong> EV (1x/dia ou de 12/12h) <span class="dose-max-tag">🛑 Dose Máx: 2.000 mg/dia (geral) ou 4.000 mg/dia (meningite)</span>`);
+
+      const clindaMin = Math.min(w * 20, 2700);
+      const clindaMax = Math.min(w * 40, 2700);
+      setBadge('calc-clinda', `Total diário: <strong>${r(clindaMin)} a ${r(clindaMax)} mg/dia</strong> EV (se 6/6h: ${r(clindaMin/4)} a ${r(clindaMax/4)} mg/dose) <span class="dose-max-tag">🛑 Dose Máx: 900 mg/dose (2.700 mg/dia)</span>`);
+
+      const meroMin = Math.min(w * 60, 6000);
+      const meroMax = Math.min(w * 120, 6000);
+      setBadge('calc-mero', `Total diário: <strong>${r(meroMin)} a ${r(meroMax)} mg/dia</strong> EV (se 8/8h: ${r(meroMin/3)} a ${r(meroMax/3)} mg/dose) <span class="dose-max-tag">🛑 Dose Máx: 2.000 mg/dose (6.000 mg/dia)</span>`);
+
+      const neomVoMin = Math.min(w * 50, 4000);
+      const neomVoMax = Math.min(w * 100, 4000);
+      setBadge('calc-neom-vo', `Total diário: <strong>${r(neomVoMin)} a ${r(neomVoMax)} mg/dia</strong> VO (se 6/6h: ${r(neomVoMin/4)} a ${r(neomVoMax/4)} mg/dose) <span class="dose-max-tag">🛑 Dose Máx: 1.000 mg/dose (4.000 mg/dia)</span>`);
+
+      const oxaMin = Math.min(w * 100, 12000);
+      const oxaMax = Math.min(w * 200, 12000);
+      setBadge('calc-oxacilina', `Total diário: <strong>${r(oxaMin)} a ${r(oxaMax)} mg/dia</strong> EV (se 6/6h: ${r(oxaMin/4)} a ${r(oxaMax/4)} mg/dose) <span class="dose-max-tag">🛑 Dose Máx: 2.000 mg/dose (12.000 mg/dia)</span>`);
+
+      const piptazoMin = Math.min(w * 240, 16000);
+      const piptazoMax = Math.min(w * 300, 16000);
+      setBadge('calc-piptazo', `Total diário: <strong>${r(piptazoMin)} a ${r(piptazoMax)} mg/dia</strong> EV (se 6/6h: ${r(piptazoMin/4)} a ${r(piptazoMax/4)} mg/dose | 8/8h: ${r(piptazoMin/3)} a ${r(piptazoMax/3)} mg) <span class="dose-max-tag">🛑 Dose Máx: 4.000 mg piperacilina/dose (16.000 mg/dia)</span>`);
+
+      const vancoMin = Math.min(w * 40, 2000);
+      const vancoMax = Math.min(w * 60, 2000);
+      setBadge('calc-vanco', `Total diário: <strong>${r(vancoMin)} a ${r(vancoMax)} mg/dia</strong> EV (se 6/6h: ${r(vancoMin/4)} a ${r(vancoMax/4)} mg/dose) <span class="dose-max-tag">🛑 Dose Máx: 1.000 mg/dose (2.000 mg/dia - monitorar nível sérico)</span>`);
+
+      // 8. RESPIRATÓRIO & CORTICOIDES
+      const dexaMin = Math.min(w * 0.15, 10);
+      const dexaMax = Math.min(w * 0.3, 16);
+      setBadge('calc-dexa', `Dose calculada: <strong>${r(dexaMin)} a ${r(dexaMax)} mg/dose</strong> EV ou VO de 12/12h <span class="dose-max-tag">🛑 Dose Máx: 10 a 16 mg/dia</span>`);
+
+      const hidroAtqMin = Math.min(w * 5, 250);
+      const hidroAtqMax = Math.min(w * 10, 500);
+      const hidroManut = Math.min(w * 5, 200);
+      setBadge('calc-hidro', `Ataque: <strong>${r(hidroAtqMin)} a ${r(hidroAtqMax)} mg</strong> EV | Manutenção: <strong>${r(hidroManut)} mg/dia</strong> (${r(hidroManut/4)} mg 6/6h) <span class="dose-max-tag">🛑 Dose Máx: Ataque 500 mg | Manut 200 a 300 mg/dia</span>`);
+
+      const predniMgMin = Math.min(w * 1, 60);
+      const predniMgMax = Math.min(w * 2, 60);
+      setBadge('calc-predni', `Dose calculada: <strong>${r(predniMgMin)} a ${r(predniMgMax)} mg/dia</strong> VO (${r(predniMgMin/3)} a ${r(predniMgMax/3)} ml sol. 3mg/ml) <span class="dose-max-tag">🛑 Dose Máx: 60 mg/dia (20 ml/dia)</span>`);
+
+      const salbuGts = Math.min(Math.max(Math.round(w / 3), 5), 15);
+      setBadge('calc-salbu-nbz', `Dose calculada: <strong>${salbuGts} gotas</strong> + 3 ml SF 0,9% <span class="dose-max-tag">🛑 Dose Máx: 15 a 20 gotas (2,5 a 5 mg) por inalação</span>`);
+
+      // 9. NEUROLOGIA
+      const valproInicMin = Math.min(w * 10, 3000);
+      const valproInicMax = Math.min(w * 15, 3000);
+      const valproManutMin = Math.min(w * 20, 3000);
+      const valproManutMax = Math.min(w * 40, 3000);
+      setBadge('calc-valpro', `Início: <strong>${r(valproInicMin)} a ${r(valproInicMax)} mg/dia</strong> | Manutenção: <strong>${r(valproManutMin)} a ${r(valproManutMax)} mg/dia</strong> VO <span class="dose-max-tag">🛑 Dose Máx: 60 mg/kg/dia (até 3.000 mg/dia)</span>`);
+
+      const carbaInicMin = Math.min(w * 5, 1200);
+      const carbaInicMax = Math.min(w * 10, 1200);
+      const carbaManutMin = Math.min(w * 10, 1600);
+      const carbaManutMax = Math.min(w * 20, 1600);
+      setBadge('calc-carba', `Início: <strong>${r(carbaInicMin)} a ${r(carbaInicMax)} mg/dia</strong> | Manutenção: <strong>${r(carbaManutMin)} a ${r(carbaManutMax)} mg/dia</strong> VO <span class="dose-max-tag">🛑 Dose Máx: 35 mg/kg/dia (máx 1.200 a 1.600 mg/dia)</span>`);
+
+      const clobaInicMin = Math.min(w * 0.2, 40);
+      const clobaInicMax = Math.min(w * 0.5, 40);
+      const clobaManut = Math.min(w * 1.0, 40);
+      setBadge('calc-cloba', `Início: <strong>${r(clobaInicMin)} a ${r(clobaInicMax)} mg/dia</strong> | Manutenção: até <strong>${r(clobaManut)} mg/dia</strong> VO <span class="dose-max-tag">🛑 Dose Máx: 40 mg/dia</span>`);
+
+      const escetEvMin = Math.min(w * 0.5, 100);
+      const escetEvMax = Math.min(w * 1.0, 100);
+      const escetImMin = Math.min(w * 2, 200);
+      const escetImMax = Math.min(w * 3, 200);
+      setBadge('calc-escet', `Sedação EV: <strong>${r(escetEvMin)} a ${r(escetEvMax)} mg</strong> | Dose IM: <strong>${r(escetImMin)} a ${r(escetImMax)} mg</strong> <span class="dose-max-tag">🛑 Dose Máx: EV 100 mg | IM 200 mg</span>`);
+
+      const feniAtqMin = Math.min(w * 15, 1500);
+      const feniAtqMax = Math.min(w * 20, 1500);
+      const feniManutMin = Math.min(w * 5, 400);
+      const feniManutMax = Math.min(w * 8, 400);
+      setBadge('calc-feni', `Ataque: <strong>${r(feniAtqMin)} a ${r(feniAtqMax)} mg</strong> EV (apenas SF 0,9%) | Manutenção: <strong>${r(feniManutMin)} a ${r(feniManutMax)} mg/dia</strong> <span class="dose-max-tag">🛑 Dose Máx: Ataque 1.500 mg | Manut 300 a 400 mg/dia</span>`);
+
+      const fenobAtqMin = Math.min(w * 15, 1000);
+      const fenobAtqMax = Math.min(w * 20, 1000);
+      const fenobManutMin = Math.min(w * 3, 300);
+      const fenobManutMax = Math.min(w * 5, 300);
+      setBadge('calc-fenob', `Ataque: <strong>${r(fenobAtqMin)} a ${r(fenobAtqMax)} mg</strong> EV lento | Manutenção: <strong>${r(fenobManutMin)} a ${r(fenobManutMax)} mg/dia</strong> <span class="dose-max-tag">🛑 Dose Máx: Ataque 1.000 mg | Manut 200 a 300 mg/dia</span>`);
+
+      const gabaInicMin = Math.min(w * 10, 2400);
+      const gabaInicMax = Math.min(w * 15, 2400);
+      const gabaManutMin = Math.min(w * 20, 3600);
+      const gabaManutMax = Math.min(w * 40, 3600);
+      setBadge('calc-gaba', `Início: <strong>${r(gabaInicMin)} a ${r(gabaInicMax)} mg/dia</strong> | Manutenção: <strong>${r(gabaManutMin)} a ${r(gabaManutMax)} mg/dia</strong> VO <span class="dose-max-tag">🛑 Dose Máx: 50 mg/kg/dia (máx 2.400 a 3.600 mg/dia)</span>`);
+
+      const levetInicMin = Math.min(w * 20, 3000);
+      const levetInicMax = Math.min(w * 30, 3000);
+      const levetTitMin = Math.min(w * 40, 3000);
+      const levetTitMax = Math.min(w * 60, 3000);
+      const levetAtqMin = Math.min(w * 40, 3000);
+      const levetAtqMax = Math.min(w * 60, 3000);
+      setBadge('calc-levet', `Início: <strong>${r(levetInicMin)} a ${r(levetInicMax)} mg/dia</strong> | Titulação: <strong>${r(levetTitMin)} a ${r(levetTitMax)} mg/dia</strong> | Ataque: <strong>${r(levetAtqMin)} a ${r(levetAtqMax)} mg</strong> EV <span class="dose-max-tag">🛑 Dose Máx: 3.000 mg/dia (máx 1.500 mg/dose)</span>`);
+
+      const midaSedMin = Math.min(w * 0.1, 5);
+      const midaSedMax = Math.min(w * 0.2, 10);
+      const midaCriseEv = Math.min(w * 0.2, 10);
+      const midaCriseNas = Math.min(w * 0.3, 10);
+      setBadge('calc-mida', `Sedação EV: <strong>${r(midaSedMin)} a ${r(midaSedMax)} mg</strong> | Crise: <strong>${r(midaCriseEv)} mg EV</strong> ou <strong>${r(midaCriseNas)} mg</strong> nasal <span class="dose-max-tag">🛑 Dose Máx: 5 a 10 mg/dose</span>`);
+
+      setBadge('calc-risper', w < 20 
+        ? 'Dose inicial: <strong>0,25 mg VO 1x/dia</strong> à noite <span class="dose-max-tag">🛑 Dose Máx: 0,75 a 1,0 mg/dia (< 20 kg)</span>' 
+        : 'Dose inicial: <strong>0,5 mg VO 1x/dia</strong> à noite <span class="dose-max-tag">🛑 Dose Máx: 1,5 a 2,5 mg/dia (≥ 20 kg)</span>');
+
+      // 10. HEMODINÂMICO
+      setBadge('calc-adrena', `Infusão: <strong>${r(w * 0.05, 2)} a ${r(w * 1.0, 1)} mcg/min</strong> contínua em BIC <span class="dose-max-tag">🛑 Teto usual: 1,0 a 1,5 mcg/kg/min</span>`);
+
+      const captoMin = Math.min(w * 0.1, 25);
+      const captoMax = Math.min(w * 0.3, 25);
+      setBadge('calc-capto', `Dose calculada: <strong>${r(captoMin)} a ${r(captoMax)} mg/dose</strong> VO SN <span class="dose-max-tag">🛑 Dose Máx: 25 mg/dose (máx 2 mg/kg/dia até 150 mg/dia)</span>`);
+
+      const furoDose = Math.min(w * 1.0, 40);
+      setBadge('calc-furo', `Dose calculada: <strong>${r(furoDose)} mg/dose</strong> EV ou VO (${r(furoDose / 10, 1)} ml ampola 10mg/ml) <span class="dose-max-tag">🛑 Dose Máx: 2 mg/kg/dose (máx 40 a 80 mg/dose ou 6 mg/kg/dia)</span>`);
+
+      const hidralaMin = Math.min(w * 0.1, 20);
+      const hidralaMax = Math.min(w * 0.2, 20);
+      setBadge('calc-hidrala', `Dose calculada: <strong>${r(hidralaMin)} a ${r(hidralaMax)} mg/dose</strong> EV lento SN <span class="dose-max-tag">🛑 Dose Máx: 0,2 mg/kg/dose (máx 20 mg/dose EV)</span>`);
+
+      setBadge('calc-nora', `Infusão: <strong>${r(w * 0.05, 2)} a ${r(w * 1.0, 1)} mcg/min</strong> contínua em BIC <span class="dose-max-tag">🛑 Teto usual: 1,0 a 1,5 mcg/kg/min</span>`);
+    }
+
+    function deletePatient(id) {
+      const pat = patients.find(p => p.id === id);
+      const name = pat ? pat.name : 'este paciente';
+      if (confirm(`Deseja realmente excluir a prescrição e prontuário de ${name}?`)) {
+        patients = patients.filter(p => p.id !== id);
+        saveDatabase();
+        if (currentPatientId === id) {
+          if (patients.length > 0) switchPatientTab(patients[patients.length - 1].id);
+          else createNewPatient();
+        } else {
+          renderTabs();
+          if (document.getElementById('archive-view').style.display === 'block') renderArchiveTable();
+        }
+      }
+    }
+
+    function duplicatePatient(id) {
+      const orig = patients.find(p => p.id === id);
+      if (!orig) return;
+      const clone = JSON.parse(JSON.stringify(orig));
+      clone.id = 'pac_' + Date.now();
+      clone.name = (clone.name || 'Paciente') + ' (Cópia)';
+      patients.push(clone);
+      saveDatabase();
+      switchPatientTab(clone.id);
+    }
+
+    function renderArchiveTable() {
+      const tbody = document.getElementById('archive-list-body');
+      const filter = (document.getElementById('archive-search').value || '').toLowerCase();
+      tbody.innerHTML = '';
+
+      const filtered = patients.filter(p => {
+        const name = (p.name || '').toLowerCase();
+        const bed = (p.bed || '').toLowerCase();
+        const mother = (p.mother || '').toLowerCase();
+        return name.includes(filter) || bed.includes(filter) || mother.includes(filter);
+      });
+
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhum paciente encontrado.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${p.name || 'Sem nome'}</strong></td>
+          <td>${p.mother || '-'}</td>
+          <td>${p.bed || '-'}</td>
+          <td>${p.date || '-'}</td>
+          <td>${p.weight ? p.weight + ' kg' : '-'}</td>
+          <td><span style="color:${p.allergies && p.allergies.toLowerCase() !== 'nega' ? '#b91c1c' : '#475569'};">${p.allergies || 'Nega'}</span></td>
+          <td style="text-align:right;">
+            <button class="btn-sm" onclick="switchPatientTab('${p.id}')">📂 Abrir</button>
+            <button class="btn-sm" onclick="duplicatePatient('${p.id}')">📑 Duplicar</button>
+            <button class="btn-sm btn-danger" onclick="deletePatient('${p.id}')">🗑️ Excluir</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  </script>
+</body>
+</html>
