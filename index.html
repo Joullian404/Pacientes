@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PedCare — Prescrição & Prontuário Pediátrico Mobile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>PedCare — Sincronizado via GitHub</title>
   <style>
     :root {
       --primary: #0284c7;
@@ -24,7 +24,23 @@
       --radius: 8px;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    /* PREVENÇÃO TOTAL DE VAZAMENTO HORIZONTAL */
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      -webkit-tap-highlight-color: transparent; 
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg-page);
@@ -33,45 +49,92 @@
       font-size: 13px;
     }
 
+    /* BARRA SUPERIOR DE PERFIL & NUVEM */
+    .user-bar {
+      background: #021a36;
+      color: #94a3b8;
+      padding: 6px 12px;
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #1e293b;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .user-info-text {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #f8fafc;
+      font-weight: 600;
+    }
+    .user-bar-btns {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-user-action {
+      background: #1e293b;
+      color: #38bdf8;
+      border: 1px solid #334155;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-user-action:active { background: #334155; }
+    
+    .cloud-status-badge {
+      font-size: 10.5px;
+      padding: 3px 7px;
+      border-radius: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .cloud-connected { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; }
+    .cloud-disconnected { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; cursor: pointer; }
+    .cloud-syncing { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #0284c7; }
+
     /* HEADER */
     header {
       background: #0f172a;
       color: #fff;
-      padding: 10px 16px 0;
+      padding: 10px 12px 0;
       position: sticky;
       top: 0;
       z-index: 100;
       box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      width: 100%;
     }
     .header-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 8px;
-      flex-wrap: wrap;
       gap: 8px;
+      flex-wrap: wrap;
     }
     .header-title {
       font-size: 15px;
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 8px;
-    }
-    .status-save {
-      font-size: 11px;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.12);
-      padding: 2px 7px;
-      border-radius: 12px;
-      white-space: nowrap;
+      gap: 6px;
     }
     .btn-action-group {
       display: flex;
       gap: 6px;
+      flex-wrap: wrap;
     }
 
-    /* TABS BAR (ROLAGEM SUAVE NO TOUCH) */
+    /* TABS BAR (ROLAGEM TOUCH) */
     .tabs-bar {
       display: flex;
       align-items: flex-end;
@@ -80,6 +143,7 @@
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
       padding-bottom: 2px;
+      width: 100%;
     }
     .tabs-bar::-webkit-scrollbar { display: none; }
     
@@ -87,16 +151,17 @@
       background: #1e293b;
       color: #94a3b8;
       border: none;
-      padding: 9px 14px;
+      padding: 9px 12px;
       border-radius: 8px 8px 0 0;
       cursor: pointer;
       font-size: 12px;
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       white-space: nowrap;
       min-height: 38px;
+      flex-shrink: 0;
     }
     .tab-btn:hover, .tab-btn:active { background: #334155; color: #fff; }
     .tab-btn.active { background: var(--surface); color: var(--primary-dark); }
@@ -123,45 +188,44 @@
       font-weight: 600;
       cursor: pointer;
       min-height: 32px;
+      white-space: nowrap;
     }
-    .btn-new-patient:active { background: var(--primary-dark); }
 
-    /* CONTAINER */
+    /* CONTAINER PRINCIPAL */
     .container {
       max-width: 1180px;
-      margin: 12px auto 40px;
-      padding: 0 12px;
+      width: 100%;
+      margin: 10px auto 40px;
+      padding: 0 10px;
     }
 
-    /* SUB-ABAS */
+    /* SUB-ABAS 50% / 50% */
     .subtabs-container {
-      display: flex;
-      gap: 8px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
       margin-bottom: 12px;
       border-bottom: 2px solid var(--border);
       padding-bottom: 6px;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
+      width: 100%;
     }
     .subtab-btn {
       background: #e2e8f0;
       color: #334155;
       border: none;
-      padding: 9px 14px;
+      padding: 8px 6px;
       border-radius: 6px;
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
-      white-space: nowrap;
+      justify-content: center;
+      gap: 4px;
+      text-align: center;
       min-height: 38px;
     }
-    .subtab-btn.active {
-      background: var(--primary);
-      color: #fff;
-    }
+    .subtab-btn.active { background: var(--primary); color: #fff; }
 
     /* CARD DO PACIENTE */
     .patient-card {
@@ -171,22 +235,29 @@
       border: 1px solid var(--border);
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
       margin-bottom: 12px;
+      width: 100%;
     }
     .patient-fields-grid {
       display: grid;
       grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr 1.5fr;
       gap: 8px;
+      width: 100%;
     }
     .input-group {
       display: flex;
       flex-direction: column;
       gap: 3px;
+      min-width: 0;
+      width: 100%;
     }
     .input-group label {
       font-size: 10px;
       text-transform: uppercase;
       font-weight: 700;
       color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .input-group input, .input-group select, .input-group textarea {
       border: 1px solid var(--border);
@@ -196,6 +267,9 @@
       outline: none;
       font-family: inherit;
       background: #fff;
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
     }
     .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
       border-color: var(--primary);
@@ -208,7 +282,7 @@
       color: var(--primary-dark);
     }
 
-    /* TABELA DE MEDICAÇÕES */
+    /* CARDS DE MEDICAÇÃO */
     .category-card {
       background: var(--surface);
       border-radius: var(--radius);
@@ -216,6 +290,7 @@
       margin-bottom: 12px;
       overflow: hidden;
       box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      width: 100%;
     }
     .category-header {
       background: #f8fafc;
@@ -226,6 +301,7 @@
       letter-spacing: 0.5px;
       color: #334155;
       border-bottom: 1px solid var(--border);
+      word-break: break-word;
     }
     .item-table { width: 100%; border-collapse: collapse; }
     .item-table tr { border-bottom: 1px solid var(--border-light); transition: background 0.15s; }
@@ -233,8 +309,8 @@
     .item-table tr.row-selected { background: #f0fdf4 !important; }
     
     .cell-check { width: 44px; padding: 6px 8px; text-align: center; vertical-align: middle; }
-    .cell-name { width: 250px; padding: 6px 10px; font-weight: 600; color: #1e293b; vertical-align: middle; border-left: 1px solid var(--border-light); }
-    .cell-desc { padding: 6px 12px; color: #475569; vertical-align: middle; font-size: 12px; border-left: 1px solid var(--border-light); }
+    .cell-name { width: 250px; padding: 6px 10px; font-weight: 600; color: #1e293b; vertical-align: middle; border-left: 1px solid var(--border-light); word-break: break-word; }
+    .cell-desc { padding: 6px 12px; color: #475569; vertical-align: middle; font-size: 12px; border-left: 1px solid var(--border-light); word-break: break-word; }
 
     /* CHECKBOX VERDE TOUCH */
     .med-check-single {
@@ -252,6 +328,7 @@
       position: relative;
       transition: all 0.2s ease;
       vertical-align: middle;
+      flex-shrink: 0;
     }
     .med-check-single:checked {
       background-color: var(--accent);
@@ -269,19 +346,22 @@
       transform: translate(-50%, -50%);
     }
 
-    /* BADGE DE CÁLCULO E DOSE MÁXIMA */
+    /* BADGES DE DOSE CALCULADA & MÁXIMA */
     .dose-calc-badge {
       display: block;
-      margin-top: 4px;
+      margin-top: 5px;
       background: var(--calc-bg);
       color: var(--calc-text);
       border: 1px solid var(--calc-border);
-      border-radius: 4px;
-      padding: 4px 8px;
+      border-radius: 6px;
+      padding: 6px 10px;
       font-size: 11.5px;
       font-weight: 600;
-      width: fit-content;
-      line-height: 1.4;
+      width: 100%;
+      max-width: 100%;
+      line-height: 1.45;
+      word-break: break-word;
+      overflow-wrap: anywhere;
     }
     .dose-calc-badge.empty { display: none; }
     
@@ -290,35 +370,39 @@
       background: #fef2f2;
       color: #991b1b;
       border: 1px solid #fecaca;
-      border-radius: 3px;
-      padding: 1px 6px;
+      border-radius: 4px;
+      padding: 2px 6px;
       font-size: 11px;
       font-weight: 700;
-      margin-top: 2px;
+      margin-top: 3px;
+      max-width: 100%;
+      word-break: break-word;
+      white-space: normal;
     }
 
     /* TABELA RESPONSIVA DO MAPA GLICÊMICO */
     .table-scroll-wrapper {
       width: 100%;
+      max-width: 100%;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      padding: 6px 10px;
+      padding: 4px 0;
     }
-    .mapa-table { width: 100%; min-width: 500px; border-collapse: collapse; font-size: 11.5px; }
+    .mapa-table { width: 100%; min-width: 480px; border-collapse: collapse; font-size: 11.5px; }
     .mapa-table th, .mapa-table td { border: 1px solid var(--border); padding: 6px 8px; text-align: center; }
     .mapa-table th { background: #f1f5f9; font-weight: 700; color: #334155; }
     .mapa-table td:first-child { text-align: left; font-weight: 600; }
     .tier-badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #e2e8f0; }
 
-    /* HOLLIDAY CALLOUT */
     .holliday-box {
       background: #f0fdfa;
       border: 1px solid #99f6e4;
       border-radius: 6px;
-      padding: 8px 12px;
+      padding: 8px 10px;
       margin: 8px 10px;
       font-size: 11.5px;
       color: #115e59;
+      word-break: break-word;
     }
 
     /* PRONTUÁRIO */
@@ -326,8 +410,9 @@
       background: var(--surface);
       border-radius: var(--radius);
       border: 1px solid var(--border);
-      padding: 16px;
+      padding: 14px;
       margin-bottom: 12px;
+      width: 100%;
     }
     .prontuario-section-title {
       font-size: 12.5px;
@@ -339,17 +424,18 @@
       margin: 14px 0 10px;
     }
     .prontuario-section-title:first-child { margin-top: 0; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-    .grid-vitals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; }
+    .grid-vitals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; }
 
     /* ARQUIVO */
     #archive-view {
       display: none;
       background: var(--surface);
       border-radius: var(--radius);
-      padding: 16px;
+      padding: 14px;
       border: 1px solid var(--border);
+      width: 100%;
     }
     .archive-header {
       display: flex;
@@ -359,11 +445,11 @@
       flex-wrap: wrap;
       gap: 10px;
     }
-    .search-input { width: 100%; max-width: 300px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; }
-    .archive-table { width: 100%; min-width: 580px; border-collapse: collapse; }
+    .search-input { width: 100%; max-width: 320px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; }
+    .archive-table { width: 100%; min-width: 540px; border-collapse: collapse; }
     .archive-table th, .archive-table td { border-bottom: 1px solid var(--border-light); padding: 8px 10px; text-align: left; }
     .archive-table th { background: #f8fafc; font-size: 11px; text-transform: uppercase; color: var(--text-muted); }
-    .btn-sm { padding: 6px 10px; border-radius: 4px; font-size: 11px; border: 1px solid var(--border); background: #fff; cursor: pointer; min-height: 30px; }
+    .btn-sm { padding: 6px 10px; border-radius: 4px; font-size: 11px; border: 1px solid var(--border); background: #fff; cursor: pointer; min-height: 32px; }
     .btn-sm.btn-danger { color: var(--danger); border-color: #fca5a5; }
 
     /* ASSINATURAS */
@@ -377,115 +463,141 @@
       gap: 16px;
       margin-top: 15px;
       flex-wrap: wrap;
+      width: 100%;
     }
-    .signature-line { flex: 1; min-width: 220px; border-top: 1px solid #475569; text-align: center; padding-top: 4px; font-size: 11px; font-weight: 600; }
+    .signature-line { flex: 1; min-width: 200px; border-top: 1px solid #475569; text-align: center; padding-top: 4px; font-size: 11px; font-weight: 600; }
 
-    /* ============================================================== */
-    /* ADAPTAÇÕES ESPECÍFICAS PARA DISPOSITIVOS MÓVEIS (TABLETS & PHONES) */
-    /* ============================================================== */
+    /* MODAL PADRÃO */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+    .modal-box {
+      background: var(--surface);
+      border-radius: var(--radius);
+      max-width: 480px;
+      width: 100%;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+    .user-profile-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 12px 0;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .user-profile-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      background: #f8fafc;
+    }
+    .user-profile-item.active { border-color: var(--primary); background: var(--primary-light); }
 
-    /* TABLETS (iPad, Galaxy Tab, 768px a 1024px) */
+    /* RESPONSIVIDADE PRECISA */
     @media (max-width: 1024px) {
-      .patient-fields-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-      .cell-name { width: 220px; }
+      .patient-fields-grid { grid-template-columns: repeat(3, 1fr); }
+      .patient-fields-grid .input-group:first-child { grid-column: span 2; }
+      .patient-fields-grid .input-group:last-child { grid-column: span 3; }
       .grid-vitals { grid-template-columns: repeat(2, 1fr); }
     }
 
-    /* SMARTPHONES (iPhone / Android - até 768px) */
     @media (max-width: 768px) {
-      body { font-size: 13.5px; }
+      input, select, textarea { font-size: 16px !important; }
+      .container { padding: 0 6px; }
+      .header-top { flex-direction: column; align-items: stretch; }
+      .btn-action-group { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+      .btn-new-patient, .btn-action-group .btn-sm { text-align: center; justify-content: center; width: 100%; }
       
-      /* Evita auto-zoom incômodo no Safari iOS ao focar em inputs */
-      input, select, textarea {
-        font-size: 16px !important;
-      }
+      .patient-fields-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+      .patient-fields-grid .input-group:first-child { grid-column: span 2; }
+      .patient-fields-grid .input-group:last-child { grid-column: span 2; }
 
-      .header-title { font-size: 14px; }
-      .container { padding: 0 8px; margin-top: 8px; }
-
-      /* Grid do Paciente em 2 colunas */
-      .patient-fields-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-      }
-      .patient-fields-grid .input-group:first-child {
-        grid-column: span 2;
-      }
-      .patient-fields-grid .input-group:last-child {
-        grid-column: span 2;
-      }
-
-      /* TRANSFORMA A TABELA DE MEDICAÇÕES EM CARDS TOUCH INTUITIVOS */
-      .item-table, .item-table tbody, .item-table tr {
-        display: block;
-        width: 100%;
-      }
+      .item-table, .item-table tbody, .item-table tr, .item-table td { display: block; width: 100%; }
       .item-table tr {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        padding: 10px 8px;
-        position: relative;
-      }
-      .cell-check {
-        width: 36px;
-        padding: 0;
-        text-align: left;
-      }
-      .cell-name {
-        width: calc(100% - 40px);
-        border-left: none;
-        padding: 0 0 0 6px;
-        font-size: 13.5px;
-      }
-      .cell-desc {
+        display: grid;
+        grid-template-columns: 32px minmax(0, 1fr);
+        grid-template-areas: "check name" "desc desc";
+        gap: 4px 6px;
+        padding: 9px 8px;
+        border-bottom: 1px solid var(--border-light);
         width: 100%;
-        border-left: none;
-        padding: 6px 0 0 42px; /* Alinha a descrição embaixo do nome */
-        font-size: 12px;
       }
+      .cell-check { grid-area: check; width: 32px; padding: 0; display: flex; align-items: flex-start; justify-content: center; padding-top: 2px; }
+      .cell-name { grid-area: name; width: 100%; min-width: 0; border-left: none; padding: 0; font-size: 13.5px; line-height: 1.3; }
+      .cell-desc { grid-area: desc; width: 100%; min-width: 0; border-left: none; padding: 2px 0 0 0; font-size: 12px; line-height: 1.4; }
 
-      /* Checkbox maior e mais fácil de tocar com o polegar */
-      .med-check-single {
-        width: 26px;
-        height: 26px;
-      }
-
-      /* Grids do prontuário colapsam */
       .grid-2, .grid-3 { grid-template-columns: 1fr; }
       .grid-vitals { grid-template-columns: 1fr 1fr; }
-
-      /* Botões de Ações */
-      .btn-action-group { width: 100%; justify-content: space-between; margin-top: 4px; }
-      .btn-new-patient, .btn-action-group .btn-sm { flex: 1; text-align: center; }
-
-      /* Sub-abas ficam em rolagem touch sem esmagar */
-      .subtab-btn { flex: 1; justify-content: center; font-size: 11.5px; padding: 8px 10px; }
-      
-      .dose-calc-badge {
-        font-size: 11px;
-        width: 100%;
-      }
-      .dose-max-tag {
-        display: inline-block;
-        margin-top: 3px;
-      }
+      #diet-formula-val, #hidra-vol { width: 100% !important; max-width: 100% !important; }
     }
 
     /* PRINT */
     @media print {
-      header, .subtabs-container, .btn-action-group, .btn-new-patient, .status-save, .tab-close { display: none !important; }
-      body { background: #fff; font-size: 10.5px; }
+      header, .user-bar, .subtabs-container, .btn-action-group, .btn-new-patient, .status-save, .tab-close, .modal-backdrop { display: none !important; }
+      body { background: #fff; font-size: 10px; }
       .container { max-width: 100%; margin: 0; padding: 0; }
-      .patient-card, .category-card, .signature-card, .prontuario-card { border: 1px solid #94a3b8; box-shadow: none; break-inside: avoid; margin-bottom: 8px; }
+      .patient-card, .category-card, .signature-card, .prontuario-card { border: 1px solid #94a3b8; box-shadow: none; break-inside: avoid; margin-bottom: 6px; }
       .med-check-single:checked { background: #000 !important; }
       .dose-calc-badge { background: #f8fafc; border: 1px solid #cbd5e1; color: #000; font-weight: 700; }
     }
   </style>
 </head>
 <body>
+
+  <!-- BARRA DE PERFIL & SINCRONIZAÇÃO GITHUB -->
+  <div class="user-bar">
+    <div class="user-info-text">
+      <span>👨‍⚕️</span>
+      <span id="header-user-name">Dr. Médico Padrão</span>
+      <span id="header-user-crm" style="color:#38bdf8;">(CRM: ---)</span>
+    </div>
+    <div class="user-bar-btns">
+      <!-- INDICADOR DO STATUS DA NUVEM GITHUB -->
+      <span class="cloud-status-badge cloud-disconnected" id="github-status-badge" onclick="openGitHubModal()">
+        ☁️ Conectar GitHub
+      </span>
+      <button class="btn-user-action" onclick="manualSyncGitHub()" id="btn-sync-now" style="display:none;" title="Sincronizar agora">
+        🔄 Sincronizar
+      </button>
+      <button class="btn-user-action" onclick="openProfileModal()">👥 Perfis</button>
+    </div>
+  </div>
 
   <!-- HEADER -->
   <header>
@@ -496,11 +608,11 @@
       </div>
       <div class="btn-action-group">
         <button class="btn-new-patient" onclick="createNewPatient()">+ Novo Paciente</button>
-        <button class="btn-sm" onclick="window.print()" style="background:#38bdf8; color:#0f172a; font-weight:700; border:none; padding:7px 12px;">🖨️ Imprimir / PDF</button>
+        <button class="btn-sm" onclick="window.print()" style="background:#38bdf8; color:#0f172a; font-weight:700; border:none;">🖨️ Imprimir / PDF</button>
       </div>
     </div>
 
-    <!-- TABS BAR (SCROLL TOUCH) -->
+    <!-- TABS BAR (ROLAGEM TOUCH) -->
     <div class="tabs-bar" id="tabs-bar">
       <button class="tab-btn archive-tab" id="tab-archive-btn" onclick="showArchiveView()">
         📁 Todos (<span id="archive-count">0</span>)
@@ -514,8 +626,8 @@
     <div id="archive-view">
       <div class="archive-header">
         <div>
-          <h2 style="font-size:16px; font-weight:700;">Arquivo de Pacientes</h2>
-          <p style="color:var(--text-muted); font-size:11.5px;">Prontuários gravados neste dispositivo.</p>
+          <h2 style="font-size:16px; font-weight:700;">Arquivo de Pacientes deste Perfil</h2>
+          <p style="color:var(--text-muted); font-size:11.5px;">Pacientes atribuídos ao perfil logado e salvos na nuvem.</p>
         </div>
         <input type="text" class="search-input" id="archive-search" placeholder="Buscar paciente ou leito..." oninput="renderArchiveTable()">
       </div>
@@ -540,7 +652,7 @@
     <!-- PACIENTE ATIVO -->
     <div id="patient-main-view">
       
-      <!-- SUB-ABAS -->
+      <!-- SUB-ABAS (50% / 50%) -->
       <div class="subtabs-container">
         <button class="subtab-btn active" id="btn-subtab-presc" onclick="switchSubTab('presc')">
           💊 Prescrição & Doses
@@ -635,7 +747,8 @@
               <td class="cell-check"><input type="checkbox" class="med-check-single" data-item="diet_formula" onchange="toggleMedication(this)"></td>
               <td class="cell-name" onclick="toggleByClickName(this)">Fórmula Infantil</td>
               <td class="cell-desc">
-                Fórmula para a idade: <input type="text" id="diet-formula-val" placeholder="Ex: 120 ml VO 3/3h" style="border:1px solid #cbd5e1; border-radius:4px; padding:4px 6px; width:100%; max-width:240px; margin-top:3px;" oninput="syncPatientField('diet_formula_detail', this.value)">
+                Fórmula conforme faixa etária: 
+                <input type="text" id="diet-formula-val" placeholder="Ex: 120 ml VO 3/3h" style="border:1px solid #cbd5e1; border-radius:4px; padding:4px 6px; margin-top:3px;" oninput="syncPatientField('diet_formula_detail', this.value)">
               </td>
             </tr>
           </table>
@@ -652,7 +765,7 @@
                 Volume basal calculado: <strong id="holliday-calc-sugg">--- ml/24h</strong> em BIC.
                 <span class="dose-calc-badge empty" id="calc-holliday-taxa"></span>
                 <div style="margin-top:4px;">
-                  Prescrito: <input type="text" id="hidra-vol" placeholder="Ex: SG 5% 400ml + SF 0.9% 100ml + KCl 10% 5ml" style="border:1px solid #cbd5e1; border-radius:4px; padding:4px 6px; width:100%; max-width:320px;" oninput="syncPatientField('hidra_detail', this.value)">
+                  Prescrito: <input type="text" id="hidra-vol" placeholder="Ex: SG 5% 400ml + SF 0.9% 100ml + KCl 10% 5ml" style="border:1px solid #cbd5e1; border-radius:4px; padding:4px 6px;" oninput="syncPatientField('hidra_detail', this.value)">
                 </div>
               </td>
             </tr>
@@ -829,7 +942,7 @@
             </tr>
           </table>
 
-          <!-- MAPA GLICÊMICO (COM ROLAGEM NO MOBILE) -->
+          <!-- MAPA GLICÊMICO (ROLAGEM TOUCH) -->
           <div class="table-scroll-wrapper">
             <table class="mapa-table">
               <thead>
@@ -905,7 +1018,7 @@
               <td class="cell-name" onclick="toggleByClickName(this)">Benzilpenicilina Cristalina</td>
               <td class="cell-desc">
                 100.000 a 200.000 UI/kg/dia EV fracionada de 4/4h ou 6/6h.
-                <span class="dose-calc-badge empty" id="calc-penic"></span>
+                <span class="dose-calc-penic empty" id="calc-penic"></span>
               </td>
             </tr>
             <tr>
@@ -1176,7 +1289,10 @@
         <!-- ASSINATURAS -->
         <div class="signature-card">
           <div class="signature-line">Enfermagem / Checagem</div>
-          <div class="signature-line">Médico(a) Assistente / CRM</div>
+          <div class="signature-line">
+            <span id="sig-doc-name">Médico(a) Assistente</span><br>
+            <span id="sig-doc-crm" style="font-weight:normal; font-size:10px;">CRM: ---</span>
+          </div>
         </div>
 
       </div>
@@ -1276,58 +1392,402 @@
     </div>
   </div>
 
+  <!-- MODAL: PERFIS DE USUÁRIO -->
+  <div class="modal-backdrop" id="modal-profiles">
+    <div class="modal-box">
+      <button class="btn-modal-close" onclick="closeModal('modal-profiles')">&times;</button>
+      <div class="modal-title">👥 Selecionar Perfil Médico</div>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Cada perfil mantém seus próprios pacientes e prescrições isoladas.</p>
+      
+      <div class="user-profile-list" id="modal-users-list"></div>
+
+      <div style="border-top:1px solid var(--border); padding-top:12px; margin-top:12px;">
+        <div style="font-weight:700; font-size:12px; margin-bottom:8px;">➕ Criar Novo Perfil</div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <input type="text" id="new-user-name" placeholder="Nome (Ex: Dra. Mariana Costa)">
+          <input type="text" id="new-user-crm" placeholder="CRM e UF (Ex: 12345-SP)">
+          <button class="btn-new-patient" onclick="handleCreateProfile()" style="margin-top:4px;">Salvar e Entrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SINCRONIZAÇÃO GITHUB CLOUD -->
+  <div class="modal-backdrop" id="modal-github">
+    <div class="modal-box">
+      <button class="btn-modal-close" onclick="closeModal('modal-github')">&times;</button>
+      <div class="modal-title">☁️ Sincronização em Nuvem (GitHub)</div>
+      
+      <div id="gh-setup-section">
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">
+          Para sincronizar seus pacientes entre celular, iPad e computador automaticamente:
+        </p>
+
+        <ol style="font-size:11.5px; color:#334155; margin-left:18px; margin-bottom:14px; line-height:1.5;">
+          <li>Acesse <strong>github.com</strong> &gt; <em>Settings</em> &gt; <em>Developer settings</em> &gt; <em>Personal access tokens (Tokens classic)</em>.</li>
+          <li>Gere um novo token marcando <strong>apenas a opção `gist`</strong> (privado e seguro).</li>
+          <li>Cole o Token gerado abaixo e clique em <strong>Conectar</strong>.</li>
+        </ol>
+
+        <div class="input-group" style="margin-bottom:12px;">
+          <label>Seu GitHub Personal Access Token (PAT)</label>
+          <input type="password" id="gh-token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+        </div>
+
+        <button class="btn-new-patient" id="btn-connect-gh" onclick="handleConnectGitHub()" style="width:100%;">
+          Conectar e Carregar Dados da Nuvem
+        </button>
+      </div>
+
+      <div id="gh-active-section" style="display:none;">
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:6px; margin-bottom:12px;">
+          <strong style="color:#166534; font-size:12px;">✓ Conectado à Nuvem do GitHub</strong>
+          <p style="font-size:11px; color:#14532d; margin-top:4px;">
+            Seus dados são salvos em um banco de dados privado no seu GitHub. Qualquer outro aparelho que use esse mesmo token carregará seus pacientes automaticamente!
+          </p>
+        </div>
+
+        <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:14px;">
+          ID do Banco Privado (Gist): <br><code id="gh-gist-id-display" style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-weight:700; color:#0f172a;">---</code>
+        </div>
+
+        <button class="btn-sm" onclick="manualSyncGitHub()" style="width:100%; margin-bottom:8px; background:#0284c7; color:#fff; font-weight:700;">
+          🔄 Forçar Sincronização Agora
+        </button>
+        <button class="btn-sm btn-danger" onclick="disconnectGitHub()" style="width:100%;">
+          Desconectar este aparelho do GitHub
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <script>
-    const STORAGE_KEY = 'pediatric_prescriptions_db_v5_mobile';
+    const USERS_STORAGE_KEY = 'pedcare_profiles_v1';
+    const PATIENTS_STORAGE_KEY = 'pedcare_patients_v1';
+    const ACTIVE_USER_KEY = 'pedcare_active_user_v1';
+    const GH_TOKEN_KEY = 'pedcare_gh_token';
+    const GH_GIST_KEY = 'pedcare_gh_gist_id';
+
+    let users = [];
+    let activeUser = null;
     let patients = [];
     let currentPatientId = null;
     let currentSubTab = 'presc';
+    let syncTimeout = null;
 
     window.onload = function() {
-      loadDatabase();
-      if (!patients.length) {
-        createNewPatient();
+      loadProfiles();
+      if (!users.length) {
+        const def = { id: 'usr_' + Date.now(), name: 'Dr. Médico Padrão', crm: '00000-UF' };
+        users.push(def);
+        saveProfiles();
+        setActiveProfile(def.id);
       } else {
-        switchPatientTab(patients[0].id);
+        const savedId = localStorage.getItem(ACTIVE_USER_KEY);
+        const found = users.find(u => u.id === savedId) || users[0];
+        setActiveProfile(found.id);
       }
+
+      // Checa se já tem credencial do GitHub salva
+      initGitHubConnection();
     };
 
-    function switchSubTab(sub) {
-      currentSubTab = sub;
-      document.getElementById('subview-presc').style.display = (sub === 'presc') ? 'block' : 'none';
-      document.getElementById('subview-pront').style.display = (sub === 'pront') ? 'block' : 'none';
-
-      document.getElementById('btn-subtab-presc').classList.toggle('active', sub === 'presc');
-      document.getElementById('btn-subtab-pront').classList.toggle('active', sub === 'pront');
-    }
-
-    function loadDatabase() {
+    /* GERENCIAMENTO DE PERFIS */
+    function loadProfiles() {
       try {
-        const data = localStorage.getItem(STORAGE_KEY);
-        patients = data ? JSON.parse(data) : [];
-      } catch (e) {
-        patients = [];
+        const d = localStorage.getItem(USERS_STORAGE_KEY);
+        users = d ? JSON.parse(d) : [];
+      } catch (e) { users = []; }
+    }
+
+    function saveProfiles() {
+      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+      triggerCloudSync();
+    }
+
+    function setActiveProfile(userId) {
+      activeUser = users.find(u => u.id === userId) || users[0];
+      localStorage.setItem(ACTIVE_USER_KEY, activeUser.id);
+
+      document.getElementById('header-user-name').textContent = activeUser.name;
+      document.getElementById('header-user-crm').textContent = `(CRM: ${activeUser.crm})`;
+      document.getElementById('sig-doc-name').textContent = activeUser.name;
+      document.getElementById('sig-doc-crm').textContent = `CRM: ${activeUser.crm}`;
+
+      loadPatientsForActiveUser();
+    }
+
+    function handleCreateProfile() {
+      const name = document.getElementById('new-user-name').value.trim();
+      const crm = document.getElementById('new-user-crm').value.trim();
+      if (!name) { alert('Por favor, informe o nome do médico(a).'); return; }
+
+      const newUser = { id: 'usr_' + Date.now(), name, crm: crm || '---' };
+      users.push(newUser);
+      saveProfiles();
+      setActiveProfile(newUser.id);
+      closeModal('modal-profiles');
+      document.getElementById('new-user-name').value = '';
+      document.getElementById('new-user-crm').value = '';
+    }
+
+    function openProfileModal() {
+      const listEl = document.getElementById('modal-users-list');
+      listEl.innerHTML = '';
+      users.forEach(u => {
+        const item = document.createElement('div');
+        item.className = `user-profile-item ${u.id === activeUser.id ? 'active' : ''}`;
+        item.innerHTML = `
+          <div>
+            <strong>${u.name}</strong>
+            <div style="font-size:11px; color:var(--text-muted);">CRM: ${u.crm}</div>
+          </div>
+          ${u.id === activeUser.id ? '<span style="color:#16a34a; font-weight:700;">✓ Ativo</span>' : ''}
+        `;
+        item.onclick = () => {
+          setActiveProfile(u.id);
+          closeModal('modal-profiles');
+        };
+        listEl.appendChild(item);
+      });
+      document.getElementById('modal-profiles').style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    /* ============================================================== */
+    /* MOTOR DE SINCRONIZAÇÃO EM NUVEM VIA GITHUB REST API            */
+    /* ============================================================== */
+    function openGitHubModal() {
+      const token = localStorage.getItem(GH_TOKEN_KEY);
+      const gistId = localStorage.getItem(GH_GIST_KEY);
+
+      if (token && gistId) {
+        document.getElementById('gh-setup-section').style.display = 'none';
+        document.getElementById('gh-active-section').style.display = 'block';
+        document.getElementById('gh-gist-id-display').textContent = gistId;
+      } else {
+        document.getElementById('gh-setup-section').style.display = 'block';
+        document.getElementById('gh-active-section').style.display = 'none';
       }
-      updateArchiveCount();
+      document.getElementById('modal-github').style.display = 'flex';
     }
 
-    function saveDatabase() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(patients));
-      updateArchiveCount();
+    async function initGitHubConnection() {
+      const token = localStorage.getItem(GH_TOKEN_KEY);
+      const gistId = localStorage.getItem(GH_GIST_KEY);
+
+      if (token && gistId) {
+        updateCloudStatus('syncing', 'Sincronizando...');
+        document.getElementById('btn-sync-now').style.display = 'inline-flex';
+        await pullFromGitHub(token, gistId);
+      } else {
+        updateCloudStatus('disconnected', '☁️ Conectar GitHub');
+        document.getElementById('btn-sync-now').style.display = 'none';
+      }
+    }
+
+    async function handleConnectGitHub() {
+      const token = document.getElementById('gh-token-input').value.trim();
+      if (!token) { alert('Cole o Personal Access Token do seu GitHub.'); return; }
+
+      const btn = document.getElementById('btn-connect-gh');
+      btn.disabled = true;
+      btn.textContent = 'Verificando e Conectando...';
+
+      try {
+        // 1. Procura se já existe um gist chamado 'pedcare_database.json' nesta conta
+        const res = await fetch('https://api.github.com/gists', {
+          headers: {
+            'Authorization': 'token ' + token,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+
+        if (!res.ok) throw new Error('Token inválido ou sem permissão de gist.');
+        const gists = await res.json();
+        
+        let targetGist = gists.find(g => g.files && g.files['pedcare_database.json']);
+        let gistId = targetGist ? targetGist.id : null;
+
+        if (gistId) {
+          // Se encontrou banco existente no GitHub, baixa os dados
+          localStorage.setItem(GH_TOKEN_KEY, token);
+          localStorage.setItem(GH_GIST_KEY, gistId);
+          await pullFromGitHub(token, gistId);
+          alert('Conectado com sucesso! Seus dados foram carregados do GitHub.');
+        } else {
+          // Se não encontrou, cria um Gist Privado inicial com os dados atuais
+          const createRes = await fetch('https://api.github.com/gists', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'token ' + token,
+              'Content-Type': 'application/json',
+              'Accept': 'application/vnd.github.v3+json'
+            },
+            body: JSON.stringify({
+              description: 'PedCare Pediátrico Database (Privado e Seguro)',
+              public: false,
+              files: {
+                'pedcare_database.json': {
+                  content: JSON.stringify(prepareDatabasePayload(), null, 2)
+                }
+              }
+            })
+          });
+
+          if (!createRes.ok) throw new Error('Não foi possível criar o arquivo de banco no GitHub.');
+          const created = await createRes.json();
+          gistId = created.id;
+
+          localStorage.setItem(GH_TOKEN_KEY, token);
+          localStorage.setItem(GH_GIST_KEY, gistId);
+          alert('Banco de dados criado com sucesso no seu GitHub!');
+        }
+
+        closeModal('modal-github');
+        initGitHubConnection();
+      } catch (err) {
+        alert('Erro ao conectar ao GitHub: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Conectar e Carregar Dados da Nuvem';
+      }
+    }
+
+    // Puxa dados do GitHub e atualiza a tela
+    async function pullFromGitHub(token, gistId) {
+      try {
+        updateCloudStatus('syncing', 'Baixando da Nuvem...');
+        const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+          headers: {
+            'Authorization': 'token ' + token,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+
+        if (!res.ok) throw new Error('Erro ao baixar banco.');
+        const data = await res.json();
+
+        if (data.files && data.files['pedcare_database.json']) {
+          const content = JSON.parse(data.files['pedcare_database.json'].content);
+          if (content.patients) patients = content.patients;
+          if (content.profiles && content.profiles.length) users = content.profiles;
+
+          localStorage.setItem(PATIENTS_STORAGE_KEY, JSON.stringify(patients));
+          localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+
+          // Atualiza visualização
+          setActiveProfile(activeUser ? activeUser.id : users[0].id);
+          updateCloudStatus('connected', '☁️ GitHub Sincronizado ✓');
+        }
+      } catch (e) {
+        console.error(e);
+        updateCloudStatus('disconnected', '☁️ Erro na Sincronização');
+      }
+    }
+
+    // Envia dados para o GitHub
+    async function pushToGitHub() {
+      const token = localStorage.getItem(GH_TOKEN_KEY);
+      const gistId = localStorage.getItem(GH_GIST_KEY);
+      if (!token || !gistId) return;
+
+      updateCloudStatus('syncing', 'Enviando ao GitHub...');
+      try {
+        const payload = prepareDatabasePayload();
+        const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': 'token ' + token,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json'
+          },
+          body: JSON.stringify({
+            files: {
+              'pedcare_database.json': {
+                content: JSON.stringify(payload, null, 2)
+              }
+            }
+          })
+        });
+
+        if (!res.ok) throw new Error('Falha ao atualizar Gist.');
+        updateCloudStatus('connected', '☁️ GitHub Sincronizado ✓');
+      } catch (err) {
+        console.error(err);
+        updateCloudStatus('disconnected', '☁️ Erro ao Salvar Nuvem');
+      }
+    }
+
+    function prepareDatabasePayload() {
+      return {
+        app: 'PedCare',
+        updatedAt: new Date().toISOString(),
+        profiles: users,
+        patients: patients
+      };
+    }
+
+    function triggerCloudSync() {
+      clearTimeout(syncTimeout);
+      syncTimeout = setTimeout(() => {
+        pushToGitHub();
+      }, 2500); // Salva no GitHub 2.5s após parar de digitar
+    }
+
+    function manualSyncGitHub() {
+      const token = localStorage.getItem(GH_TOKEN_KEY);
+      const gistId = localStorage.getItem(GH_GIST_KEY);
+      if (token && gistId) {
+        pushToGitHub();
+      } else {
+        openGitHubModal();
+      }
+    }
+
+    function disconnectGitHub() {
+      if (confirm('Deseja desconectar a sincronização do GitHub deste aparelho? Os dados continuarão salvos no navegador e no seu GitHub.')) {
+        localStorage.removeItem(GH_TOKEN_KEY);
+        localStorage.removeItem(GH_GIST_KEY);
+        closeModal('modal-github');
+        initGitHubConnection();
+      }
+    }
+
+    function updateCloudStatus(type, text) {
+      const badge = document.getElementById('github-status-badge');
+      badge.className = `cloud-status-badge cloud-${type}`;
+      badge.textContent = text;
+    }
+
+    /* PACIENTES POR PERFIL */
+    function loadAllPatients() {
+      try {
+        const d = localStorage.getItem(PATIENTS_STORAGE_KEY);
+        patients = d ? JSON.parse(d) : [];
+      } catch (e) { patients = []; }
+    }
+
+    function saveAllPatients() {
+      localStorage.setItem(PATIENTS_STORAGE_KEY, JSON.stringify(patients));
       flashSaveIndicator();
+      triggerCloudSync(); // Envia automaticamente para o GitHub
     }
 
-    function flashSaveIndicator() {
-      const el = document.getElementById('save-status');
-      el.textContent = '● Salvo ✓';
-      el.style.color = '#4ade80';
-      setTimeout(() => {
-        el.textContent = '● Salvo localmente';
-        el.style.color = '#38bdf8';
-      }, 1000);
-    }
+    function loadPatientsForActiveUser() {
+      loadAllPatients();
+      const userPatients = patients.filter(p => p.userId === activeUser.id);
+      document.getElementById('archive-count').textContent = userPatients.length;
 
-    function updateArchiveCount() {
-      document.getElementById('archive-count').textContent = patients.length;
+      if (!userPatients.length) {
+        createNewPatient();
+      } else {
+        switchPatientTab(userPatients[0].id);
+      }
     }
 
     function createNewPatient() {
@@ -1335,6 +1795,7 @@
       const defaultDate = new Date().toISOString().split('T')[0];
       const newPat = {
         id: newId,
+        userId: activeUser.id,
         name: 'Novo Paciente',
         bed: '',
         date: defaultDate,
@@ -1360,7 +1821,7 @@
         checks: {}
       };
       patients.push(newPat);
-      saveDatabase();
+      saveAllPatients();
       renderTabs();
       switchPatientTab(newId);
     }
@@ -1374,22 +1835,10 @@
       loadPatientDataIntoForm(id);
       switchSubTab(currentSubTab);
 
-      // Rola a aba ativa para o campo de visão no mobile
       setTimeout(() => {
         const activeTab = document.querySelector('.tab-btn.active');
         if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
       }, 50);
-    }
-
-    function showArchiveView() {
-      currentPatientId = null;
-      document.getElementById('patient-main-view').style.display = 'none';
-      document.getElementById('archive-view').style.display = 'block';
-
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById('tab-archive-btn').classList.add('active');
-
-      renderArchiveTable();
     }
 
     function renderTabs() {
@@ -1398,7 +1847,10 @@
       container.innerHTML = '';
       container.appendChild(archiveBtn);
 
-      patients.forEach(pat => {
+      const userPatients = patients.filter(p => p.userId === activeUser.id);
+      document.getElementById('archive-count').textContent = userPatients.length;
+
+      userPatients.forEach(pat => {
         const btn = document.createElement('button');
         btn.className = `tab-btn ${pat.id === currentPatientId ? 'active' : ''}`;
         
@@ -1467,7 +1919,7 @@
       const pat = patients.find(p => p.id === currentPatientId);
       if (pat) {
         pat[field] = val;
-        saveDatabase();
+        saveAllPatients();
         if (field === 'name' || field === 'bed') renderTabs();
       }
     }
@@ -1477,7 +1929,7 @@
       const pat = patients.find(p => p.id === currentPatientId);
       if (pat) {
         pat[field] = val;
-        saveDatabase();
+        saveAllPatients();
       }
     }
 
@@ -1487,13 +1939,12 @@
       if (pat) {
         if (!pat.checks) pat.checks = {};
         pat.checks[chk.dataset.item] = chk.checked;
-        saveDatabase();
+        saveAllPatients();
       }
       const tr = chk.closest('tr');
       if (tr) tr.classList.toggle('row-selected', chk.checked);
     }
 
-    // FACILIDADE TOUCH: TOCAR NO NOME TAMBÉM MARCA O CHECKBOX
     function toggleByClickName(cell) {
       const tr = cell.closest('tr');
       if (!tr) return;
@@ -1512,9 +1963,102 @@
       calculateAllDoses(w);
     }
 
-    // ==============================================================
-    // MOTOR DE CÁLCULO DE DOSES DINÂMICAS & DOSES MÁXIMAS
-    // ==============================================================
+    function switchSubTab(sub) {
+      currentSubTab = sub;
+      document.getElementById('subview-presc').style.display = (sub === 'presc') ? 'block' : 'none';
+      document.getElementById('subview-pront').style.display = (sub === 'pront') ? 'block' : 'none';
+
+      document.getElementById('btn-subtab-presc').classList.toggle('active', sub === 'presc');
+      document.getElementById('btn-subtab-pront').classList.toggle('active', sub === 'pront');
+    }
+
+    function flashSaveIndicator() {
+      const el = document.getElementById('save-status');
+      el.textContent = '● Salvo ✓';
+      el.style.color = '#4ade80';
+      setTimeout(() => {
+        el.textContent = '● Salvo localmente';
+        el.style.color = '#38bdf8';
+      }, 1000);
+    }
+
+    function showArchiveView() {
+      currentPatientId = null;
+      document.getElementById('patient-main-view').style.display = 'none';
+      document.getElementById('archive-view').style.display = 'block';
+
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('tab-archive-btn').classList.add('active');
+
+      renderArchiveTable();
+    }
+
+    function renderArchiveTable() {
+      const tbody = document.getElementById('archive-list-body');
+      const filter = (document.getElementById('archive-search').value || '').toLowerCase();
+      tbody.innerHTML = '';
+
+      const userPatients = patients.filter(p => p.userId === activeUser.id);
+      const filtered = userPatients.filter(p => {
+        const name = (p.name || '').toLowerCase();
+        const bed = (p.bed || '').toLowerCase();
+        const mother = (p.mother || '').toLowerCase();
+        return name.includes(filter) || bed.includes(filter) || mother.includes(filter);
+      });
+
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhum paciente encontrado neste perfil.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${p.name || 'Sem nome'}</strong></td>
+          <td>${p.mother || '-'}</td>
+          <td>${p.bed || '-'}</td>
+          <td>${p.date || '-'}</td>
+          <td>${p.weight ? p.weight + ' kg' : '-'}</td>
+          <td><span style="color:${p.allergies && p.allergies.toLowerCase() !== 'nega' ? '#b91c1c' : '#475569'};">${p.allergies || 'Nega'}</span></td>
+          <td style="text-align:right; white-space:nowrap;">
+            <button class="btn-sm" onclick="switchPatientTab('${p.id}')">📂 Abrir</button>
+            <button class="btn-sm" onclick="duplicatePatient('${p.id}')">📑 Duplicar</button>
+            <button class="btn-sm btn-danger" onclick="deletePatient('${p.id}')">🗑️ Excluir</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deletePatient(id) {
+      const pat = patients.find(p => p.id === id);
+      const name = pat ? pat.name : 'este paciente';
+      if (confirm(`Deseja realmente excluir a prescrição e prontuário de ${name}?`)) {
+        patients = patients.filter(p => p.id !== id);
+        saveAllPatients();
+        const userPatients = patients.filter(p => p.userId === activeUser.id);
+        if (currentPatientId === id) {
+          if (userPatients.length > 0) switchPatientTab(userPatients[userPatients.length - 1].id);
+          else createNewPatient();
+        } else {
+          renderTabs();
+          if (document.getElementById('archive-view').style.display === 'block') renderArchiveTable();
+        }
+      }
+    }
+
+    function duplicatePatient(id) {
+      const orig = patients.find(p => p.id === id);
+      if (!orig) return;
+      const clone = JSON.parse(JSON.stringify(orig));
+      clone.id = 'pac_' + Date.now();
+      clone.name = (clone.name || 'Paciente') + ' (Cópia)';
+      patients.push(clone);
+      saveAllPatients();
+      switchPatientTab(clone.id);
+    }
+
+    /* MOTOR DE DOSES COM LIMITES MÁXIMOS */
     function setBadge(id, text) {
       const el = document.getElementById(id);
       if (!el) return;
@@ -1601,10 +2145,12 @@
       const nphTotalMin = w * 0.5;
       const nphTotalMax = w * 1.0;
       setBadge('calc-nph', `
-        Total: <strong>${r(nphTotalMin)} a ${r(nphTotalMax)} UI/dia SC</strong><br>
-        ☀️ <strong>Manhã (1/2):</strong> ${r(nphTotalMin * 0.5)} a ${r(nphTotalMax * 0.5)} UI &nbsp;|&nbsp; 
-        🌤️ <strong>Tarde (1/4):</strong> ${r(nphTotalMin * 0.25)} a ${r(nphTotalMax * 0.25)} UI &nbsp;|&nbsp; 
-        🌙 <strong>Noite (1/4):</strong> ${r(nphTotalMin * 0.25)} a ${r(nphTotalMax * 0.25)} UI
+        <div><strong>Total:</strong> ${r(nphTotalMin)} a ${r(nphTotalMax)} UI/dia SC <span class="dose-max-tag">🛑 Teto inicial: 1,0 a 1,2 UI/kg/dia</span></div>
+        <div style="margin-top:4px; display:flex; flex-wrap:wrap; gap:4px 10px;">
+          <span>☀️ <strong>Manhã (1/2):</strong> ${r(nphTotalMin * 0.5)} a ${r(nphTotalMax * 0.5)} UI</span>
+          <span>🌤️ <strong>Tarde (1/4):</strong> ${r(nphTotalMin * 0.25)} a ${r(nphTotalMax * 0.25)} UI</span>
+          <span>🌙 <strong>Noite (1/4):</strong> ${r(nphTotalMin * 0.25)} a ${r(nphTotalMax * 0.25)} UI</span>
+        </div>
       `);
 
       setBadge('calc-glargina', `Dose: <strong>${r(w * 0.2)} a ${r(w * 0.4)} UI/dia SC</strong> 1x/dia <span class="dose-max-tag">🛑 Teto inicial: 0,4 a 0,5 UI/kg/dia</span>`);
@@ -1745,69 +2291,6 @@
       setBadge('calc-hidrala', `Dose: <strong>${r(hidralaMin)} a ${r(hidralaMax)} mg/dose</strong> EV lento SN <span class="dose-max-tag">🛑 Máx: 20 mg/dose EV</span>`);
 
       setBadge('calc-nora', `Infusão: <strong>${r(w * 0.05, 2)} a ${r(w * 1.0, 1)} mcg/min</strong> contínua <span class="dose-max-tag">🛑 Teto: 1,0 a 1,5 mcg/kg/min</span>`);
-    }
-
-    function deletePatient(id) {
-      const pat = patients.find(p => p.id === id);
-      const name = pat ? pat.name : 'este paciente';
-      if (confirm(`Deseja realmente excluir a prescrição e prontuário de ${name}?`)) {
-        patients = patients.filter(p => p.id !== id);
-        saveDatabase();
-        if (currentPatientId === id) {
-          if (patients.length > 0) switchPatientTab(patients[patients.length - 1].id);
-          else createNewPatient();
-        } else {
-          renderTabs();
-          if (document.getElementById('archive-view').style.display === 'block') renderArchiveTable();
-        }
-      }
-    }
-
-    function duplicatePatient(id) {
-      const orig = patients.find(p => p.id === id);
-      if (!orig) return;
-      const clone = JSON.parse(JSON.stringify(orig));
-      clone.id = 'pac_' + Date.now();
-      clone.name = (clone.name || 'Paciente') + ' (Cópia)';
-      patients.push(clone);
-      saveDatabase();
-      switchPatientTab(clone.id);
-    }
-
-    function renderArchiveTable() {
-      const tbody = document.getElementById('archive-list-body');
-      const filter = (document.getElementById('archive-search').value || '').toLowerCase();
-      tbody.innerHTML = '';
-
-      const filtered = patients.filter(p => {
-        const name = (p.name || '').toLowerCase();
-        const bed = (p.bed || '').toLowerCase();
-        const mother = (p.mother || '').toLowerCase();
-        return name.includes(filter) || bed.includes(filter) || mother.includes(filter);
-      });
-
-      if (!filtered.length) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhum paciente encontrado.</td></tr>`;
-        return;
-      }
-
-      filtered.forEach(p => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><strong>${p.name || 'Sem nome'}</strong></td>
-          <td>${p.mother || '-'}</td>
-          <td>${p.bed || '-'}</td>
-          <td>${p.date || '-'}</td>
-          <td>${p.weight ? p.weight + ' kg' : '-'}</td>
-          <td><span style="color:${p.allergies && p.allergies.toLowerCase() !== 'nega' ? '#b91c1c' : '#475569'};">${p.allergies || 'Nega'}</span></td>
-          <td style="text-align:right; white-space:nowrap;">
-            <button class="btn-sm" onclick="switchPatientTab('${p.id}')">📂 Abrir</button>
-            <button class="btn-sm" onclick="duplicatePatient('${p.id}')">📑 Duplicar</button>
-            <button class="btn-sm btn-danger" onclick="deletePatient('${p.id}')">🗑️ Excluir</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
     }
   </script>
 </body>
