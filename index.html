@@ -1060,7 +1060,8 @@
       .signature-card { padding: 10px 8px !important; margin-top: 10px !important; }
       .signature-line { border-top: 1px solid #000 !important; font-size: 8.5pt !important; }
     }
-  </style>
+  .ped-trend{display:inline-block;margin-left:5px;font-weight:800;font-size:13px}.ped-up{color:#0f766e}.ped-down{color:#b45309}.ped-same{color:#64748b}
+</style>
 </head>
 <body>
 
@@ -2318,97 +2319,92 @@
 
     function renderLabTable() {
       const container = document.getElementById('lab-table-container');
+      if (!container) return;
       const pat = patients.find(p => p.id === currentPatientId);
-
-      if (!pat || !pat.labHistory || pat.labHistory.length === 0) {
-        container.innerHTML = `
-          <div style="padding:16px; text-align:center; color:var(--text-muted); font-size:12px;">
-            Nenhum exame processado ainda. Cole os dados acima e clique em <strong>Processar</strong>!
-          </div>`;
+      if (!pat || !Array.isArray(pat.labHistory) || !pat.labHistory.length) {
+        container.innerHTML = '<div style="padding:16px;text-align:center;color:#64748b">Nenhum exame processado ainda.</div>';
         return;
       }
-
-      const dates = pat.labHistory.map(entry => entry.date);
-      const customDefs = pat.customLabDefs || {};
-      const dynamicPanels = JSON.parse(JSON.stringify(STANDARD_LAB_PANELS));
-
-      const allPatientKeys = new Set();
-      pat.labHistory.forEach(entry => {
-        Object.keys(entry.values).forEach(k => allPatientKeys.add(k));
+      const escapeLab = (v) => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+      const dateNum = (value) => {
+        const s = String(value ?? '').trim();
+        let y, m, d, a;
+        if ((a = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/))) { y=+a[1]; m=+a[2]; d=+a[3]; }
+        else if ((a = s.match(/^(\d{1,2})[.\/-](\d{1,2})(?:[.\/-](\d{2,4}))?$/))) {
+          d=+a[1]; m=+a[2]; y=a[3] ? +a[3] : new Date().getFullYear();
+          if (y<100) y+=y>=70 ? 1900 : 2000;
+        } else return Number.POSITIVE_INFINITY;
+        const dt=new Date(y,m-1,d);
+        return dt.getFullYear()===y && dt.getMonth()===m-1 && dt.getDate()===d ? dt.getTime() : Number.POSITIVE_INFINITY;
+      };
+      const entries = [...pat.labHistory].sort((a,b) => dateNum(a.date)-dateNum(b.date));
+      // Persistir a ordem também para futuras atualizações, sem alterar resultados.
+      if (entries.some((e,i)=>e!==pat.labHistory[i])) {
+        pat.labHistory = entries;
+        if (typeof saveAllPatients === 'function') saveAllPatients();
+      }
+      const numeric = (v) => {
+        const s=String(v??'').trim();
+        if (!/^[<>≤≥]?\s*[+-]?[\d.,]+\s*(?:%|[a-zA-Zµμ/³²]+)?$/.test(s)) return null;
+        let n=s.match(/[+-]?[\d.,]+/)?.[0]; if(!n) return null;
+        const c=n.lastIndexOf(','), dot=n.lastIndexOf('.');
+        if(c>=0 && dot>=0) n=c>dot?n.replace(/\./g,'').replace(',','.'):n.replace(/,/g,'');
+        else if(c>=0) n=n.replace(',','.');
+        else if(dot>=0 && /^\d{1,3}(?:\.\d{3})+$/.test(n)) n=n.replace(/\./g,'');
+        const vnum=Number(n); return Number.isFinite(vnum)?vnum:null;
+      };
+      const arrow = (current, previous) => {
+        const a=numeric(current), b=numeric(previous);
+        if(a===null || b===null) return '';
+        if(a>b) return ' <span class="ped-trend ped-up" title="Aumentou em relação à data anterior">↑</span>';
+        if(a<b) return ' <span class="ped-trend ped-down" title="Diminuiu em relação à data anterior">↓</span>';
+        return ' <span class="ped-trend ped-same" title="Sem mudança em relação à data anterior">→</span>';
+      };
+      const panels = JSON.parse(JSON.stringify(STANDARD_LAB_PANELS));
+      const defs = pat.customLabDefs || {};
+      const keys = new Set(entries.flatMap(e => Object.keys(e.values || {})));
+      for (const key of keys) {
+        if (panels.some(panel => panel.tests.some(test => test.key === key))) continue;
+        const def=defs[key]||{label:key.replace(/_/g,' '),category:typeof categorizeExam==='function'?categorizeExam(key,key):''};
+        let panel=panels.find(p=>p.name===def.category);
+        if(!panel) panel=panels.find(p=>p.name==='📋 Exames Complementares & Outros');
+        if(!panel) {panel={name:'Outros exames',tests:[]};panels.push(panel);}
+        panel.tests.push({key,label:def.label||key});
+      }
+      let html='<table class="lab-comp-table"><thead><tr><th>Painel / Exame</th>';
+      entries.forEach((e,i)=>{
+        html+=`<th class="${i===entries.length-1?'col-date-highlight':''}">${escapeLab(e.date)} ${i===entries.length-1?'⚡':''} <button class="btn-del-col" data-date-index="${i}" type="button" title="Excluir exames desta data">✕</button></th>`;
       });
-
-      allPatientKeys.forEach(k => {
-        let isAlreadyInPanel = false;
-        for (let p of dynamicPanels) {
-          if (p.tests.some(t => t.key === k)) { isAlreadyInPanel = true; break; }
-        }
-
-        if (!isAlreadyInPanel) {
-          const def = customDefs[k] || { label: toTitleCase(k), category: categorizeExam(k, k) };
-          let targetCategory = def.category || '📋 Exames Complementares & Outros';
-          let panel = dynamicPanels.find(p => p.name === targetCategory);
-          if (!panel) {
-            panel = dynamicPanels.find(p => p.name === '📋 Exames Complementares & Outros');
-          }
-          panel.tests.push({ key: k, label: def.label });
-        }
-      });
-
-      let tableHtml = `<table class="lab-comp-table"><thead><tr><th>Painel / Exame</th>`;
-      dates.forEach((d, idx) => {
-        const isLatest = (idx === dates.length - 1);
-        tableHtml += `<th class="${isLatest ? 'col-date-highlight' : ''}">
-          ${d} ${isLatest ? '⚡' : ''}
-          <button class="btn-del-col" onclick="deleteLabDate('${d}')" title="Excluir exames deste dia">✕</button>
-        </th>`;
-      });
-      tableHtml += `</tr></thead><tbody>`;
-
-      let hasRenderedAnyRow = false;
-
-      dynamicPanels.forEach(panel => {
-        // Regra estrita: exibe apenas os parâmetros que tenham valor em pelo menos uma data
-        const presentTests = panel.tests.filter(t => pat.labHistory.some(entry => entry.values[t.key] !== undefined && entry.values[t.key] !== null && String(entry.values[t.key]).trim() !== ''));
-        
-        if (presentTests.length > 0) {
-          hasRenderedAnyRow = true;
-          tableHtml += `<tr class="lab-category-row"><td colspan="${dates.length + 1}">${panel.name}</td></tr>`;
-
-          presentTests.forEach(test => {
-            tableHtml += `<tr><td><strong>${test.label}</strong></td>`;
-
-            pat.labHistory.forEach(entry => {
-              const val = entry.values[test.key];
-              if (val !== undefined && val !== null && String(val).trim() !== '') {
-                const valStr = String(val);
-                const isLongOrText = valStr.length > 10 || /[a-zA-Z]/.test(valStr);
-
-                let badgeClass = '';
-                const upperVal = valStr.toUpperCase();
-                if (/POSITIV|REAGENT|CRESCIMENTO|ISOLAD|RESISTENT|DESVIO|ALTO|ALTERAD/i.test(upperVal)) {
-                  badgeClass = 'lab-badge-pos';
-                } else if (/NEGATIV|NÃO REAGENT|SEM CRESCIMENTO|NORMAL/i.test(upperVal)) {
-                  badgeClass = 'lab-badge-neg';
-                }
-
-                if (isLongOrText) {
-                  tableHtml += `<td class="lab-val-cell has-val"><span class="lab-badge-text ${badgeClass}">${valStr}</span></td>`;
-                } else {
-                  tableHtml += `<td class="lab-val-cell has-val">${valStr}</td>`;
-                }
-              } else {
-                // Se não apareceu nesta data específica, coloca o traço "-"
-                tableHtml += `<td class="lab-val-cell" style="color:#94a3b8;">-</td>`;
-              }
-            });
-
-            tableHtml += `</tr>`;
+      html+='</tr></thead><tbody>';
+      let found=false;
+      for (const panel of panels) {
+        const tests=panel.tests.filter(test=>entries.some(e=>String(e.values?.[test.key]??'').trim()!==''));
+        if(!tests.length)continue;
+        found=true;
+        html+=`<tr class="lab-category-row"><td colspan="${entries.length+1}">${escapeLab(panel.name)}</td></tr>`;
+        for(const test of tests){
+          html+=`<tr><td><strong>${escapeLab(test.label)}</strong></td>`;
+          entries.forEach((e,i)=>{
+            const val=e.values?.[test.key];
+            if(val===undefined || val===null || String(val).trim()===''){
+              html+='<td class="lab-val-cell" style="color:#94a3b8">—</td>';return;
+            }
+            const value=String(val);
+            const flag=/POSITIV|REAGENT|CRESCIMENTO|ISOLAD|RESISTENT|DESVIO|ALTO|ALTERAD/i.test(value)?'lab-badge-pos':/NEGATIV|NÃO REAGENT|SEM CRESCIMENTO|NORMAL/i.test(value)?'lab-badge-neg':'';
+            const display=(value.length>10 || /[a-zA-Z]/.test(value))?`<span class="lab-badge-text ${flag}">${escapeLab(value)}</span>`:escapeLab(value);
+            const prev=i>0?entries[i-1].values?.[test.key]:null;
+            html+=`<td class="lab-val-cell has-val">${display}${i>0?arrow(val,prev):''}</td>`;
           });
+          html+='</tr>';
         }
-      });
-
-      tableHtml += `</tbody></table>`;
-      container.innerHTML = hasRenderedAnyRow ? tableHtml : `<div style="padding:16px; text-align:center; color:var(--text-muted); font-size:12px;">Nenhum exame identificado.</div>`;
+      }
+      html+='</tbody></table>';
+      container.innerHTML=found?html:'<div style="padding:16px;text-align:center;color:#64748b">Nenhum exame identificado.</div>';
+      container.querySelectorAll('button[data-date-index]').forEach(button=>button.addEventListener('click',()=>{
+        const index=Number(button.dataset.dateIndex);
+        const date=entries[index]?.date;
+        if(date!==undefined) deleteLabDate(date);
+      }));
     }
 
     function deleteLabDate(dateToDelete) {
@@ -4359,7 +4355,7 @@
     renderMaintenanceGuide();
     removeHollidayExtra();
     updateMaintenanceGuide();
-    refreshLabOrderAndTrends();
+    // Renderização cronológica realizada diretamente por renderLabTable().
     if (lastPatientId !== (typeof currentPatientId !== 'undefined' ? currentPatientId : null)) {
       lastPatientId = typeof currentPatientId !== 'undefined' ? currentPatientId : null;
       syncSatField();
@@ -4373,7 +4369,7 @@
     syncSatField();
     renderMaintenanceGuide();
     removeHollidayExtra();
-    refreshLabOrderAndTrends();
+    // Renderização cronológica realizada diretamente por renderLabTable().
     if (typeof window.parseAndAddLab === 'function') window.parseAndAddLab = importLab;
     if (typeof window.printDocument === 'function') window.printDocument = printUpgrade;
     setInterval(heartbeat, 800);
