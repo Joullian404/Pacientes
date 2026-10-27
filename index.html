@@ -3700,6 +3700,609 @@
       setBadge('calc-nora', `Infusão: <strong>${r(w * 0.05, 2)} a ${r(w * 1.0, 1)} mcg/min</strong> contínua <span class="dose-max-tag">🛑 Teto: 1,0 a 1,5 mcg/kg/min</span>`);
     }
   </script>
+<script>
+/* PedCare upgrade: impressão clínica e importação laboratorial v1.7
+   Adicionar após o script original, antes de </body>. Requer script original sem erros de sintaxe. */
+(() => {
+  'use strict';
+
+  const PANELS = typeof STANDARD_LAB_PANELS !== 'undefined' ? STANDARD_LAB_PANELS : [];
+  const EXTRA_ALIASES = {
+    HEM:['ERIT','ERITRO','ERITROS','ERITROC','ERITROCITO','ERITROCITOS','HEM','HEMACIA','HEMACIAS','HEMATIAS','RBC','RED BLOOD CELLS'],
+    HB:['HB','HGB','HEMOGLOBINA','HEMOGLOB'], HT:['HT','HTO','HCT','HTC','HEMATOCRITO'],
+    VCM:['VCM','MCV'], HCM:['HCM','MCH'], CHCM:['CHCM','MCHC'],
+    RDW:['RDW','RDW CV','RDW SD','RDW-CV','RDW-SD'],
+    LEU:['LEU','LEUC','LEUCO','LEUCOS','LEUCOCITOS','LEUCOCITOS TOTAIS','LEUCO TOTAIS','WBC','GB'],
+    BAST:['BAST','BASTAO','BASTOES','BASTONETE','BASTONETES','BAND','BANDS'],
+    NEUT:['NEUT','NEUTRO','NEUTROFILO','NEUTROFILOS','SEG','SEGS','SEGMENTADO','SEGMENTADOS','PMN'],
+    EOS:['EOS','EOSIN','EOSINO','EOSINOFILO','EOSINOFILOS'], BAS:['BAS','BASO','BASOFILO','BASOFILOS'],
+    LINF:['LINF','LINFO','LINFOCITO','LINFOCITOS','LYM','LYMPH'],
+    MON:['MON','MONO','MONOCITO','MONOCITOS'],
+    PLAQ:['PLAQ','PLQ','PLA','PLAQUETA','PLAQUETAS','PLAQUETAGEM','PLT','PLATELETS'],
+    VPM:['VPM','MPV'], PDW:['PDW'], PCT_PLAQ:['PLAQUETOCRITO','PCT PLAQ','PCT_PLAQ','PCT-PLAQ'],
+    URE:['URE','UR','UREIA','UREA','BUN'], CR:['CR','CREAT','CREATININA','CREATIN'],
+    NA:['NA','SODIO'], K:['K','POTASSIO'], CA:['CA','CAI','CALCIO IONICO','CALCIO IONIZADO'], MG:['MG','MAGNESIO'],
+    PH:['PH'], PCO2:['PCO2','PACO2'], PO2:['PO2','PAO2'], HCO3:['HCO3','BICARBONATO','BIC'],
+    BE:['BE','EXCESSO DE BASE'], LACT:['LACT','LAC','LACTATO'],
+    TGO:['TGO','AST','GOT'], TGP:['TGP','ALT','GPT'], FA:['FA','FOSFATASE ALCALINA'],
+    GGT:['GGT','GAMA GT','GAMA-GT'], BT:['BT','BILIRRUBINA TOTAL'], BD:['BD','BILIRRUBINA DIRETA'],
+    BI:['BI','BILIRRUBINA INDIRETA'], ALB:['ALB','ALBUMINA'],
+    PCR:['PCR','PROTEINA C REATIVA','PROTEINA C REATIVA ULTRASSENSIVEL'],
+    GLI:['GLI','GLIC','GLICEMIA','GLICOSE'], PCT:['PCT','PROCALCITONINA','PROCALC'],
+    FERRITINA:['FERRITINA','FERR'], TP:['TP','TEMPO DE PROTROMBINA'], INR:['INR','RNI'],
+    TTPA:['TTPA','PTT','APTT','KTT P','KTTP'],
+    CT:['CT','COLESTEROL TOTAL'], HDL:['HDL','HDL C','HDL-C'], LDL:['LDL','LDL C','LDL-C'],
+    TG:['TG','TRIG','TRIGLICERIDEOS','TRIGLICERIDES']
+  };
+
+  function norm(s){
+    return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[_\-]+/g,' ').replace(/\s+/g,' ').trim();
+  }
+
+  const aliases = new Map();
+  for (const panel of PANELS) for (const t of panel.tests) aliases.set(norm(t.key), t.key);
+  if (typeof ALIAS_MAP !== 'undefined') for (const [alias, k] of Object.entries(ALIAS_MAP)) aliases.set(norm(alias), k);
+  for (const [key, list] of Object.entries(EXTRA_ALIASES)) for (const alias of list) aliases.set(norm(alias), key);
+
+  const labels = new Map();
+  for (const panel of PANELS) for (const t of panel.tests) labels.set(t.key, t.label);
+
+  const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const getPat = () => (typeof patients !== 'undefined' ? patients.find(p => p.id === currentPatientId) : null);
+  const today = () => new Date().toLocaleDateString('pt-BR');
+
+  function getSatValue(p){
+    return p?.satO2 ?? p?.spo2 ?? p?.sato2 ?? p?.['satO₂'] ?? '';
+  }
+
+  function setSatValue(p, value){
+    if (!p) return;
+    const clean = String(value ?? '').trim();
+    p.satO2 = clean;
+    try { delete p.spo2; } catch {}
+    try { delete p.sato2; } catch {}
+    try { delete p['satO₂']; } catch {}
+  }
+
+  function ensurePatientFields(){
+    if (typeof patients === 'undefined' || !Array.isArray(patients)) return;
+    for (const p of patients) {
+      if (p && getSatValue(p) && !p.satO2) setSatValue(p, getSatValue(p));
+      else if (p && p.satO2 == null) p.satO2 = '';
+    }
+  }
+
+  function parseDate(text){
+    const m = text.match(/(?:^|\b(?:LAB|EXAMES|DATA|COLETA|CULTURAS)\s*:?[ \t]*)(\d{1,2}[.\/-]\d{1,2}(?:[.\/-]\d{2,4})?)(?=\b|\s|:)/im);
+    return m ? m[1].replace(/[.\-]/g,'/') : today();
+  }
+
+  function stripDate(text){
+    return text.replace(/\b(?:LAB|EXAMES|DATA|COLETA|CULTURAS)?\s*:?\s*\d{1,2}[.\/-]\d{1,2}(?:[.\/-]\d{2,4})?\s*:?[ \t]*/i, '');
+  }
+
+  function parseFragment(segment){
+    const s = segment.trim().replace(/^[-•*]\s*/, '');
+    if (!s) return null;
+    let m = s.match(/^(.{1,75}?)\s*[:=]\s*(.+)$/s);
+    if (!m) m = s.match(/^([\p{L}\d_\-+ ]{1,65}?)\s+([<>≤≥]?\s*\d[\d.,]*(?:\s*[%a-zA-Zµμ/³²\-]*)?.*)$/u);
+    if (!m) return null;
+    const rawName = m[1].trim();
+    const val = m[2].trim();
+    if (!rawName || !val) return null;
+    const key = aliases.get(norm(rawName)) || norm(rawName).replace(/\s+/g,'_');
+    if (key === 'GASO' || key === 'LAB') return null;
+    return { key, val, rawName };
+  }
+
+  function parseInput(text){
+    const values = {};
+    const unknown = [];
+    const chunks = stripDate(text).split(/\/{2,}|\n+|;|\s+\|\s+/);
+    for (const chunk of chunks) {
+      const parsed = parseFragment(chunk);
+      if (parsed) {
+        values[parsed.key] = parsed.val;
+        if (!aliases.has(norm(parsed.rawName))) unknown.push(parsed.rawName);
+      } else if (chunk.trim()) {
+        unknown.push(chunk.trim());
+      }
+    }
+    return { values, unknown };
+  }
+
+  function save(){
+    if (typeof saveAllPatients === 'function') saveAllPatients();
+  }
+
+  function importLab(){
+    const area = document.getElementById('raw-lab-input');
+    const pat = getPat();
+    if (!area || !pat) return;
+    const text = area.value.trim();
+    if (!text) { alert('Cole os resultados para processar.'); return; }
+    const date = parseDate(text);
+    const { values, unknown } = parseInput(text);
+    if (!Object.keys(values).length) {
+      alert('Nenhum resultado foi identificado. Use, por exemplo, ERIT 4,8 // PLQ 250.000 // HB: 12,5.');
+      return;
+    }
+    pat.labHistory ||= [];
+    pat.customLabDefs ||= {};
+    for (const k of Object.keys(values)) {
+      if (!pat.customLabDefs[k]) {
+        const label = labels.get(k) || k.replace(/_/g,' ');
+        pat.customLabDefs[k] = {
+          label,
+          category: typeof categorizeExam === 'function' ? categorizeExam(k, label) : '📋 Exames Complementares & Outros'
+        };
+      }
+    }
+    const existing = pat.labHistory.find(item => item.date === date);
+    if (existing) Object.assign(existing.values, values);
+    else pat.labHistory.push({ date, values });
+    save();
+    if (typeof renderLabTable === 'function') renderLabTable();
+    area.value = '';
+    if (unknown.length) console.info('PedCare: campos não padronizados, revisar classificação:', unknown);
+  }
+
+  function patientHeader(p){
+    const fields = [
+      ['Paciente', p.name],
+      ['Mãe', p.mother],
+      ['Leito', p.bed],
+      ['Data', p.date],
+      ['Idade', p.age],
+      ['Sexo', p.sex],
+      ['Peso', p.weight ? p.weight + ' kg' : ''],
+      ['Alergias', p.allergies],
+      ['FC', p.fc],
+      ['PA', p.pa],
+      ['FR', p.fr],
+      ['Sat. O₂', getSatValue(p)],
+      ['Temperatura', p.tx],
+      ['Altura', p.height],
+      ['Diurese', p.diuresis],
+      ['Evacuações', p.evacuations],
+      ['Flatos', p.flatus]
+    ];
+    const items = fields
+      .filter(([, v]) => v !== undefined && v !== null && String(v).trim())
+      .map(([k, v]) => `<div class="fact"><span class="fact-label">${esc(k)}</span><span class="fact-value">${esc(v)}</span></div>`)
+      .join('');
+
+    return [
+      '<section class="patient-card">',
+      '  <div class="patient-card-top">',
+      '    <div>',
+      '      <div class="eyebrow">PedCare</div>',
+      '      <h1 class="doc-title">Identificação do paciente</h1>',
+      '    </div>',
+      `    <div class="generated-at">Gerado em ${esc(new Date().toLocaleString('pt-BR'))}</div>`,
+      '  </div>',
+      '  <h2 class="section-banner">Identificação e sinais vitais</h2>',
+      `  <div class="facts-grid">${items || '<div class="fact"><span class="fact-label">Aviso</span><span class="fact-value">Nenhum dado preenchido.</span></div>'}</div>`,
+      '</section>'
+    ].join('');
+  }
+
+  const textSection = (title, value) => String(value ?? '').trim()
+    ? `<section class="block"><h2 class="section-banner">${esc(title)}</h2><div class="prose">${esc(value)}</div></section>`
+    : '';
+
+  function clinical(p){
+    return '<section class="block"><h1 class="page-title">Ficha clínica / Evolução</h1>'
+      + textSection('Motivo da internação', p.reason)
+      + textSection('Comorbidades', p.comorbidities)
+      + textSection('História clínica / Anamnese / Evolução', p.clinicalHistory)
+      + textSection('Resumo de exames e pendências', p.labExams)
+      + '</section>';
+  }
+
+  function labs(p){
+    const entries = p.labHistory || [];
+    if (!entries.length) return '<section class="block"><h1 class="page-title">Exames laboratoriais</h1><p class="empty">Nenhum exame laboratorial registrado.</p></section>';
+    const keys = new Set(entries.flatMap(e => Object.keys(e.values || {})));
+    const panels = PANELS.map(x => ({ name: x.name, keys: x.tests.map(t => t.key).filter(k => keys.has(k)) }));
+    const covered = new Set(panels.flatMap(x => x.keys));
+    for (const key of keys) if (!covered.has(key)) {
+      const cat = p.customLabDefs?.[key]?.category || (typeof categorizeExam === 'function' ? categorizeExam(key, key) : 'Outros');
+      const panel = panels.find(x => x.name === cat) || panels[panels.length - 1];
+      if (panel) panel.keys.push(key);
+    }
+    let out = '<section class="block"><h1 class="page-title">Exames laboratoriais e culturas</h1><table class="report-table"><thead><tr><th>Parâmetro</th>'
+      + entries.map(e => `<th>${esc(e.date)}</th>`).join('')
+      + '</tr></thead><tbody>';
+    for (const panel of panels) if (panel.keys.length) {
+      out += `<tr class="group"><td colspan="${entries.length + 1}">${esc(panel.name)}</td></tr>`;
+      for (const key of panel.keys) {
+        const label = p.customLabDefs?.[key]?.label || labels.get(key) || key;
+        out += `<tr><td>${esc(label)}</td>` + entries.map(e => `<td>${esc(e.values?.[key] ?? '—')}</td>`).join('') + '</tr>';
+      }
+    }
+    return out + '</tbody></table></section>';
+  }
+
+  function imaging(p){
+    const images = p.images || [];
+    if (!images.length) return '<section class="block"><h1 class="page-title">Exames de imagem</h1><p class="empty">Nenhum exame de imagem registrado.</p></section>';
+    return '<section class="block"><h1 class="page-title">Exames de imagem e laudos</h1>' + images.map((im, i) => {
+      const src = typeof im.data === 'string' && /^data:image\/(?:png|jpeg|jpg|webp);base64,/i.test(im.data) ? im.data : '';
+      return `<section class="scan"><h2 class="section-banner">${i + 1}. ${esc(im.title || 'Exame de imagem')} <small>${esc(im.date || '')}</small></h2>${src ? `<img src="${src}" alt="Exame de imagem ${i + 1}">` : ''}${textSection('Laudo / comentários', im.comment)}</section>`;
+    }).join('') + '</section>';
+  }
+
+  function prescription(p){
+    let html = '<section class="block"><h1 class="page-title">Prescrição médica</h1>';
+    const cards = [...document.querySelectorAll('#subview-presc .category-card')];
+    let any = false;
+    for (const card of cards) {
+      const rows = [...card.querySelectorAll('tr')].filter(tr => tr.querySelector('.med-check-single:checked'));
+      if (!rows.length) continue;
+      any = true;
+      html += `<section><h2 class="section-banner">${esc(card.querySelector('.category-header')?.textContent?.trim() || 'Prescrição')}</h2><table class="report-table"><tbody>`;
+      for (const row of rows) {
+        const name = row.querySelector('.cell-name')?.textContent?.trim() || '';
+        const desc = row.querySelector('.cell-desc');
+        const clone = desc?.cloneNode(true);
+        if (clone) {
+          clone.querySelectorAll('.holliday-box').forEach(n => n.remove());
+          clone.querySelectorAll('input,textarea,select').forEach(el => {
+            const val = el.value || '';
+            el.replaceWith(document.createTextNode(val));
+          });
+        }
+        html += `<tr><td style="width:32%"><b>${esc(name)}</b></td><td>${clone ? clone.innerHTML : ''}</td></tr>`;
+      }
+      html += '</tbody></table></section>';
+    }
+    return html + (any ? '' : '<p class="empty">Nenhum item de prescrição selecionado.</p>') + '</section>';
+  }
+
+  const MODES = {
+    presc:'Prescrição',
+    pront:'Ficha clínica',
+    lab:'Laboratório',
+    img:'Imagens',
+    exams:'Laboratório + Imagens',
+    clinical_lab:'Ficha + Laboratório',
+    clinical_exams:'Ficha + Exames',
+    all:'Tudo'
+  };
+
+  function printableHtml(p, mode){
+    let content = '';
+    if (mode === 'all') {
+      content = clinical(p) + '<div class="section-space"></div>' + prescription(p) + '<div class="section-space"></div>' + labs(p) + '<div class="section-space"></div>' + imaging(p);
+    } else if (mode === 'clinical_exams') {
+      content = clinical(p) + '<div class="section-space"></div>' + labs(p) + '<div class="section-space"></div>' + imaging(p);
+    } else if (mode === 'clinical_lab') {
+      content = clinical(p) + '<div class="laboratory-page-break" aria-hidden="true"></div>' + labs(p);
+    } else if (mode === 'exams') {
+      content = labs(p) + '<div class="section-space"></div>' + imaging(p);
+    } else if (mode === 'presc') {
+      content = prescription(p);
+    } else if (mode === 'pront') {
+      content = clinical(p);
+    } else if (mode === 'lab') {
+      content = labs(p);
+    } else if (mode === 'img') {
+      content = imaging(p);
+    }
+
+    content = patientHeader(p) + content;
+
+    const css = `
+      @page{size:A4;margin:7mm 8mm}
+      *{box-sizing:border-box}
+      html,body{margin:0;padding:0;background:#eef3f8;color:#102133}
+      body{font:10pt/1.45 Arial,Helvetica,sans-serif}
+      .viewer{max-width:1000px;margin:0 auto;padding:18px}
+      .print-btn{position:sticky;top:10px;z-index:20;background:#0f4c81;color:#fff;border:0;border-radius:999px;padding:10px 16px;font-weight:700;cursor:pointer;box-shadow:0 10px 25px rgba(15,76,129,.18);margin-bottom:14px}
+      .patient-card,.block{background:#fff;border:1px solid #dbe5ef;border-radius:9px;box-shadow:0 5px 15px rgba(15,23,42,.04);padding:10px 11px;margin:0 0 8px} .patient-card{padding:7px 9px;margin-bottom:7px}
+      .patient-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:5px}
+      .eyebrow{font-size:7pt;letter-spacing:.14em;text-transform:uppercase;color:#4d7092;font-weight:700;margin-bottom:3px}
+      .doc-title,.page-title{margin:0 0 10px;color:#102133}
+      .doc-title{font-size:12.5pt;margin:0}
+      .page-title{font-size:16pt;padding-bottom:8px;border-bottom:2px solid #d5e1ee}
+      .generated-at{font-size:7.2pt;color:#5f7388;white-space:nowrap}
+      .section-banner{margin:8px 0 5px;padding:5px 8px;border-radius:10px;background:linear-gradient(180deg,#eef5fb 0%,#e5eef8 100%);border:1px solid #d6e3f0;font-size:10.5pt;color:#16324f;break-after:avoid}
+      .patient-card .section-banner{font-size:8.4pt;padding:3px 6px;margin:4px 0 5px} .section-banner small{float:right;font-size:8.8pt;color:#5f7388;font-weight:400}
+      .facts-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px 6px}
+      .fact{border:1px solid #e1e9f2;border-radius:5px;padding:3px 5px;background:#fafcff;min-width:0}
+      .fact-label{display:inline;font-size:7pt;text-transform:uppercase;letter-spacing:0;color:#607487;font-weight:700;margin:0 4px 0 0}
+      .fact-value{display:inline;font-size:8.5pt;color:#12263a;font-weight:600;overflow-wrap:anywhere}
+      .prose{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;font-size:10pt;color:#1f2f3f;padding:2px 1px}
+      .empty{color:#5f7388;font-style:italic}
+      .report-table{border-collapse:separate;border-spacing:0;width:100%;table-layout:auto;font-size:9.2pt;border:1px solid #d8e2ec;border-radius:12px;overflow:hidden}
+      .report-table th,.report-table td{padding:4px 5px;vertical-align:top;border-right:1px solid #d8e2ec;border-bottom:1px solid #d8e2ec;overflow-wrap:anywhere}
+      .report-table th:last-child,.report-table td:last-child{border-right:0}
+      .report-table tr:last-child td{border-bottom:0}
+      .report-table thead th{background:#eff5fb;color:#16324f;font-weight:700}
+      .report-table tbody tr:nth-child(even):not(.group){background:#fbfdff}
+      .report-table .group td{background:#e4eef8;color:#173552;font-weight:700}
+      .scan{break-inside:auto;margin-bottom:10px} .scan img{break-inside:avoid;page-break-inside:avoid} .scan>.section-banner{break-after:avoid}
+      img{display:block;max-width:100%;max-height:210mm;object-fit:contain;margin:10px auto;border:1px solid #d8e2ec;border-radius:10px;background:#fff}
+      .section-space{height:8px}
+      .laboratory-page-break{height:8px}
+      footer{font-size:8.2pt;color:#627587;margin-top:20px;text-align:center}
+      @media print{
+        html,body{background:#fff;font-size:9.3pt;line-height:1.34}
+        .viewer{max-width:none;padding:0}
+        .print-btn{display:none}
+        .laboratory-page-break{display:block;height:0;break-before:page;page-break-before:always}
+        .patient-card,.block{box-shadow:none;border-color:#cfd9e4;break-inside:auto;page-break-inside:auto} .patient-card{break-inside:auto;page-break-inside:auto} .prose{break-inside:auto;page-break-inside:auto} .section-space{height:5px}
+        .section-banner{background:#eef4fa !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+        .report-table tr{break-inside:avoid;page-break-inside:avoid}.report-table thead{display:table-header-group}.report-table thead th,.report-table .group td,.fact{background:#f4f8fc !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      }
+      @media (max-width:760px){
+        .viewer{padding:14px}
+        .facts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .patient-card-top{flex-direction:column}
+      }
+    `;
+
+    return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PedCare — ${esc(MODES[mode])} — ${esc(p.name || 'Paciente')}</title><style>${css}</style></head><body><div class="viewer"><button class="print-btn" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>${content}<footer>PedCare • Documento gerado em ${esc(new Date().toLocaleString('pt-BR'))}</footer></div></body></html>`;
+  }
+
+  function printUpgrade(mode){
+    const pat = getPat();
+    if (!pat) { alert('Abra um paciente antes de imprimir.'); return; }
+    const popup = window.open('', '_blank');
+    if (!popup) {
+      alert('O navegador bloqueou a janela de impressão. Permita pop-ups para este site.');
+      return;
+    }
+    popup.document.open();
+    popup.document.write(printableHtml(pat, mode));
+    popup.document.close();
+    popup.focus();
+  }
+
+  function decorateSatField(container, input){
+    container.id = 'pedcare-sat-field';
+    container.classList.add('pedcare-sat-field');
+    const label = document.createElement('label');
+    label.setAttribute('for', 'pedcare-sat-o2');
+    label.textContent = 'Sat. O₂';
+    const hint = document.createElement('small');
+    hint.textContent = 'Ex.: 98%';
+    input.id = 'pedcare-sat-o2';
+    input.name = 'pedcare-sat-o2';
+    input.type = 'text';
+    input.placeholder = '98%';
+    input.autocomplete = 'off';
+    container.appendChild(label);
+    container.appendChild(input);
+    container.appendChild(hint);
+  }
+
+  function injectSatField(){
+    if (document.getElementById('pedcare-sat-o2')) return;
+
+    const anchor = document.querySelector([
+      'input[id*="tx" i]','input[name*="tx" i]',
+      'input[id*="temper" i]','input[name*="temper" i]',
+      'input[id*="fr" i]','input[name*="fr" i]',
+      'input[id*="height" i]','input[name*="height" i]'
+    ].join(','));
+
+    if (!anchor) return;
+
+    const anchorWrap = anchor.closest('.form-group, .input-group, .field, .form-field, .grid-item, .col, .row > div, label, div');
+    if (!anchorWrap || !anchorWrap.parentElement) return;
+
+    const clone = anchorWrap.cloneNode(false);
+    clone.innerHTML = '';
+    const input = document.createElement('input');
+    if (anchor.className) input.className = anchor.className;
+    decorateSatField(clone, input);
+
+    const parent = anchorWrap.parentElement;
+    if (anchorWrap.nextSibling) parent.insertBefore(clone, anchorWrap.nextSibling);
+    else parent.appendChild(clone);
+
+    input.addEventListener('input', () => {
+      const pat = getPat();
+      if (!pat) return;
+      setSatValue(pat, input.value);
+      save();
+    });
+
+    input.addEventListener('change', () => {
+      const pat = getPat();
+      if (!pat) return;
+      setSatValue(pat, input.value);
+      save();
+    });
+
+    if (!document.getElementById('pedcare-sat-style')) {
+      const style = document.createElement('style');
+      style.id = 'pedcare-sat-style';
+      style.textContent = `
+        .pedcare-sat-field{display:flex;flex-direction:column;gap:4px}
+        .pedcare-sat-field label{font-weight:600}
+        .pedcare-sat-field small{opacity:.72}
+      `;
+      document.head.appendChild(style);
+    }
+
+    syncSatField();
+  }
+
+  function syncSatField(){
+    const input = document.getElementById('pedcare-sat-o2');
+    const pat = getPat();
+    if (!input || !pat) return;
+    const val = getSatValue(pat);
+    if (input.value !== val) input.value = val;
+  }
+
+  function rebuildPrintMenu(){
+    const menu = document.getElementById('print-dropdown-menu');
+    if (!menu) return;
+    menu.innerHTML = '';
+    const items = [
+      ['presc','💊 Somente Prescrição'],
+      ['pront','📋 Somente Ficha Clínica'],
+      ['clinical_lab','🧾 Ficha + Laboratório'],
+      ['lab','🧪 Somente Laboratório'],
+      ['img','🩻 Somente Imagens'],
+      ['exams','🔬 Laboratório + Imagens'],
+      ['clinical_exams','📑 Ficha + Exames'],
+      ['all','📄 Tudo: Ficha + Prescrição + Exames']
+    ];
+
+    items.forEach(([mode, label], i) => {
+      if (i === 2 || i === 6) {
+        const div = document.createElement('div');
+        div.className = 'print-dropdown-divider';
+        menu.appendChild(div);
+      }
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = label;
+      b.addEventListener('click', () => {
+        menu.classList.remove('show');
+        printUpgrade(mode);
+      });
+      menu.appendChild(b);
+    });
+  }
+
+
+  // Quadro de manutenção Holliday-Segar: referência didática, sem preparo automatizado de concentrados.
+  function renderMaintenanceGuide(){
+    const card = document.querySelector('#subview-presc .category-card:has(input[data-item="hidra_holliday"])')
+      || [...document.querySelectorAll('#subview-presc .category-card')].find(el=>/Holliday-Segar/i.test(el.textContent));
+    if (!card || document.getElementById('pedcare-maintenance-guide')) return;
+    const guide=document.createElement('section');
+    guide.id='pedcare-maintenance-guide';
+    guide.innerHTML=`
+      <style>
+        #pedcare-maintenance-guide{font-family:inherit;margin:12px 8px;border:1px solid #d5e4f2;border-radius:14px;padding:15px;background:#f8fbff;color:#163047;box-shadow:0 3px 14px #1630470b}
+        #pedcare-maintenance-guide .hm-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+        #pedcare-maintenance-guide .hm-title{font-size:15px;font-weight:750;letter-spacing:-.02em;color:#0c4a6e}
+        #pedcare-maintenance-guide .hm-note{font-size:11px;color:#52677a;margin-top:3px}
+        #pedcare-maintenance-guide select{border:1px solid #b9cede;border-radius:9px;background:white;color:#0c4a6e;font-weight:700;padding:8px 10px}
+        #pedcare-maintenance-guide .hm-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+        #pedcare-maintenance-guide .hm-card{min-width:0;padding:12px;border-radius:11px;background:white;border:1px solid #dce9f3}
+        #pedcare-maintenance-guide .hm-card:first-child{background:#e9f4ff;border-color:#abcfee}
+        #pedcare-maintenance-guide .hm-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#45647b}
+        #pedcare-maintenance-guide .hm-big{font-size:24px;line-height:1.2;font-weight:800;letter-spacing:-.04em;color:#143c57;overflow-wrap:anywhere;margin:4px 0}
+        #pedcare-maintenance-guide .hm-unit{font-size:12px;font-weight:600;letter-spacing:0}
+        #pedcare-maintenance-guide .hm-detail{font-size:11px;color:#556d7d}
+        #pedcare-maintenance-guide .hm-footer{font-size:11px;margin-top:10px;padding:9px 11px;background:#eff5fa;border-radius:9px;color:#40586a;line-height:1.5}
+        #pedcare-maintenance-guide .hm-caution{font-size:10.5px;margin-top:9px;color:#955014;line-height:1.5}
+        @media(max-width:600px){#pedcare-maintenance-guide .hm-cards{grid-template-columns:1fr}#pedcare-maintenance-guide .hm-big{font-size:22px}}
+      </style>
+      <div class="hm-top"><div><div class="hm-title">Hidratação de manutenção • Holliday-Segar</div><div class="hm-note">Volume basal proporcional ao peso • conferência por intervalo</div></div>
+        <label class="hm-note" for="pedcare-maint-interval">Intervalo<br><select id="pedcare-maint-interval"><option value="6">6/6h</option><option value="8" selected>8/8h</option><option value="12">12/12h</option></select></label>
+      </div>
+      <div id="pedcare-maint-summary" class="hm-cards" aria-live="polite"></div>
+      <div id="pedcare-maint-details" class="hm-footer"></div>
+      <div class="hm-footer"><strong>Concentrações informadas (referência para conferência de rótulo)</strong><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:5px"><span>NaCl 10%: 1,7 mEq/mL</span><span>NaCl 20%: 3,4 mEq/mL</span><span>KCl 10%: 1,3 mEq/mL</span><span>KCl 19,1%: 2,5 mEq/mL</span></div><small>Conferir a concentração efetiva da apresentação utilizada. Estes dados não determinam automaticamente volumes de preparo.</small></div>
+      <div class="hm-footer" id="pedcare-drip-converter"><strong>Conversor de unidades: mL/h → gotas/h e gotas/min</strong><div style="display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin:8px 0"><label>Volume (mL/h)<br><input type="number" min="0" step="any" inputmode="decimal" id="pedcare-drip-rate" placeholder="Digite o valor" style="max-width:145px;padding:7px;border:1px solid #b9cede;border-radius:7px"></label><label>Fator do equipo (gotas/mL)<br><input type="number" min="1" step="any" inputmode="decimal" id="pedcare-drip-factor" placeholder="Ver no equipo" style="max-width:155px;padding:7px;border:1px solid #b9cede;border-radius:7px"></label></div><output id="pedcare-drip-output" aria-live="polite">Preencha os dois campos para converter.</output><div style="font-size:11px;margin-top:7px;color:#52677a">O fator de gotas/mL varia conforme o equipo e deve ser conferido em sua embalagem. Conversão de unidade, não prescrição de infusão.</div></div>
+      <div class="hm-caution">Referências tradicionais de eletrólitos: Na⁺ 3 mEq/100 mL/24h e K⁺ 2 mEq/100 mL/24h. Valores exibidos em mEq, não em mL de soluções concentradas. O volume da solução de glicose é uma referência volumétrica de manutenção, não uma indicação isolada de SG 5% hipotônico. Composição IV, tonicidade e suplementação de potássio exigem avaliação clínica e conferência institucional.</div>
+    `;
+    card.appendChild(guide);
+    guide.querySelector('select').addEventListener('change', updateMaintenanceGuide);
+    guide.querySelector('#pedcare-drip-rate').addEventListener('input', updateDripConverter);
+    guide.querySelector('#pedcare-drip-factor').addEventListener('input', updateDripConverter);
+    updateMaintenanceGuide();
+  }
+
+  function updateMaintenanceGuide(){
+    const cards=document.getElementById('pedcare-maint-summary');
+    const details=document.getElementById('pedcare-maint-details');
+    if(!cards || !details) return;
+    const pat=getPat();
+    const weight=Number(String(pat?.weight ?? '').replace(',','.'));
+    if(!Number.isFinite(weight) || weight<=0){
+      cards.innerHTML='<div class="hm-card" style="grid-column:1/-1">Informe o peso do paciente para visualizar os resultados.</div>';
+      details.textContent='';return;
+    }
+    const hours=Number(document.getElementById('pedcare-maint-interval')?.value || 8);
+    const daily=weight<=10 ? 100*weight : weight<=20 ? 1000+50*(weight-10) : 1500+20*(weight-20);
+    const caloric=daily/100;
+    const fraction=hours/24;
+    const portion=daily*fraction;
+    const naDay=3*caloric, kDay=2*caloric;
+    const fmt=n=>n.toLocaleString('pt-BR',{maximumFractionDigits:1});
+    cards.innerHTML=`
+      <div class="hm-card"><div class="hm-label">Volume basal • ${hours}h</div><div class="hm-big">${fmt(portion)} <span class="hm-unit">mL</span></div><div class="hm-detail">Referência de volume do SG • ${fmt(daily)} mL/24h</div></div>
+      <div class="hm-card"><div class="hm-label">Sódio (Na⁺) • ${hours}h</div><div class="hm-big">${fmt(naDay*fraction)} <span class="hm-unit">mEq</span></div><div class="hm-detail">${fmt(naDay)} mEq/24h • mL de NaCl não calculado</div></div>
+      <div class="hm-card"><div class="hm-label">Potássio (K⁺) • ${hours}h</div><div class="hm-big">${fmt(kDay*fraction)} <span class="hm-unit">mEq</span></div><div class="hm-detail">${fmt(kDay)} mEq/24h • mL de KCl não calculado</div></div>`;
+    details.textContent=`Peso: ${fmt(weight)} kg  •  Peso calórico histórico: ${fmt(caloric)}  •  Velocidade basal média: ${fmt(daily/24)} mL/h  •  Os valores representam ${hours} de 24 horas e se recalculam com o intervalo selecionado.`;
+  }
+
+  function updateDripConverter(){
+    const rateEl=document.getElementById('pedcare-drip-rate');
+    const factorEl=document.getElementById('pedcare-drip-factor');
+    const out=document.getElementById('pedcare-drip-output');
+    if(!out || !rateEl || !factorEl) return;
+    if(rateEl.value.trim()==='' || factorEl.value.trim()===''){
+      out.textContent='Preencha os dois campos para converter.';return;
+    }
+    const rate=Number(rateEl.value),factor=Number(factorEl.value);
+    if(!Number.isFinite(rate)||!Number.isFinite(factor)||rate<0||factor<=0){
+      out.textContent='Informe valores numéricos válidos (fator maior que zero).';return;
+    }
+    const gotasHora=rate*factor;
+    const gotasMin=gotasHora/60;
+    out.textContent=`${gotasHora.toLocaleString('pt-BR',{maximumFractionDigits:2})} gotas/h  •  ${gotasMin.toLocaleString('pt-BR',{maximumFractionDigits:2})} gotas/min (conferir fator do equipo e taxa prescrita).`;
+  }
+
+
+  // Remove apenas o controle antigo "Extra" do item Holliday-Segar.
+  function removeHollidayExtra(){
+    const rows=[...document.querySelectorAll('#subview-presc tr, #subview-presc .med-row')]
+      .filter(el=>/holliday[\s-]*segar|hidra_holliday/i.test(el.textContent||'') || !!el.querySelector('input[data-item="hidra_holliday"]'));
+    for(const row of rows){
+      for(const node of row.querySelectorAll('label, span, small, button, input, select')){
+        const value=String(node.textContent||node.getAttribute('placeholder')||node.getAttribute('aria-label')||'').trim();
+        if(!/^extra\s*:?$/i.test(value)) continue;
+        const holder=node.closest('.holliday-extra, .extra-field, .input-group, .form-group, .field, label') || node;
+        if(holder!==row && !holder.contains(row.querySelector('input[data-item="hidra_holliday"]'))) holder.style.display='none';
+      }
+    }
+  }
+
+  let lastPatientId = null;
+  function heartbeat(){
+    ensurePatientFields();
+    injectSatField();
+    syncSatField();
+    renderMaintenanceGuide();
+    removeHollidayExtra();
+    updateMaintenanceGuide();
+    if (lastPatientId !== (typeof currentPatientId !== 'undefined' ? currentPatientId : null)) {
+      lastPatientId = typeof currentPatientId !== 'undefined' ? currentPatientId : null;
+      syncSatField();
+    }
+  }
+
+  function initialize(){
+    ensurePatientFields();
+    rebuildPrintMenu();
+    injectSatField();
+    syncSatField();
+    renderMaintenanceGuide();
+    removeHollidayExtra();
+    if (typeof window.parseAndAddLab === 'function') window.parseAndAddLab = importLab;
+    if (typeof window.printDocument === 'function') window.printDocument = printUpgrade;
+    setInterval(heartbeat, 800);
+    console.info('PedCare Upgrade ativado: SatO2, impressão modular e layout refinado.');
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialize, { once:true });
+  else initialize();
+
+  window.PedCareUpgrade = { importLab, print:printUpgrade, parse:parseInput, aliases };
+})();
+
+</script>
 </body>
 </html>
 
