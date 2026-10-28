@@ -1904,6 +1904,7 @@
     const OBSIDIAN_STORAGE_KEY = 'pedcare_obsidian_notes_v1';
     const GH_TOKEN_KEY = 'pedcare_gh_token';
     const GH_GIST_KEY = 'pedcare_gh_gist_id';
+    const SIGNED_OUT_KEY = 'pedcare_signed_out';
 
     let sessionGeneration = 0;
     let sessionLoggedOut = false;
@@ -2110,8 +2111,15 @@
     };
 
     window.onload = function() {
-      loadObsidianData();
-      loadAllPatients();
+      sessionLoggedOut = localStorage.getItem(SIGNED_OUT_KEY) === '1';
+      if (!sessionLoggedOut) {
+        loadObsidianData();
+        loadAllPatients();
+      } else {
+        patients = [];
+        currentPatientId = null;
+        showSignedOutScreen();
+      }
 
       if (!patients.length && localStorage.getItem(GH_TOKEN_KEY)) {
         createNewPatient();
@@ -2120,7 +2128,7 @@
       }
 
       initGitHubConnection();
-      renderObsidianUI();
+      if (!sessionLoggedOut) renderObsidianUI();
       setupPasteListener();
     };
 
@@ -2613,6 +2621,7 @@
     }
 
     function saveObsidianData() {
+      if (sessionLoggedOut) return;
       localStorage.setItem(OBSIDIAN_STORAGE_KEY, JSON.stringify(obsidianData));
       triggerCloudSync();
     }
@@ -3019,6 +3028,11 @@
     }
 
     async function initGitHubConnection() {
+      if (sessionLoggedOut) {
+        updateCloudStatus('disconnected', '☁️ Desconectado');
+        document.getElementById('btn-sync-now').style.display = 'none';
+        return;
+      }
       const token = localStorage.getItem(GH_TOKEN_KEY);
       const gistId = localStorage.getItem(GH_GIST_KEY);
 
@@ -3033,7 +3047,6 @@
     }
 
     async function handleConnectGitHub() {
-      sessionLoggedOut = false;
       const token = document.getElementById('gh-token-input').value.trim();
       if (!token) { alert('Cole o Personal Access Token do seu GitHub.'); return; }
 
@@ -3053,6 +3066,8 @@
         let gistId = targetGist ? targetGist.id : null;
 
         if (gistId) {
+          sessionLoggedOut = false;
+          localStorage.removeItem(SIGNED_OUT_KEY);
           localStorage.setItem(GH_TOKEN_KEY, token);
           localStorage.setItem(GH_GIST_KEY, gistId);
           await pullFromGitHub(token, gistId);
@@ -3078,6 +3093,8 @@
           const created = await createRes.json();
           gistId = created.id;
 
+          sessionLoggedOut = false;
+          localStorage.removeItem(SIGNED_OUT_KEY);
           localStorage.setItem(GH_TOKEN_KEY, token);
           localStorage.setItem(GH_GIST_KEY, gistId);
           alert('Banco de dados criado no seu GitHub!');
@@ -3113,18 +3130,22 @@
           localStorage.setItem(PATIENTS_STORAGE_KEY, JSON.stringify(patients));
           localStorage.setItem(OBSIDIAN_STORAGE_KEY, JSON.stringify(obsidianData));
 
+          const signedOutBanner = document.getElementById('pedcare-logged-out');
+          if (signedOutBanner) signedOutBanner.style.display = 'none';
           renderTabs();
           if (patients.length) switchPatientTab(currentPatientId || patients[0].id);
           renderObsidianUI();
           updateCloudStatus('connected', '☁️ GitHub Sincronizado ✓');
         }
       } catch (e) {
+        if (sessionLoggedOut || generation !== sessionGeneration) return;
         console.error(e);
         updateCloudStatus('disconnected', '☁️ Erro na Sincronização');
       }
     }
 
     async function pushToGitHub() {
+      if (sessionLoggedOut) return;
       const generation = sessionGeneration;
       const token = localStorage.getItem(GH_TOKEN_KEY);
       const gistId = localStorage.getItem(GH_GIST_KEY);
@@ -3149,6 +3170,7 @@
         if (sessionLoggedOut || generation !== sessionGeneration) return;
         updateCloudStatus('connected', '☁️ GitHub Sincronizado ✓');
       } catch (err) {
+        if (sessionLoggedOut || generation !== sessionGeneration) return;
         console.error(err);
         updateCloudStatus('disconnected', '☁️ Erro ao Salvar Nuvem');
       }
@@ -3164,6 +3186,7 @@
     }
 
     function triggerCloudSync() {
+      if (sessionLoggedOut) return;
       clearTimeout(syncTimeout);
       syncTimeout = setTimeout(() => { pushToGitHub(); }, 2500);
     }
@@ -3175,42 +3198,67 @@
       else openGitHubModal();
     }
 
-    function disconnectGitHub() {
-      const confirmation = confirm(
-        'Sair do PedCare neste aparelho?\\n\\n' +
-        'Isso apagará deste navegador os pacientes, exames, imagens, notas Obsidian e credenciais locais. ' +
-        'Os dados já sincronizados no GitHub não serão apagados.\\n\\n' +
-        'Confira se a última sincronização foi concluída antes de continuar.'
-      );
-      if (!confirmation) return;
+    function showSignedOutScreen() {
+      const pv = document.getElementById('patient-main-view');
+      const av = document.getElementById('archive-view');
+      if (pv) pv.style.display = 'none';
+      if (av) av.style.display = 'none';
+      document.querySelectorAll('.floating-popup').forEach(n => n.style.display = 'none');
+      document.querySelectorAll('#tabs-bar .tab-btn:not(.archive-tab)').forEach(n => n.remove());
+      const counter = document.getElementById('archive-count');
+      if (counter) counter.textContent = '0';
+      let banner = document.getElementById('pedcare-logged-out');
+      if (!banner) {
+        banner = document.createElement('section');
+        banner.id = 'pedcare-logged-out';
+        banner.style.cssText = 'max-width:620px;margin:28px auto;padding:24px;background:#fff;border:1px solid #cbd5e1;border-radius:12px;text-align:center;box-shadow:0 4px 18px #0001';
+        const heading = document.createElement('h2');
+        heading.textContent = 'Sessão encerrada';
+        const message = document.createElement('p');
+        message.textContent = 'Os dados locais do PedCare foram limpos. Conecte sua conta para recuperar os dados sincronizados.';
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn-new-patient';
+        button.textContent = '☁️ Conectar GitHub';
+        button.addEventListener('click', openGitHubModal);
+        banner.append(heading, message, button);
+        document.querySelector('.container').prepend(banner);
+      }
+      banner.style.display = 'block';
+      updateCloudStatus('disconnected', '☁️ Desconectado');
+    }
 
-      sessionGeneration += 1;
+    function disconnectGitHub() {
+      if (!confirm('Sair e apagar os pacientes, exames, imagens, notas e credenciais salvos neste navegador?\n\nOs dados já enviados ao GitHub não serão apagados. Confirme antes que a sincronização terminou.')) return;
+      sessionGeneration++;
       sessionLoggedOut = true;
       clearTimeout(syncTimeout);
       syncTimeout = null;
-
-      // Remove somente as chaves do PedCare; não apaga dados de outros sites.
-      [PATIENTS_STORAGE_KEY, OBSIDIAN_STORAGE_KEY, GH_TOKEN_KEY, GH_GIST_KEY]
-        .forEach(key => localStorage.removeItem(key));
-
+      // Apaga todas as versões de chaves PedCare, não somente a versão atual.
+      for (const store of [localStorage, sessionStorage]) {
+        const matching = [];
+        for (let i = 0; i < store.length; i++) {
+          const key = store.key(i);
+          if (key && /^(pedcare[_-]|pedcare$)/i.test(key)) matching.push(key);
+        }
+        for (const key of matching) store.removeItem(key);
+      }
+      // Mantém somente um indicador de logout; não contém dados clínicos.
+      localStorage.setItem(SIGNED_OUT_KEY, '1');
       patients = [];
       currentPatientId = null;
       obsidianData = { folders: [], notes: [], currentFolder: '', currentNoteId: '' };
-
-      document.getElementById('gh-token-input').value = '';
-      document.getElementById('gh-gist-id-display').textContent = '';
-      document.getElementById('tabs-bar').querySelectorAll('.tab-btn:not(.archive-tab)').forEach(node => node.remove());
-      document.getElementById('archive-list-body').replaceChildren();
-      document.getElementById('archive-count').textContent = '0';
-      document.getElementById('patient-main-view').style.display = 'none';
-      document.getElementById('archive-view').style.display = 'none';
-      document.querySelectorAll('.floating-popup').forEach(node => node.style.display = 'none');
-      document.getElementById('btn-sync-now').style.display = 'none';
+      const tokenField = document.getElementById('gh-token-input');
+      if (tokenField) tokenField.value = '';
+      const gistField = document.getElementById('gh-gist-id-display');
+      if (gistField) gistField.textContent = '';
+      const active = document.getElementById('gh-active-section');
+      const setup = document.getElementById('gh-setup-section');
+      if (active) active.style.display = 'none';
+      if (setup) setup.style.display = 'block';
       closeModal('modal-github');
-      updateCloudStatus('disconnected', '☁️ Conectar GitHub');
-
-      // Recarrega o HTML sem reconstruir pacientes locais automaticamente.
-      window.location.reload();
+      showSignedOutScreen();
+      alert('Sessão encerrada e armazenamento local do PedCare limpo neste navegador.');
     }
 
     function updateCloudStatus(type, text) {
@@ -3232,12 +3280,14 @@
     }
 
     function saveAllPatients() {
+      if (sessionLoggedOut) return;
       localStorage.setItem(PATIENTS_STORAGE_KEY, JSON.stringify(patients));
       flashSaveIndicator();
       triggerCloudSync();
     }
 
     function createNewPatient() {
+      if (sessionLoggedOut) { openGitHubModal(); return; }
       const newId = 'pac_' + Date.now();
       const defaultDate = new Date().toISOString().split('T')[0];
       const newPat = {
@@ -3277,6 +3327,7 @@
     }
 
     function switchPatientTab(id) {
+      if (sessionLoggedOut) return;
       currentPatientId = id;
       document.getElementById('archive-view').style.display = 'none';
       document.getElementById('patient-main-view').style.display = 'block';
@@ -3432,6 +3483,7 @@
     }
 
     function showArchiveView() {
+      if (sessionLoggedOut) { showSignedOutScreen(); return; }
       currentPatientId = null;
       document.getElementById('patient-main-view').style.display = 'none';
       document.getElementById('archive-view').style.display = 'block';
