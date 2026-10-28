@@ -1892,7 +1892,7 @@
           🔄 Forçar Sincronização Agora
         </button>
         <button class="btn-sm btn-danger" onclick="disconnectGitHub()" style="width:100%;">
-          Desconectar este aparelho do GitHub
+          🚪 Sair e limpar dados deste aparelho
         </button>
       </div>
 
@@ -1905,6 +1905,8 @@
     const GH_TOKEN_KEY = 'pedcare_gh_token';
     const GH_GIST_KEY = 'pedcare_gh_gist_id';
 
+    let sessionGeneration = 0;
+    let sessionLoggedOut = false;
     let patients = [];
     let currentPatientId = null;
     let currentSubTab = 'presc';
@@ -2111,9 +2113,9 @@
       loadObsidianData();
       loadAllPatients();
 
-      if (!patients.length) {
+      if (!patients.length && localStorage.getItem(GH_TOKEN_KEY)) {
         createNewPatient();
-      } else {
+      } else if (patients.length) {
         switchPatientTab(patients[0].id);
       }
 
@@ -3031,6 +3033,7 @@
     }
 
     async function handleConnectGitHub() {
+      sessionLoggedOut = false;
       const token = document.getElementById('gh-token-input').value.trim();
       if (!token) { alert('Cole o Personal Access Token do seu GitHub.'); return; }
 
@@ -3091,6 +3094,7 @@
     }
 
     async function pullFromGitHub(token, gistId) {
+      const generation = sessionGeneration;
       try {
         updateCloudStatus('syncing', 'Baixando da Nuvem...');
         const res = await fetch(`https://api.github.com/gists/${gistId}`, {
@@ -3099,6 +3103,7 @@
 
         if (!res.ok) throw new Error('Erro ao baixar banco.');
         const data = await res.json();
+        if (sessionLoggedOut || generation !== sessionGeneration || localStorage.getItem(GH_TOKEN_KEY) !== token) return;
 
         if (data.files && data.files['pedcare_database.json']) {
           const content = JSON.parse(data.files['pedcare_database.json'].content);
@@ -3120,6 +3125,7 @@
     }
 
     async function pushToGitHub() {
+      const generation = sessionGeneration;
       const token = localStorage.getItem(GH_TOKEN_KEY);
       const gistId = localStorage.getItem(GH_GIST_KEY);
       if (!token || !gistId) return;
@@ -3140,6 +3146,7 @@
         });
 
         if (!res.ok) throw new Error('Falha ao atualizar Gist.');
+        if (sessionLoggedOut || generation !== sessionGeneration) return;
         updateCloudStatus('connected', '☁️ GitHub Sincronizado ✓');
       } catch (err) {
         console.error(err);
@@ -3169,12 +3176,41 @@
     }
 
     function disconnectGitHub() {
-      if (confirm('Deseja desconectar a sincronização do GitHub deste aparelho? Os dados continuarão salvos no navegador.')) {
-        localStorage.removeItem(GH_TOKEN_KEY);
-        localStorage.removeItem(GH_GIST_KEY);
-        closeModal('modal-github');
-        initGitHubConnection();
-      }
+      const confirmation = confirm(
+        'Sair do PedCare neste aparelho?\\n\\n' +
+        'Isso apagará deste navegador os pacientes, exames, imagens, notas Obsidian e credenciais locais. ' +
+        'Os dados já sincronizados no GitHub não serão apagados.\\n\\n' +
+        'Confira se a última sincronização foi concluída antes de continuar.'
+      );
+      if (!confirmation) return;
+
+      sessionGeneration += 1;
+      sessionLoggedOut = true;
+      clearTimeout(syncTimeout);
+      syncTimeout = null;
+
+      // Remove somente as chaves do PedCare; não apaga dados de outros sites.
+      [PATIENTS_STORAGE_KEY, OBSIDIAN_STORAGE_KEY, GH_TOKEN_KEY, GH_GIST_KEY]
+        .forEach(key => localStorage.removeItem(key));
+
+      patients = [];
+      currentPatientId = null;
+      obsidianData = { folders: [], notes: [], currentFolder: '', currentNoteId: '' };
+
+      document.getElementById('gh-token-input').value = '';
+      document.getElementById('gh-gist-id-display').textContent = '';
+      document.getElementById('tabs-bar').querySelectorAll('.tab-btn:not(.archive-tab)').forEach(node => node.remove());
+      document.getElementById('archive-list-body').replaceChildren();
+      document.getElementById('archive-count').textContent = '0';
+      document.getElementById('patient-main-view').style.display = 'none';
+      document.getElementById('archive-view').style.display = 'none';
+      document.querySelectorAll('.floating-popup').forEach(node => node.style.display = 'none');
+      document.getElementById('btn-sync-now').style.display = 'none';
+      closeModal('modal-github');
+      updateCloudStatus('disconnected', '☁️ Conectar GitHub');
+
+      // Recarrega o HTML sem reconstruir pacientes locais automaticamente.
+      window.location.reload();
     }
 
     function updateCloudStatus(type, text) {
