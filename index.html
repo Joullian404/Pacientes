@@ -1060,6 +1060,48 @@
       .signature-card { padding: 10px 8px !important; margin-top: 10px !important; }
       .signature-line { border-top: 1px solid #000 !important; font-size: 8.5pt !important; }
     }
+/* Caderno clínico: editor único em modo Live Preview */
+#popup-obsidian{width:min(840px,calc(100vw - 26px));height:min(780px,calc(100dvh - 92px));border:1px solid #ded4f7;border-radius:16px;box-shadow:0 22px 70px rgba(41,29,82,.24)}
+#popup-obsidian .popup-header-obsidian{background:linear-gradient(110deg,#43316c,#6d4aca);padding:14px 16px}
+#popup-obsidian .popup-body{background:#f8f7fc;padding:14px}
+#popup-obsidian .obsidian-nav-bar{background:#fff;border:1px solid #e3dcf0;padding:9px;gap:7px;border-radius:10px}
+#popup-obsidian .obsidian-nav-bar select{background:#faf9ff;border:1px solid #ded7ee;border-radius:7px;padding:7px;min-width:100px}
+#popup-obsidian #obs-note-title{font-size:17px!important;color:#30254b;border:0!important;border-bottom:1px solid #e4dbf2!important;background:transparent!important;padding:10px 6px!important;box-shadow:none!important}
+#popup-obsidian .obsidian-workspace{flex:1;min-height:0;background:#fff;border:1px solid #e1dbea;border-radius:12px;box-shadow:0 5px 20px rgba(41,29,82,.06);overflow:hidden}
+#popup-obsidian #obs-editor-view{min-height:0!important}
+#popup-obsidian .obsidian-toolbar{background:#f8f6ff;border:0;border-bottom:1px solid #e9e3f4;padding:9px;gap:7px;flex-shrink:0}
+#popup-obsidian .obsidian-toolbar .obs-btn{background:#fff;border:1px solid #ded6ef;border-radius:7px;padding:6px 10px;color:#49327d;min-height:31px}
+#popup-obsidian .obsidian-toolbar .obs-btn:hover{background:#ede7ff;border-color:#ad9ad5}
+#popup-obsidian .pc-rich-editor{padding:21px 25px!important;flex:1;min-height:160px!important;overflow-y:auto;outline:0;white-space:normal;line-height:1.65;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#2c2940}
+#popup-obsidian .pc-rich-editor:focus{box-shadow:inset 0 0 0 2px #e2dafa}
+#popup-obsidian .pc-rich-editor p{margin:0 0 6px;min-height:1.35em}
+#popup-obsidian .pc-rich-editor h1{font-size:22px;color:#35225d;margin:13px 0 9px;border-bottom:2px solid #ded5f5}
+#popup-obsidian .pc-rich-editor h2{font-size:18px;color:#543592;margin:12px 0 7px;border-bottom:1px solid #e7e1f4}
+#popup-obsidian .pc-rich-editor h3{font-size:15.5px;color:#423267;margin:10px 0 5px}
+#popup-obsidian .pc-rich-editor strong{color:#2b2151;font-weight:750}
+#popup-obsidian .pc-rich-editor code{background:#f1edf9;color:#8a3bc3;padding:1px 5px;border-radius:4px}
+#popup-obsidian .pc-rich-editor blockquote{margin:8px 0;padding:8px 12px;border-left:3px solid #a68ad4;background:#f8f5ff;border-radius:0 7px 7px 0}
+#popup-obsidian .pc-rich-editor .pc-callout{border-left:4px solid #9471cb;background:#f5f0ff;margin:10px 0;padding:9px 13px;border-radius:7px}
+#popup-obsidian .pc-rich-editor .pc-callout-heading{font-weight:750;color:#5c3899;margin-bottom:3px}
+#popup-obsidian .pc-rich-editor .pc-task,#popup-obsidian .pc-rich-editor .pc-list-item{display:flex;align-items:baseline;gap:9px;margin:3px 0;min-height:24px}
+#popup-obsidian .pc-rich-editor .pc-task-check{accent-color:#7754b1;flex:0 0 auto;cursor:pointer}
+#popup-obsidian .pc-rich-editor .pc-task[data-checked="true"] .pc-task-text{text-decoration:line-through;color:#8d8a9a}
+#popup-obsidian .pc-rich-editor .pc-bullet{font-weight:900;color:#8d65c4}
+#popup-obsidian .pc-rich-editor .pc-list-text,#popup-obsidian .pc-rich-editor .pc-task-text{flex:1;min-width:0;display:inline-block}
+#popup-obsidian .pc-rich-editor .pc-tag{background:#ede7f8;color:#6b42a0;border-radius:5px;padding:0 3px}
+#popup-obsidian .pc-rich-editor .pc-wikilink{color:#6540aa;text-decoration:underline}
+#popup-obsidian .pc-rich-status{font-size:10.5px;color:#6b6580;text-align:right;padding:6px 11px;border-top:1px solid #eee8f5;background:#fbfaff}
+@media(max-width:650px){#popup-obsidian{height:calc(100dvh - 92px);width:calc(100vw - 16px)}#popup-obsidian .popup-body{padding:8px}#popup-obsidian .pc-rich-editor{padding:14px!important}}
+
+  
+/* Comandos do editor híbrido: indentação e prefixos discretos no foco */
+#popup-obsidian .pc-rich-editor .pc-list-item,#popup-obsidian .pc-rich-editor .pc-task{position:relative;margin-left:calc(var(--pc-depth,0)*23px);transition:margin-left .12s ease}
+#popup-obsidian .pc-rich-editor .pc-list-item .pc-list-text,#popup-obsidian .pc-rich-editor .pc-task .pc-task-text{outline:0;min-width:5px;white-space:pre-wrap}
+#popup-obsidian .pc-rich-editor .pc-list-item::before,#popup-obsidian .pc-rich-editor .pc-task::before{display:none}
+#popup-obsidian .pc-rich-editor .pc-heading-source-visible{position:relative}
+#popup-obsidian .pc-rich-editor .pc-heading-source-visible::before{content:attr(data-md-prefix);position:absolute;right:calc(100% + 6px);top:.12em;font:600 12px/1.4 ui-monospace,monospace;color:#a493b8;white-space:pre;pointer-events:none}
+@media(max-width:650px){#popup-obsidian .pc-rich-editor{padding-left:32px!important}}
+
   </style>
 </head>
 <body>
@@ -4431,7 +4473,7 @@ function style(){if(el('pc-workstyle'))return;const st=document.createElement('s
 .pc-dialog h2{font-size:18px;margin:0 0 10px}.pc-dialog h3{font-size:14px;margin:12px 0 5px;color:#075985}.pc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.pc-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:7px 0}
 .pc-dialog input[type=text],.pc-dialog input[type=date],.pc-dialog textarea,.pc-dialog select{width:100%;border:1px solid #cbd5e1;padding:7px;border-radius:6px;font:inherit;background:#fff}.pc-dialog textarea{min-height:85px;resize:vertical}
 .pc-dialog button{border:1px solid #94a3b8;border-radius:6px;padding:7px 10px;cursor:pointer;background:#f8fafc;color:#0f172a}.pc-dialog button.pc-primary{background:#0284c7;border-color:#0284c7;color:white;font-weight:700}
-.pc-daily-title{font-size:12px;color:#475569;margin-bottom:8px}.pc-daily-question{display:flex;align-items:center;gap:10px;padding:12px 10px;border:1px solid #cbd5e1;border-radius:9px;margin:7px 0;cursor:pointer;font-size:13px;font-weight:650}.pc-daily-question input{width:18px;height:18px;flex-shrink:0;accent-color:#0284c7}.pc-daily-question:has(input:checked){background:#f0fdf4;border-color:#86efac}.pc-overdue{font-size:11px;color:#9a3412;font-weight:650}.pc-task{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #e2e8f0;border-radius:6px;margin:5px 0}.pc-task small{color:#64748b;margin-left:auto}.pc-patient{border:1px solid #dbe4ee;padding:8px;border-radius:8px;margin:6px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.pc-folder-list{margin:12px 0}.pc-folder{padding:7px;margin:4px 0 4px 14px;cursor:pointer;border-left:3px solid #bae6fd}.pc-folder.sel{background:#e0f2fe}.pc-handoff{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pc-handoff>label{font-weight:700;font-size:12px}.pc-handoff>label input,.pc-handoff>label textarea{margin-top:5px;font-weight:400}.pc-handoff .wide{grid-column:1/-1}.pc-exam{border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin:6px 0}.pc-exam label{display:inline-flex;gap:4px;margin:3px 8px 3px 0;font-size:12px}
+.pc-daily-title{font-size:12px;color:#475569;margin-bottom:8px}.pc-daily-question{display:flex;align-items:center;gap:10px;padding:12px 10px;border:1px solid #cbd5e1;border-radius:9px;margin:7px 0;cursor:pointer;font-size:13px;font-weight:650}.pc-daily-question input{width:18px;height:18px;flex-shrink:0;accent-color:#0284c7}.pc-daily-question:has(input:checked){background:#f0fdf4;border-color:#86efac}.pc-daily-entry{display:flex;align-items:center;gap:8px}.pc-daily-entry .pc-daily-question{flex:1;min-width:0}.pc-dialog .pc-daily-delete{flex:0 0 auto;background:#fff1f2;color:#be123c;border-color:#fecdd3;padding:7px 10px}.pc-daily-sectionhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:15px 0 8px;color:#075985}.pc-daily-sectionhead span{color:#64748b;font-size:12px}.pc-daily-add{padding:13px;margin-top:13px;border:1px dashed #93c5fd;border-radius:12px;background:#f8fbff}.pc-daily-add>label{display:block;font-size:12px;font-weight:700;color:#075985}.pc-daily-add small{display:block;color:#64748b;font-size:11px}.pc-daily-add .pc-row{align-items:stretch}.pc-daily-add input{flex:1}.pc-overdue{font-size:11px;color:#9a3412;font-weight:650}.pc-task{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #e2e8f0;border-radius:6px;margin:5px 0}.pc-task small{color:#64748b;margin-left:auto}.pc-patient{border:1px solid #dbe4ee;padding:8px;border-radius:8px;margin:6px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.pc-folder-list{margin:12px 0}.pc-folder{padding:7px;margin:4px 0 4px 14px;cursor:pointer;border-left:3px solid #bae6fd}.pc-folder.sel{background:#e0f2fe}.pc-handoff{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pc-handoff>label{font-weight:700;font-size:12px}.pc-handoff>label input,.pc-handoff>label textarea{margin-top:5px;font-weight:400}.pc-handoff .wide{grid-column:1/-1}.pc-exam{border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin:6px 0}.pc-exam label{display:inline-flex;gap:4px;margin:3px 8px 3px 0;font-size:12px}
 
 /* Unified floating launcher */
 .fab-container{display:none!important}
@@ -4471,12 +4513,24 @@ function reminderFrom(t){
 function reminderDue(t){const start=reminderFrom(t);return !t.done && !!start && today()>=start}
 function allReminders(){return Array.isArray(patients)?patients.flatMap(p=>program(p).filter(reminderDue).map(t=>({p,t}))):[]}
 
-// Três verificações padronizadas de rotina por paciente: cada data tem suas próprias marcações.
+// Revisões diárias padrão e perguntas personalizáveis, aplicadas a todos os pacientes.
+// As perguntas ficam em obsidianData (sincronizadas com as configurações do PedCare),
+// enquanto cada paciente guarda suas próprias marcações diárias em dailyChecklist.
 const dailyQuestions=[
  ['evaluated','Já avaliou o paciente?'],
  ['physical','Já realizou exame físico?'],
- ['exams','Já checou exames laboratoriais e de imagem?']
+ ['exams','Já checou exames laboratoriais e de imagem?'],
+ ['vitals','Já atualizou os sinais vitais?']
 ];
+function customDailyQuestions(){
+ const m=meta();
+ if(!Array.isArray(m.dailyReviewQuestions))m.dailyReviewQuestions=[];
+ // Impedir que perguntas antigas ou inválidas quebrem a lista.
+ return m.dailyReviewQuestions.filter(q=>q&&typeof q.id==='string'&&typeof q.text==='string');
+}
+function allDailyQuestions(){
+ return [...dailyQuestions,...customDailyQuestions().map(q=>[q.id,q.text])];
+}
 function dailyChecklist(p){
  if(!p.dailyChecklist || typeof p.dailyChecklist!=='object')p.dailyChecklist={date:today(),checked:{}};
  if(p.dailyChecklist.date!==today()){
@@ -4493,15 +4547,42 @@ function openDailyChecklist(p=pat()){
  if(!p)return alert('Selecione um paciente.');
  const check=dailyChecklist(p);
  overlay('Checklist diário — '+(p.name||'Paciente'),host=>{
-   const due=program(p).filter(reminderDue);
-   host.innerHTML=`<p class="pc-daily-title"><strong>${esc(today().split('-').reverse().join('/'))}</strong> · As perguntas são reiniciadas automaticamente a cada novo dia. As marcações não confirmam a realização de cuidados; registre-os também no prontuário.</p>`+
-     dailyQuestions.map(([key,text])=>`<label class="pc-daily-question"><input type="checkbox" data-daily="${key}" ${check[key]?'checked':''}><span>${esc(text)}</span></label>`).join('')+
-     `<h3>Lembretes das programações feitas em dias anteriores</h3><p class="pc-daily-title">${due.length ? 'Programações criadas anteriormente, lembradas a partir do dia seguinte até serem concluídas.' : 'Nenhuma programação anterior para lembrar hoje.'}</p>`+
-     due.map(t=>`<div class="pc-task"><span style="flex:1">${esc(t.text)} <small>${esc(t.date||'Sem data')}</small>${reminderFrom(t)?'<span class="pc-overdue"> • Lembrar desde '+esc(reminderFrom(t).split('-').reverse().join('/'))+'</span>':''}</span></div>`).join('')+
-     `<div class="pc-row"><button id="pc-daily-programs">Editar programações</button><button id="pc-daily-close" class="pc-primary">Concluir revisão</button></div>`;
-   host.querySelectorAll('[data-daily]').forEach(input=>input.addEventListener('change',()=>{check[input.dataset.daily]=input.checked;safeSave()}));
-   el('pc-daily-programs').onclick=()=>openTasks(p);
-   el('pc-daily-close').onclick=()=>el('pc-overlay')?.remove();
+   const paint=()=>{
+     const due=program(p).filter(reminderDue);
+     const questions=allDailyQuestions();
+     host.innerHTML=`<p class="pc-daily-title"><strong>${esc(today().split('-').reverse().join('/'))}</strong> · Revisões diárias de ${esc(p.name||'Paciente')}. Todas as caixas voltam a ficar vazias em um novo dia; confirme os cuidados também no prontuário.</p>`+
+       `<div class="pc-daily-sectionhead"><strong>Revisões de rotina</strong><span>${questions.filter(([key])=>!!check[key]).length} de ${questions.length} concluídas</span></div>`+
+       questions.map(([key,text])=>`<div class="pc-daily-entry"><label class="pc-daily-question"><input type="checkbox" data-daily="${esc(key)}" ${check[key]?'checked':''}><span>${esc(text)}</span></label>${key.startsWith('custom_')?`<button type="button" class="pc-daily-delete" data-remove-daily="${esc(key)}" title="Remover esta pergunta de todos os checklists" aria-label="Remover pergunta">✕</button>`:''}</div>`).join('')+
+       `<div class="pc-daily-add"><label for="pc-add-daily-input">Adicionar pergunta diária para todos os pacientes</label><div class="pc-row"><input id="pc-add-daily-input" type="text" maxlength="180" placeholder="Ex.: Já revisou a prescrição?" style="flex:1;min-width:180px"><button id="pc-add-daily-btn" type="button" class="pc-primary">+ Adicionar</button></div><small>Novas perguntas aparecem em todos os pacientes e são reiniciadas diariamente.</small></div>`+
+       `<h3>Lembretes das programações feitas em dias anteriores</h3><p class="pc-daily-title">${due.length ? 'Programações criadas anteriormente, lembradas a partir do dia seguinte até serem concluídas.' : 'Nenhuma programação anterior para lembrar hoje.'}</p>`+
+       due.map(t=>`<div class="pc-task"><span style="flex:1">${esc(t.text)} <small>${esc(t.date||'Sem data')}</small>${reminderFrom(t)?'<span class="pc-overdue"> • Lembrar desde '+esc(reminderFrom(t).split('-').reverse().join('/'))+'</span>':''}</span></div>`).join('')+
+       `<div class="pc-row"><button id="pc-daily-programs">Editar programações</button><button id="pc-daily-close" class="pc-primary">Concluir revisão</button></div>`;
+     host.querySelectorAll('[data-daily]').forEach(input=>input.addEventListener('change',()=>{
+       check[input.dataset.daily]=input.checked;safeSave();
+       const counter=host.querySelector('.pc-daily-sectionhead span');
+       if(counter)counter.textContent=`${questions.filter(([key])=>!!check[key]).length} de ${questions.length} concluídas`;
+     }));
+     const add=()=>{
+       const input=el('pc-add-daily-input');
+       const label=input?.value.trim();
+       if(!label)return input?.focus();
+       if(allDailyQuestions().some(([,text])=>text.toLocaleLowerCase('pt-BR')===label.toLocaleLowerCase('pt-BR'))){alert('Esta pergunta já está no checklist.');return;}
+       customDailyQuestions();
+       meta().dailyReviewQuestions.push({id:'custom_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),text:label});
+       persist();paint();
+     };
+     el('pc-add-daily-btn').onclick=add;
+     el('pc-add-daily-input').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();add();}};
+     host.querySelectorAll('[data-remove-daily]').forEach(button=>button.onclick=()=>{
+       const key=button.dataset.removeDaily;
+       if(!confirm('Remover esta pergunta dos checklists de todos os pacientes? As marcações anteriores permanecerão no histórico.'))return;
+       meta().dailyReviewQuestions=customDailyQuestions().filter(q=>q.id!==key);
+       persist();paint();
+     });
+     el('pc-daily-programs').onclick=()=>openTasks(p);
+     el('pc-daily-close').onclick=()=>el('pc-overlay')?.remove();
+   };
+   paint();
  });
 }
 function updatePendingBadge(){
@@ -4552,7 +4633,7 @@ const examBlocks=[
  ['Tórax e mecânica respiratória',['Tórax simétrico','Tiragem subcostal','Tiragem intercostal','Batimento de asa nasal','Retração de fúrcula','Ar ambiente','Em oxigenoterapia']],
  ['Aparelho respiratório',['Eupneico','Taquipneico','Dispneico','MV presente bilateralmente','MV diminuído','Sem ruídos adventícios','Roncos','Sibilos','Crepitações','Percussão clara','Macicez/timpanismo']],
  ['Cardiovascular',['BNF em 2 tempos','Bulhas hipofonéticas','RCR','Ritmo irregular','Sem sopros','Sopro']],
- ['Abdômen',['Plano','Globoso/distendido','Flácido','Indolor','Doloroso à palpação','Sem irritação peritoneal','Defesa','RHA presentes','RHA diminuídos/abolidos','Sem visceromegalias']],
+ ['Abdômen',['Plano','Globoso/distendido','Flácido','Indolor','Doloroso à palpação','Sem irritação peritoneal','Defesa','RHA presentes','RHA diminuídos/abolidos','Sem visceromegalias','Hepatomegalia','Outras visceromegalias']],
  ['Extremidades e perfusão',['Normoperfundidas','TEC < 3 s','TEC > 3 s','Aquecidas','Frias/moteadas','Pulsos cheios e simétricos','Pulsos diminuídos','Sem edema','Com edema']],
  ['Neurológico direcionado',['Alerta','Responsivo','Sonolento','Pupilas isocóricas','Sem déficits focais aparentes']]
 ];
@@ -4606,11 +4687,60 @@ function openHandoffVersion(p,rec){
  openHandoff(p,structuredClone(rec));
 }
 function printHandoff(p,h){
- const vital=Object.entries(h.vitals||{}).filter(([,v])=>String(v).trim()).map(([k,v])=>`<span><b>${esc(k.toUpperCase())}:</b> ${esc(v)}</span>`).join('');
- const get=(key)=>String(h[key]??'').trim()?`<section><h3>${esc(handFields.find(x=>x[0]===key)?.[1]||key)}</h3><div class="paragraph">${esc(h[key])}</div></section>`:'';
- const physical=examBlocks.map(([name,opts],idx)=>{let selected=opts.filter((o,i)=>h.exam?.[idx+':'+i]);return `<section><h3>${idx+1}. ${esc(name)}</h3><div>${esc(selected.join(' • ')||'Não informado')}</div>${h.notes?.[idx]?`<div class="paragraph">${esc(h.notes[idx])}</div>`:''}</section>`}).join('');
- const css=`@page{size:A4;margin:9mm 9mm}*{box-sizing:border-box}body{font:10pt/1.42 Arial,sans-serif;color:#16263b;margin:0}h1{font-size:16pt;border-bottom:2px solid #0284c7;padding-bottom:7px;margin:0 0 10px}h2{font-size:11pt;background:#e7f2fc;padding:6px 8px;break-after:avoid}h3{font-size:9.5pt;color:#075985;margin:8px 0 3px;break-after:avoid}section{margin:6px 0}.paragraph{white-space:pre-wrap;overflow-wrap:anywhere}.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;border:1px solid #cbd5e1;padding:8px}.vitals{display:flex;gap:8px;flex-wrap:wrap;padding:8px;background:#f8fafc;border:1px solid #cbd5e1}.page{break-before:page}.button{padding:9px;border:0;background:#0284c7;color:white;border-radius:6px;margin-bottom:12px}@media print{.button{display:none}h2{-webkit-print-color-adjust:exact;print-color-adjust:exact}}`;
- const doc=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Passagem de caso — ${esc(p.name)}</title><style>${css}</style></head><body><button class="button" onclick="print()">Imprimir / Salvar PDF</button><h1>Passagem de caso pediátrico</h1><div class="facts">${[['Paciente',p.name],['Mãe',p.mother],['Leito',p.bed],['Sexo',p.sex],['Idade',p.age],['Alergias',p.allergies],['Data/hora',[h.date,h.time].filter(Boolean).join(' ')],['DIH',h.dih]].filter(([,v])=>String(v??'').trim()).map(([k,v])=>`<span><b>${esc(k)}:</b> ${esc(v)}</span>`).join('')}</div><h2>Resumo clínico</h2>${['reason','comorbidities','clinicalHistory','impression','conduct','pending','devices'].map(get).join('')}${vital?`<h2>Sinais vitais e eliminações</h2><div class="vitals">${vital}</div>`:''}<div class="page"></div><h1>Exame físico</h1>${physical}${get('neurology')}<footer>PedCare • Versão salva em ${esc(h.savedAt||stamp())}</footer></body></html>`;
+ // A passagem é independente do prontuário. Na impressão, a impressão clínica
+ // e os sinais vitais têm espaços reservados mesmo quando não preenchidos.
+ const get=(key)=>String(h[key]??'').trim()?`<section class="clinical-section"><h3>${esc(handFields.find(x=>x[0]===key)?.[1]||key)}</h3><div class="paragraph">${esc(h[key])}</div></section>`:'';
+ const impressionText=String(h.impression??'').trim();
+ const impression=`<section class="writing-section impression"><h2>Impressão clínica / evolução da visita diária</h2>${impressionText?`<div class="written-value">${esc(impressionText)}</div>`:''}<div class="handwriting-lines" aria-label="Espaço para evolução clínica manuscrita"></div></section>`;
+ const vitalFields=[['fc','FC','bpm'],['pa','PA','mmHg'],['fr','FR','irpm'],['tx','Temperatura','°C'],['satO2','SatO₂','%'],['weight','Peso','kg'],['height','Altura','cm'],['diuresis','Diurese',''],['evacuations','Evacuações',''],['flatus','Flatos','']];
+ const vitals=`<section class="writing-section vital-section"><h2>Sinais vitais e eliminações — preencher durante a visita</h2><div class="vital-grid">${vitalFields.map(([key,label,unit])=>{const value=String(h.vitals?.[key]??'').trim();return `<div class="vital-item"><span class="vital-label">${esc(label)}</span><span class="vital-write">${value?esc(value):'&nbsp;'}</span>${unit?`<span class="vital-unit">${esc(unit)}</span>`:''}</div>`}).join('')}</div></section>`;
+ // A folha impressa apresenta TODAS as opções, inclusive as não selecionadas,
+ // com quadrados próprios para marcação manuscrita. Preserva as seleções digitais.
+ const physical=examBlocks.map(([name,opts],idx)=>{
+   const checklist=opts.map((option,i)=>{
+     const marked=Boolean(h.exam?.[idx+':'+i]);
+     return `<span class="physical-option"><span class="physical-box${marked?' checked':''}" aria-label="${marked?'Marcado':'Não marcado'}">${marked?'✓':''}</span><span>${esc(option)}</span></span>`;
+   }).join('');
+   return `<section class="physical-section"><h3>${idx+1}. ${esc(name)}</h3><div class="physical-options">${checklist}</div>${h.notes?.[idx]?`<div class="paragraph physical-notes">${esc(h.notes[idx])}</div>`:''}<div class="physical-observation-line" aria-hidden="true"></div></section>`;
+ }).join('');
+ const css=`
+  @page{size:A4;margin:9mm 10mm}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font:9.6pt/1.38 Arial,Helvetica,sans-serif;color:#16263b;background:white}
+  h1{font-size:15pt;border-bottom:2px solid #0284c7;padding-bottom:6px;margin:0 0 8px}
+  h2{font-size:10.5pt;background:#e7f2fc;padding:5px 8px;margin:10px 0 6px;break-after:avoid}
+  h3{font-size:9.3pt;color:#075985;margin:7px 0 3px;break-after:avoid}
+  section{margin:6px 0}.clinical-section{break-inside:auto}
+  .paragraph{white-space:pre-wrap;overflow-wrap:anywhere}
+  .facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 8px;border:1px solid #cbd5e1;padding:7px;border-radius:4px}
+  .facts span{overflow-wrap:anywhere}
+  .writing-section{break-inside:avoid;page-break-inside:avoid}
+  .impression{margin-top:10px}
+  .written-value{white-space:pre-wrap;overflow-wrap:anywhere;padding:2px 4px 5px}
+  /* Linhas reais de escrita, sem traços ou marcadores de valores faltantes. */
+  .handwriting-lines{height:55mm;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 8.4mm,#a8b8c8 8.5mm,#a8b8c8 8.7mm);background-position:0 0;background-size:100% 8.7mm}
+  .vital-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px 10px;padding:6px 8px 9px;border:1px solid #cbd5e1;border-radius:4px}
+  .vital-item{display:flex;align-items:baseline;gap:4px;min-height:11mm}
+  .vital-label{font-weight:700;white-space:nowrap;font-size:8.7pt}
+  .vital-write{flex:1;min-width:10px;border-bottom:1px solid #9aaec0;text-align:center;min-height:7mm;padding-top:1mm;font-size:9pt}
+  .vital-unit{font-size:7.2pt;color:#536578;white-space:nowrap}
+  .page{break-before:page;page-break-before:always}
+  .physical-section{break-inside:avoid;page-break-inside:avoid;padding-bottom:4px;border-bottom:1px solid #e2e8f0}
+  .physical-section h3{margin:6px 0 4px}
+  .physical-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px 10px}
+  .physical-option{display:flex;align-items:flex-start;gap:5px;font-size:8.6pt;line-height:1.23;min-width:0;break-inside:avoid}
+  .physical-box{flex:0 0 11px;width:11px;height:11px;border:1.25px solid #334155;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;font:bold 10px/1 Arial,sans-serif;margin-top:1px;color:#0f172a}
+  .physical-box.checked{border-width:1.6px}
+  .physical-notes{margin-top:4px;font-size:8.5pt}
+  .physical-observation-line{border-bottom:1px dotted #cbd5e1;height:6mm;margin-top:3px}
+  @media(max-width:650px){.physical-options{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  footer{font-size:7.5pt;color:#64748b;margin-top:15px}
+  .button{padding:9px 13px;border:0;background:#0284c7;color:white;border-radius:6px;margin:10px}
+  @media print{.button{display:none}h2{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+ `;
+ const summary=['reason','comorbidities','clinicalHistory','conduct','pending','devices'].map(get).join('');
+ const doc=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Passagem de caso — ${esc(p.name)}</title><style>${css}</style></head><body><button class="button" onclick="window.print()">Imprimir / Salvar PDF</button><h1>Passagem de caso pediátrico</h1><div class="facts">${[['Paciente',p.name],['Mãe',p.mother],['Leito',p.bed],['Sexo',p.sex],['Idade',p.age],['Alergias',p.allergies],['Data/hora',[h.date,h.time].filter(Boolean).join(' ')],['DIH',h.dih]].filter(([,v])=>String(v??'').trim()).map(([k,v])=>`<span><b>${esc(k)}:</b> ${esc(v)}</span>`).join('')}</div><h2>Resumo clínico</h2>${summary}${impression}${vitals}<div class="page"></div><h1>Exame físico</h1>${physical}${get('neurology')}<footer>PedCare • Versão salva em ${esc(h.savedAt||stamp())}</footer></body></html>`;
  const w=window.open('','_blank');if(!w)return alert('Permita pop-ups para imprimir.');w.document.open();w.document.write(doc);w.document.close();w.focus();
 }
 function tabs(){let container=el('tabs-bar');if(!container||typeof patients==='undefined')return;const order=meta().tabOrder;const ids=patients.map(p=>p.id);meta().tabOrder=[...order.filter(id=>ids.includes(id)),...ids.filter(id=>!order.includes(id))];const map=new Map([...container.querySelectorAll('.tab-btn')].filter(n=>n.id!=='tab-archive-btn').map(n=>[n.dataset.pcid,n]));for(const btn of [...container.querySelectorAll('.tab-btn')]){if(btn.id==='tab-archive-btn')continue;let name=btn.querySelector('span')?.textContent||'';let p=patients.find(x=>name.startsWith(x.name||'Novo Paciente'));if(p)btn.dataset.pcid=p.id;map.set(btn.dataset.pcid,btn)};
@@ -4684,6 +4814,278 @@ window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,sho
 })();
 
 
+</script>
+<script>
+/* PedCare Caderno Clínico — editor híbrido Obsidian com Markdown preservado */
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const escapeHtml = value => String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const escapeAttr = escapeHtml;
+  const state = {started:false, busy:false, lastNote:null};
+  const allowedStyles = {'tip':'💡 Dica','note':'📌 Nota','warning':'⚠️ Atenção','danger':'⛔ Importante'};
+
+  function inlineMd(raw) {
+    let s = escapeHtml(raw);
+    s=s.replace(/`([^`\n]+)`/g,'<code>$1</code>');
+    s=s.replace(/\*\*\*([^*\n]+)\*\*\*/g,'<strong><em>$1</em></strong>');
+    s=s.replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>');
+    s=s.replace(/\*([^*\n]+)\*/g,'<em>$1</em>');
+    s=s.replace(/~~([^~\n]+)~~/g,'<s>$1</s>');
+    s=s.replace(/\[\[([^\]\n]+)\]\]/g,'<span class="pc-wikilink">[[$1]]</span>');
+    s=s.replace(/(^|\s)#([\p{L}\d_-]+)/gu,'$1<span class="pc-tag">#$2</span>');
+    return s || '<br>';
+  }
+
+  function mdToHtml(md){
+    const lines=String(md??'').replace(/\r\n?/g,'\n').split('\n');
+    const html=[];
+    for(let i=0;i<lines.length;i++){
+      const line=lines[i];
+      const heading=line.match(/^(#{1,6})\s+(.*)$/);
+      const task=line.match(/^(\s*)[-*]\s+\[([ xX])\]\s*(.*)$/);
+      const list=line.match(/^(\s*)[-*]\s+(.*)$/);
+      const callout=line.match(/^>\s*\[!(tip|note|warning|danger)\]\s*(.*)$/i);
+      const quote=line.match(/^>\s?(.*)$/);
+      if(callout){
+        const kind=callout[1].toLowerCase();
+        let text='';
+        while(i+1<lines.length&&/^>\s?/.test(lines[i+1])){i++;text+=(text?'\n':'')+lines[i].replace(/^>\s?/,'');}
+        html.push(`<aside class="pc-callout" data-callout="${kind}"><div class="pc-callout-heading" contenteditable="false">${allowedStyles[kind]}</div><div class="pc-callout-body">${inlineMd(text).replace(/\n/g,'<br>')}</div></aside>`);
+      } else if(heading){
+        const n=heading[1].length;
+        html.push(`<h${n} data-md-prefix="${'#'.repeat(n)} " >${inlineMd(heading[2])}</h${n}>`);
+      } else if(task){
+        const checked=task[2].toLowerCase()==='x'; const depth=Math.min(8, Math.floor(task[1].replace(/\t/g,'  ').length/2));
+        html.push(`<div class="pc-task" data-depth="${depth}" style="--pc-depth:${depth}" data-checked="${checked}"><input class="pc-task-check" contenteditable="false" type="checkbox" ${checked?'checked':''} aria-label="Marcar tarefa"><span class="pc-task-text">${inlineMd(task[3])}</span></div>`);
+      } else if(list){
+        const depth=Math.min(8, Math.floor(list[1].replace(/\t/g,'  ').length/2));
+        html.push(`<div class="pc-list-item" data-depth="${depth}" style="--pc-depth:${depth}"><span class="pc-bullet" contenteditable="false">•</span><span class="pc-list-text">${inlineMd(list[2])}</span></div>`);
+      } else if(quote){
+        html.push(`<blockquote>${inlineMd(quote[1])}</blockquote>`);
+      } else if(/^```/.test(line)){
+        let content='';
+        while(i+1<lines.length&&!/^```/.test(lines[i+1])){i++;content+= (content?'\n':'')+lines[i];}
+        if(i+1<lines.length)i++;
+        html.push(`<pre><code>${escapeHtml(content)}</code></pre>`);
+      } else if(/^\s*$/.test(line)){
+        html.push('<p><br></p>');
+      } else{
+        html.push(`<p>${inlineMd(line)}</p>`);
+      }
+    }
+    return html.join('') || '<p><br></p>';
+  }
+
+  function textToMd(node){
+    if(node.nodeType===Node.TEXT_NODE)return node.nodeValue.replace(/\u00a0/g,' ');
+    if(node.nodeType!==Node.ELEMENT_NODE)return '';
+    const tag=node.tagName.toLowerCase();
+    const child=()=>[...node.childNodes].map(textToMd).join('');
+    if(tag==='br')return '\n';
+    if(tag==='strong'||tag==='b')return `**${child()}**`;
+    if(tag==='em'||tag==='i')return `*${child()}*`;
+    if(tag==='s'||tag==='del'||tag==='strike')return `~~${child()}~~`;
+    if(tag==='code'&&node.parentElement?.tagName!=='PRE')return `\`${child()}\``;
+    if(tag==='input'||tag==='button')return '';
+    if(node.classList.contains('pc-bullet')||node.classList.contains('pc-callout-heading'))return '';
+    if(tag==='span'&&node.classList.contains('pc-tag'))return node.textContent;
+    if(tag==='span'&&node.classList.contains('pc-wikilink'))return node.textContent;
+    return child();
+  }
+
+  function blockToMd(el){
+    const tag=el.tagName.toLowerCase();
+    if(/^h[1-6]$/.test(tag))return '#'.repeat(Number(tag[1]))+' '+textToMd(el).replace(/\n/g,'').trim();
+    if(el.classList.contains('pc-task'))return `${'  '.repeat(Math.max(0,Math.min(8,Number(el.dataset.depth)||0)))}- [${el.querySelector('.pc-task-check')?.checked?'x':' '}] ${textToMd(el.querySelector('.pc-task-text')||el).trim()}`;
+    if(el.classList.contains('pc-list-item'))return `${'  '.repeat(Math.max(0,Math.min(8,Number(el.dataset.depth)||0)))}- ${textToMd(el.querySelector('.pc-list-text')||el).trim()}`;
+    if(el.classList.contains('pc-callout')){
+      const kind=el.dataset.callout||'note';
+      const body=textToMd(el.querySelector('.pc-callout-body')||el).split('\n').map(x=>'> '+x).join('\n');
+      return `> [!${kind}]\n${body}`;
+    }
+    if(tag==='blockquote')return '> '+textToMd(el).trim();
+    if(tag==='pre')return '```\n'+el.textContent+'\n```';
+    return textToMd(el).replace(/\n$/,'');
+  }
+
+  function richToMd(editor){
+    return [...editor.children].map(blockToMd).join('\n').replace(/\n{4,}/g,'\n\n\n').replace(/\n+$/,'');
+  }
+
+  function currentBlock(){
+    const selection=window.getSelection();
+    if(!selection?.rangeCount)return null;
+    let node=selection.anchorNode;
+    if(node?.nodeType===Node.TEXT_NODE)node=node.parentElement;
+    const editor=$('pc-rich-editor');
+    while(node&&node!==editor&&node.parentElement!==editor)node=node.parentElement;
+    return node&&node.parentElement===editor?node:null;
+  }
+
+  function focusAtEnd(el){
+    const range=document.createRange();range.selectNodeContents(el);range.collapse(false);
+    const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);
+  }
+
+  function autoFormat(){
+    const block=currentBlock();
+    if(!block||block.classList.contains('pc-task')||block.classList.contains('pc-callout')||block.classList.contains('pc-list-item'))return;
+    const text=(block.textContent || '').replace(/\u00a0/g,' ');
+    let replacement=null;
+    const h=text.match(/^(#{1,6}) $/);
+    if(h){replacement=document.createElement('h'+h[1].length);replacement.innerHTML='<br>';}
+    else if(text==='- '||text==='* '){replacement=document.createElement('div');replacement.className='pc-list-item';replacement.innerHTML='<span class="pc-bullet" contenteditable="false">•</span><span class="pc-list-text"><br></span>';}
+    else if(text==='- [ ] '||text==='- [x] '){replacement=document.createElement('div');replacement.className='pc-task';replacement.innerHTML='<input class="pc-task-check" contenteditable="false" type="checkbox"><span class="pc-task-text"><br></span>';}
+    if(replacement){block.replaceWith(replacement);focusAtEnd(replacement.querySelector('.pc-list-text,.pc-task-text')||replacement);return;}
+    if(!block.querySelector('strong,em,code') && /^(?:[^*]*)(?:\*\*[^*\n]+\*\*|\*[^*\n]+\*)$/.test(text)){
+      const formatted=inlineMd(text);
+      if(formatted!==escapeHtml(text)){block.innerHTML=formatted;focusAtEnd(block);}
+    }
+  }
+
+  function getActive(){
+    try{return typeof obsidianData==='undefined'?null:obsidianData.notes.find(n=>n.id===obsidianData.currentNoteId)}catch{return null;}
+  }
+  function saveRich(){
+    if(state.busy)return;
+    const editor=$('pc-rich-editor');
+    const note=getActive();if(!editor||!note)return;
+    const md=richToMd(editor);
+    note.content=md;
+    const old=$('obs-note-content');if(old)old.value=md;
+    const reading=$('obs-reading-view');if(reading)reading.innerHTML=mdToHtml(md);
+    if(typeof saveObsidianData==='function')saveObsidianData();
+    const indicator=$('pc-rich-status');if(indicator)indicator.textContent='✓ Salvo';
+  }
+
+  function syncRich(force=false){
+    const editor=$('pc-rich-editor');const note=getActive();if(!editor)return;
+    if(!note){editor.innerHTML='<p><br></p>';editor.setAttribute('contenteditable','false');state.lastNote=null;return;}
+    editor.setAttribute('contenteditable','true');
+    if(force||state.lastNote!==note.id){
+      state.busy=true;
+      editor.innerHTML=mdToHtml(note.content||'');
+      state.lastNote=note.id;
+      state.busy=false;
+    }
+    const indicator=$('pc-rich-status');if(indicator)indicator.textContent='✓ Edição ao vivo';
+  }
+
+  function applyCommand(command){
+    const editor=$('pc-rich-editor');if(!editor||editor.getAttribute('contenteditable')==='false')return;
+    editor.focus();
+    if(command==='bold')document.execCommand('bold',false,null);
+    if(command==='italic')document.execCommand('italic',false,null);
+    if(command==='h1'||command==='h2'||command==='h3')document.execCommand('formatBlock',false,command.toUpperCase());
+    if(command==='p')document.execCommand('formatBlock',false,'P');
+    if(command==='list'||command==='task'){
+      const block=currentBlock();
+      if(block){
+        const value=textToMd(block).trim();
+        const replacement=document.createElement('div');
+        replacement.className=command==='list'?'pc-list-item':'pc-task';
+        replacement.innerHTML=command==='list'?`<span class="pc-bullet" contenteditable="false">•</span><span class="pc-list-text">${inlineMd(value)}</span>`:`<input class="pc-task-check" type="checkbox" contenteditable="false"><span class="pc-task-text">${inlineMd(value)}</span>`;
+        block.replaceWith(replacement);
+        focusAtEnd(replacement.querySelector(command==='list'?'.pc-list-text':'.pc-task-text'));
+      }
+    }
+    saveRich();
+  }
+
+
+  function listBlock(block){return !!block&&(block.classList.contains('pc-task')||block.classList.contains('pc-list-item'));}
+  function depthOf(block){return Math.max(0,Math.min(8,Number(block?.dataset.depth)||0));}
+  function setDepth(block,depth){const d=Math.max(0,Math.min(8,depth));block.dataset.depth=String(d);block.style.setProperty('--pc-depth',String(d));}
+  function setCaretStart(node){const r=document.createRange();r.selectNodeContents(node);r.collapse(true);const s=window.getSelection();s.removeAllRanges();s.addRange(r);}
+  function caretOffsetIn(element){
+    const sel=window.getSelection();if(!element||!sel?.rangeCount||!element.contains(sel.anchorNode))return Infinity;
+    const range=sel.getRangeAt(0).cloneRange();range.selectNodeContents(element);range.setEnd(sel.anchorNode,sel.anchorOffset);
+    return range.toString().length;
+  }
+  function refreshHeadingSyntax(){
+    const editor=$('pc-rich-editor');if(!editor)return;
+    const block=currentBlock();
+    editor.querySelectorAll('.pc-heading-source-visible').forEach(h=>h.classList.remove('pc-heading-source-visible'));
+    if(block && /^H[1-6]$/.test(block.tagName) && caretOffsetIn(block)<=2){
+      block.dataset.mdPrefix='#'.repeat(Number(block.tagName[1]))+' ';
+      block.classList.add('pc-heading-source-visible');
+    }
+  }
+  function continueList(block){
+    const target=block.querySelector('.pc-list-text,.pc-task-text');
+    const content=textToMd(target||block).trim();
+    if(!content){
+      const depth=depthOf(block);
+      if(depth>0){setDepth(block,depth-1);setCaretStart(target||block);}
+      else {const p=document.createElement('p');p.innerHTML='<br>';block.replaceWith(p);setCaretStart(p);}
+      saveRich();return;
+    }
+    const next=document.createElement('div');
+    next.className=block.classList.contains('pc-task')?'pc-task':'pc-list-item';
+    setDepth(next,depthOf(block));
+    if(next.classList.contains('pc-task'))next.innerHTML='<input class="pc-task-check" type="checkbox" contenteditable="false"><span class="pc-task-text"><br></span>';
+    else next.innerHTML='<span class="pc-bullet" contenteditable="false">•</span><span class="pc-list-text"><br></span>';
+    block.after(next);setCaretStart(next.querySelector('.pc-task-text,.pc-list-text'));
+    saveRich();
+  }
+
+  function activate(){
+    if(state.started)return;state.started=true;
+    const editorView=$('obs-editor-view');const area=$('obs-note-content');const workspace=$('obs-workspace');const popup=$('popup-obsidian');
+    if(!editorView||!area||!workspace||!popup)return;
+    const editor=document.createElement('div');editor.id='pc-rich-editor';editor.className='obsidian-preview pc-rich-editor';editor.contentEditable='true';editor.spellcheck=true;editor.setAttribute('role','textbox');editor.setAttribute('aria-label','Editor visual Markdown do Caderno Clínico');editor.setAttribute('aria-multiline','true');
+    area.hidden=true;area.style.display='none';
+    editorView.appendChild(editor);
+    const status=document.createElement('div');status.id='pc-rich-status';status.className='pc-rich-status';status.textContent='✓ Edição ao vivo';editorView.appendChild(status);
+    const navbar=popup.querySelector('#obs-workspace')?.previousElementSibling;
+    if(navbar){const buttons=navbar.querySelectorAll('#btn-obs-read,#btn-obs-split,#btn-obs-edit');buttons.forEach(b=>b.style.display='none');}
+    workspace.className='obsidian-workspace mode-edit';
+    const actions=[['h1','H1'],['h2','H2'],['h3','H3'],['bold','B'],['italic','I'],['list','• Lista'],['task','☑ Tarefa']];
+    const toolbar=editorView.querySelector('.obsidian-toolbar');
+    if(toolbar){
+      toolbar.replaceChildren();
+      for(const [cmd,label] of actions){
+        const b=document.createElement('button');b.type='button';b.className='obs-btn';b.textContent=label;
+        b.addEventListener('mousedown',e=>e.preventDefault());
+        b.addEventListener('click',()=>applyCommand(cmd));toolbar.appendChild(b);
+      }
+    }
+    editor.addEventListener('input',()=>{autoFormat();saveRich();refreshHeadingSyntax();});
+    editor.addEventListener('change',saveRich);
+    editor.addEventListener('paste',e=>{e.preventDefault();const plain=e.clipboardData.getData('text/plain');document.execCommand('insertText',false,plain);});
+    editor.addEventListener('click',e=>{
+      if(e.target.matches('.pc-task-check')){e.stopPropagation();setTimeout(()=>{e.target.closest('.pc-task')?.setAttribute('data-checked',e.target.checked?'true':'false');saveRich();},0);}
+    });
+    editor.addEventListener('keydown',e=>{
+      if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveRich();return;}
+      const block=currentBlock();
+      if(e.key==='Tab'&&listBlock(block)){
+        e.preventDefault();setDepth(block,depthOf(block)+(e.shiftKey?-1:1));saveRich();return;
+      }
+      if(e.key==='Enter'&&!e.shiftKey&&listBlock(block)){
+        e.preventDefault();continueList(block);return;
+      }
+      if(e.key==='Enter'&&!e.shiftKey&&block&&/^H[1-6]$/.test(block.tagName)){
+        e.preventDefault();const p=document.createElement('p');p.innerHTML='<br>';block.after(p);setCaretStart(p);saveRich();return;
+      }
+      if(e.key==='ArrowLeft'||e.key==='ArrowRight'||e.key==='Home'||e.key==='End')requestAnimationFrame(refreshHeadingSyntax);
+    });
+    editor.addEventListener('keyup',refreshHeadingSyntax);
+    editor.addEventListener('mouseup',refreshHeadingSyntax);
+    document.addEventListener('selectionchange',()=>{
+      const editor=$('pc-rich-editor');if(editor&&editor.contains(window.getSelection()?.anchorNode))refreshHeadingSyntax();
+    });
+    const oldRender=window.renderObsidianUI;
+    if(typeof oldRender==='function')window.renderObsidianUI=function(){const result=oldRender.apply(this,arguments);syncRich(true);workspace.className='obsidian-workspace mode-edit';return result;};
+    const oldSwitch=window.switchObsidianTab;
+    if(typeof oldSwitch==='function')window.switchObsidianTab=function(){workspace.className='obsidian-workspace mode-edit';syncRich();};
+    const originalToggle=window.togglePopup;
+    if(typeof originalToggle==='function')window.togglePopup=function(id){const result=originalToggle.apply(this,arguments);if(id==='popup-obsidian')syncRich(true);return result;};
+    syncRich(true);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',activate,{once:true});else activate();
+})();
 </script>
 </body>
 </html>
