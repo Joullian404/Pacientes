@@ -1899,6 +1899,7 @@
   </div>
 
   <script>
+
     const PATIENTS_STORAGE_KEY = 'pedcare_patients_v7';
     const OBSIDIAN_STORAGE_KEY = 'pedcare_obsidian_notes_v1';
     const GH_TOKEN_KEY = 'pedcare_gh_token';
@@ -3700,112 +3701,11 @@
 
       setBadge('calc-nora', `Infusão: <strong>${r(w * 0.05, 2)} a ${r(w * 1.0, 1)} mcg/min</strong> contínua <span class="dose-max-tag">🛑 Teto: 1,0 a 1,5 mcg/kg/min</span>`);
     }
-  </script>
+  
+</script>
 <script>
 /* PedCare upgrade: impressão clínica e importação laboratorial v1.7
-   Adicionar após o script original, antes de <script>
-/* PedCare — módulos de organização e passagem de caso, 2026-10 */
-(()=>{
-'use strict';
-const el=(id)=>document.getElementById(id);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const pat=()=>typeof patients!=='undefined'?patients.find(p=>p.id===currentPatientId):null;
-const stamp=()=>new Date().toLocaleString('pt-BR');
-const today=()=>new Date().toISOString().slice(0,10);
-const safeSave=()=>{if(typeof saveAllPatients==='function')saveAllPatients();};
-let currentFolder='', dragged=null;
-const meta=()=>{if(typeof obsidianData==='undefined')return {patientFolders:[],tabOrder:[]};obsidianData.patientFolders??=[];obsidianData.tabOrder??=[];return obsidianData;};
-const persist=()=>{if(typeof saveObsidianData==='function')saveObsidianData();safeSave();};
-function style(){if(el('pc-workstyle'))return;const st=document.createElement('style');st.id='pc-workstyle';st.textContent=`
-.pc-tools{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0}.pc-tools button,.pc-inline-btn{background:#f0f9ff;border:1px solid #bae6fd;color:#075985;padding:8px 11px;border-radius:7px;font-weight:700;cursor:pointer}
-.pc-overlay{position:fixed;inset:0;background:rgba(15,23,42,.70);z-index:4500;display:flex;align-items:center;justify-content:center;padding:12px}
-.pc-dialog{width:min(880px,100%);max-height:94vh;overflow:auto;background:white;color:#0f172a;border-radius:12px;box-shadow:0 18px 60px #0005;padding:18px}
-.pc-dialog h2{font-size:18px;margin:0 0 10px}.pc-dialog h3{font-size:14px;margin:12px 0 5px;color:#075985}.pc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.pc-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:7px 0}
-.pc-dialog input[type=text],.pc-dialog input[type=date],.pc-dialog textarea,.pc-dialog select{width:100%;border:1px solid #cbd5e1;padding:7px;border-radius:6px;font:inherit;background:#fff}.pc-dialog textarea{min-height:85px;resize:vertical}
-.pc-dialog button{border:1px solid #94a3b8;border-radius:6px;padding:7px 10px;cursor:pointer;background:#f8fafc;color:#0f172a}.pc-dialog button.pc-primary{background:#0284c7;border-color:#0284c7;color:white;font-weight:700}
-.pc-task{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #e2e8f0;border-radius:6px;margin:5px 0}.pc-task small{color:#64748b;margin-left:auto}.pc-patient{border:1px solid #dbe4ee;padding:8px;border-radius:8px;margin:6px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.pc-folder-list{margin:12px 0}.pc-folder{padding:7px;margin:4px 0 4px 14px;cursor:pointer;border-left:3px solid #bae6fd}.pc-folder.sel{background:#e0f2fe}.pc-handoff{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pc-handoff>label{font-weight:700;font-size:12px}.pc-handoff>label input,.pc-handoff>label textarea{margin-top:5px;font-weight:400}.pc-handoff .wide{grid-column:1/-1}.pc-exam{border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin:6px 0}.pc-exam label{display:inline-flex;gap:4px;margin:3px 8px 3px 0;font-size:12px}
-.tab-btn[draggable=true]{cursor:grab}.tab-btn.pc-over{outline:2px dashed #0ea5e9}
-@media(max-width:650px){.pc-grid,.pc-handoff{grid-template-columns:1fr}}
-@media print{.pc-overlay,.pc-tools{display:none!important}}
-`;document.head.appendChild(st)}
-function overlay(title,render){const old=el('pc-overlay');if(old)old.remove();const root=document.createElement('div');root.id='pc-overlay';root.className='pc-overlay';root.innerHTML=`<div class="pc-dialog" role="dialog" aria-modal="true"><div class="pc-row" style="justify-content:space-between"><h2>${esc(title)}</h2><button id="pc-close">Fechar ✕</button></div><div id="pc-content"></div></div>`;document.body.appendChild(root);el('pc-close').onclick=()=>root.remove();root.addEventListener('click',e=>{if(e.target===root)root.remove()});render(el('pc-content'));return root}
-function program(p){p.programs??=[];return p.programs}
-function openTasks(p=pat()){
- if(!p){alert('Selecione um paciente.');return}
- overlay('Programações e pendências — '+(p.name||'Paciente'),host=>{
-  const paint=()=>{
-   const tasks=program(p).slice().sort((a,b)=>Number(a.done)-Number(b.done)||String(a.date).localeCompare(String(b.date)));
-   host.innerHTML=`<p>Programações anteriores ainda pendentes continuam visíveis até serem concluídas ou canceladas.</p><div id="pc-tasklist">${tasks.map(t=>`<div class="pc-task"><input type="checkbox" data-done="${esc(t.id)}" ${t.done?'checked':''}><div style="flex:1"><strong>${esc(t.text)}</strong><br><small>${esc(t.date||'')}</small></div><button data-remove="${esc(t.id)}">Excluir</button></div>`).join('')||'<p>Sem programações.</p>'}</div><div class="pc-grid"><label>Nova programação<input id="pc-taskname" type="text" placeholder="Descreva a pendência"></label><label>Data<input id="pc-taskdate" type="date" value="${today()}"></label></div><div class="pc-row"><button class="pc-primary" id="pc-taskadd">Adicionar programação</button></div>`;
-   host.querySelectorAll('[data-done]').forEach(n=>n.onchange=()=>{let x=program(p).find(t=>t.id===n.dataset.done);if(x){x.done=n.checked;x.finishedAt=n.checked?stamp():'';safeSave();paint()}});
-   host.querySelectorAll('[data-remove]').forEach(n=>n.onclick=()=>{if(confirm('Excluir esta programação?')){p.programs=program(p).filter(t=>t.id!==n.dataset.remove);safeSave();paint()}});
-   el('pc-taskadd').onclick=()=>{let value=el('pc-taskname').value.trim();if(!value)return;program(p).push({id:'task_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),text:value,date:el('pc-taskdate').value||today(),done:false});safeSave();paint()};
-  };paint();
- })
-}
-function showDaily(){let pending=patients.flatMap(p=>program(p).filter(t=>!t.done&&(!t.date||t.date<=today())).map(t=>({p,t})));if(!pending.length)return;overlay('Pendências e programações de pacientes',host=>{host.innerHTML=`<p>Há ${pending.length} programação(ões) não concluída(s), incluindo dias anteriores.</p>${pending.map(({p,t})=>`<div class="pc-task"><strong>${esc(p.name)} (${esc(p.bed||'sem leito')})</strong><span>${esc(t.text)}</span><small>${esc(t.date)}</small><button data-p="${esc(p.id)}">Abrir</button></div>`).join('')}`;host.querySelectorAll('[data-p]').forEach(n=>n.onclick=()=>{let p=patients.find(x=>x.id===n.dataset.p);if(p){switchPatientTab(p.id);openTasks(p)}})})}
-function beforeLogout(){if(!Array.isArray(patients)||!patients.length)return true;const q=confirm('Antes de encerrar: deseja revisar ou adicionar programações para os pacientes?\n\nOK = abrir programações, Cancelar = continuar logout.');if(q){openTasks(pat());return false}return true}
-function folderTree(host){let folders=meta().patientFolders;const make=(parent,depth)=>folders.filter(f=>f.parent===parent).map(f=>`<div class="pc-folder ${currentFolder===f.id?'sel':''}" style="margin-left:${depth*18}px" data-folder="${esc(f.id)}">📁 ${esc(f.name)} <small>(${patients.filter(p=>p.folderId===f.id).length})</small></div>${make(f.id,depth+1)}`).join('');host.innerHTML=`<div class="pc-folder ${!currentFolder?'sel':''}" data-folder="">📂 Todos os pacientes</div>${make('',1)}`;host.querySelectorAll('[data-folder]').forEach(n=>n.onclick=()=>{currentFolder=n.dataset.folder;drawFolders()})}
-function drawFolders(){let host=el('pc-content');if(!host)return;host.innerHTML=`<div class="pc-row"><button id="pc-newfolder">+ Pasta / Subpasta</button><button id="pc-renamefolder">Renomear</button><button id="pc-deletefolder">Excluir pasta vazia</button></div><div id="pc-tree" class="pc-folder-list"></div><h3>Pacientes nesta pasta</h3><div id="pc-patientlist"></div>`;folderTree(el('pc-tree'));
- const list=currentFolder?patients.filter(p=>p.folderId===currentFolder):patients;
- el('pc-patientlist').innerHTML=list.map(p=>`<div class="pc-patient"><strong style="flex:1">${esc(p.name)} (${esc(p.bed||'—')})</strong><select data-patient="${esc(p.id)}"><option value="">Sem pasta</option>${meta().patientFolders.map(f=>`<option value="${esc(f.id)}" ${p.folderId===f.id?'selected':''}>${esc(f.name)}</option>`).join('')}</select><button data-open="${esc(p.id)}">Abrir</button></div>`).join('')||'<p>Nenhum paciente nesta pasta.</p>';
- el('pc-patientlist').querySelectorAll('[data-patient]').forEach(n=>n.onchange=()=>{let p=patients.find(x=>x.id===n.dataset.patient);if(p){p.folderId=n.value;safeSave();drawFolders()}});
- el('pc-patientlist').querySelectorAll('[data-open]').forEach(n=>n.onclick=()=>{switchPatientTab(n.dataset.open);el('pc-overlay').remove()});
- el('pc-newfolder').onclick=()=>{let name=prompt('Nome da nova pasta'+(currentFolder?' (subpasta)':''));if(!name?.trim())return;meta().patientFolders.push({id:'fld_'+Date.now(),name:name.trim(),parent:currentFolder});persist();drawFolders()};
- el('pc-renamefolder').onclick=()=>{let f=meta().patientFolders.find(f=>f.id===currentFolder);if(!f)return alert('Selecione uma pasta.');let name=prompt('Renomear pasta',f.name);if(name?.trim()){f.name=name.trim();persist();drawFolders()}};
- el('pc-deletefolder').onclick=()=>{if(!currentFolder)return;let f=meta().patientFolders.find(f=>f.id===currentFolder);if(!f)return;if(meta().patientFolders.some(x=>x.parent===f.id)||patients.some(x=>x.folderId===f.id))return alert('Mova os pacientes e subpastas antes de excluir.');if(confirm('Excluir pasta vazia?')){meta().patientFolders=meta().patientFolders.filter(x=>x.id!==f.id);currentFolder=f.parent||'';persist();drawFolders()}};
-}
-function openFolders(){overlay('Pastas e subpastas de pacientes',()=>drawFolders())}
-const examBlocks=[
- ['Estado geral',['BEG','REG','MEG','Ativo/reativo','Hipoativo','Irritado','Letárgico','Hidratado','Desidratado','Corado','Hipocorado','Anictérico','Ictérico','Acianótico','Cianótico']],
- ['Pele e mucosas',['Sem lesões','Exantema','Petéquias/púrpura','Turgor preservado','Turgor diminuído','Mucosas úmidas','Mucosas secas']],
- ['Orofaringe',['Sem hiperemia','Faringe hiperemiada','Amígdalas normotróficas','Amígdalas hipertróficas','Sem placas','Exsudato/placas']],
- ['Tórax e mecânica respiratória',['Tórax simétrico','Tiragem subcostal','Tiragem intercostal','Batimento de asa nasal','Retração de fúrcula','Ar ambiente','Em oxigenoterapia']],
- ['Aparelho respiratório',['Eupneico','Taquipneico','Dispneico','MV presente bilateralmente','MV diminuído','Sem ruídos adventícios','Roncos','Sibilos','Crepitações','Percussão clara','Macicez/timpanismo']],
- ['Cardiovascular',['BNF em 2 tempos','Bulhas hipofonéticas','RCR','Ritmo irregular','Sem sopros','Sopro']],
- ['Abdômen',['Plano','Globoso/distendido','Flácido','Indolor','Doloroso à palpação','Sem irritação peritoneal','Defesa','RHA presentes','RHA diminuídos/abolidos','Sem visceromegalias']],
- ['Extremidades e perfusão',['Normoperfundidas','TEC < 3 s','TEC > 3 s','Aquecidas','Frias/moteadas','Pulsos cheios e simétricos','Pulsos diminuídos','Sem edema','Com edema']],
- ['Neurológico direcionado',['Alerta','Responsivo','Sonolento','Pupilas isocóricas','Sem déficits focais aparentes']]
-];
-const handFields=[['reason','Motivo da internação'],['comorbidities','Comorbidades'],['clinicalHistory','História clínica'],['impression','Impressão clínica / Diagnósticos ativos'],['conduct','Condutas atuais'],['pending','Pendências para o próximo plantão'],['devices','Dispositivos / suporte em uso'],['neurology','Exame neurológico e observações adicionais']];
-function handoffFor(p){p.handoffs??=[];return p.handoffs}
-function seedHandoff(p){let a=handoffFor(p);if(a.length)return structuredClone(a[a.length-1]);return {date:today(),time:new Date().toTimeString().slice(0,5),dih:'',reason:p.reason||'',comorbidities:p.comorbidities||'',clinicalHistory:p.clinicalHistory||'',impression:'',conduct:'',pending:program(p).filter(t=>!t.done).map(t=>t.text).join('\n'),devices:'',neurology:'',exam:{},notes:{},vitals:{},id:''}}
-function openHandoff(p=pat()){
- if(!p)return alert('Selecione um paciente.');let draft=seedHandoff(p);
- overlay('Passagem de caso — modelo editável',host=>{
-  const textData=`<div class="pc-handoff"><label>Data<input type="date" data-hfield="date" value="${esc(draft.date)}"></label><label>Hora<input type="text" data-hfield="time" value="${esc(draft.time)}"></label><label>Dia de internação (DIH)<input type="text" data-hfield="dih" value="${esc(draft.dih)}"></label><label>Leito<input type="text" disabled value="${esc(p.bed||'')}"></label>${handFields.map(([k,label])=>`<label class="wide">${esc(label)}<textarea data-hfield="${k}">${esc(draft[k]||'')}</textarea></label>`).join('')}</div>`;
-  const examHTML=examBlocks.map(([name,opts],idx)=>`<div class="pc-exam"><h3>${idx+1}. ${esc(name)}</h3>${opts.map((o,i)=>`<label><input type="checkbox" data-exam="${idx}:${i}" ${draft.exam?.[idx+':'+i]?'checked':''}>${esc(o)}</label>`).join('')}<label style="display:block">Observações<textarea data-enote="${idx}">${esc(draft.notes?.[idx]||'')}</textarea></label></div>`).join('');
-  host.innerHTML=`<p>Dados importados do prontuário são editáveis nesta passagem de caso, sem alterar a anamnese original. Nenhum achado do exame físico é pré-marcado.</p><div class="pc-handoff"><label>Paciente<input disabled value="${esc(p.name||'')}"></label><label>Nome da mãe<input disabled value="${esc(p.mother||'')}"></label><label>Sexo / idade<input disabled value="${esc((p.sex||'')+' / '+(p.age||''))}"></label><label>Alergias<input disabled value="${esc(p.allergies||'')}"></label></div><h3>1. Resumo clínico</h3>${textData}<h3>2. Sinais vitais</h3><div class="pc-grid">${[['fc','FC'],['pa','PA'],['fr','FR'],['tx','Temperatura'],['weight','Peso'],['satO2','SatO₂'],['height','Altura'],['diuresis','Diurese'],['evacuations','Evacuações'],['flatus','Flatos']].map(([k,label])=>`<label>${label}<input data-vital="${k}" type="text" value="${esc(draft.vitals?.[k]??p[k]??'')}"></label>`).join('')}</div><h3>3. Exame físico estruturado</h3>${examHTML}<div class="pc-row"><button id="pc-hand-save" class="pc-primary">Salvar versão</button><button id="pc-hand-print">Salvar e imprimir</button><button id="pc-hand-new">Nova versão a partir desta</button><select id="pc-hand-history"><option value="">Versões salvas</option>${handoffFor(p).map((h,i)=>`<option value="${i}">${esc(h.savedAt||h.date||'Versão')}</option>`).join('')}</select></div>`;
-  const collect=()=>{host.querySelectorAll('[data-hfield]').forEach(x=>draft[x.dataset.hfield]=x.value);draft.exam={};host.querySelectorAll('[data-exam]').forEach(x=>{if(x.checked)draft.exam[x.dataset.exam]=true});draft.notes={};host.querySelectorAll('[data-enote]').forEach(x=>draft.notes[x.dataset.enote]=x.value);draft.vitals={};host.querySelectorAll('[data-vital]').forEach(x=>draft.vitals[x.dataset.vital]=x.value);return draft};
-  const save=()=>{collect();draft.id='hand_'+Date.now();draft.savedAt=stamp();handoffFor(p).push(structuredClone(draft));safeSave();return draft};
-  el('pc-hand-save').onclick=()=>{save();alert('Versão salva no prontuário.');el('pc-overlay').remove()};
-  el('pc-hand-print').onclick=()=>{let rec=save();printHandoff(p,rec);el('pc-overlay').remove()};
-  el('pc-hand-new').onclick=()=>{save();openHandoff(p)};
-  el('pc-hand-history').onchange=e=>{let i=Number(e.target.value);if(e.target.value!==''){let copy=structuredClone(handoffFor(p)[i]);draft=copy;openHandoffVersion(p,copy)}};
- });
-}
-function openHandoffVersion(p,rec){ // Abrir uma versão escolhida sem modificar a versão histórica.
- const clone=structuredClone(rec);p.handoffs.push(clone);openHandoff(p);p.handoffs.pop();
-}
-function printHandoff(p,h){
- const vital=Object.entries(h.vitals||{}).filter(([,v])=>String(v).trim()).map(([k,v])=>`<span><b>${esc(k.toUpperCase())}:</b> ${esc(v)}</span>`).join('');
- const get=(key)=>`<section><h3>${esc(handFields.find(x=>x[0]===key)?.[1]||key)}</h3><div class="paragraph">${esc(h[key]||'—')}</div></section>`;
- const physical=examBlocks.map(([name,opts],idx)=>{let selected=opts.filter((o,i)=>h.exam?.[idx+':'+i]);return `<section><h3>${idx+1}. ${esc(name)}</h3><div>${esc(selected.join(' • ')||'Não informado')}</div>${h.notes?.[idx]?`<div class="paragraph">${esc(h.notes[idx])}</div>`:''}</section>`}).join('');
- const css=`@page{size:A4;margin:9mm 9mm}*{box-sizing:border-box}body{font:10pt/1.42 Arial,sans-serif;color:#16263b;margin:0}h1{font-size:16pt;border-bottom:2px solid #0284c7;padding-bottom:7px;margin:0 0 10px}h2{font-size:11pt;background:#e7f2fc;padding:6px 8px;break-after:avoid}h3{font-size:9.5pt;color:#075985;margin:8px 0 3px;break-after:avoid}section{margin:6px 0}.paragraph{white-space:pre-wrap;overflow-wrap:anywhere}.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;border:1px solid #cbd5e1;padding:8px}.vitals{display:flex;gap:8px;flex-wrap:wrap;padding:8px;background:#f8fafc;border:1px solid #cbd5e1}.page{break-before:page}.button{padding:9px;border:0;background:#0284c7;color:white;border-radius:6px;margin-bottom:12px}@media print{.button{display:none}h2{-webkit-print-color-adjust:exact;print-color-adjust:exact}}`;
- const doc=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Passagem de caso — ${esc(p.name)}</title><style>${css}</style></head><body><button class="button" onclick="print()">Imprimir / Salvar PDF</button><h1>Passagem de caso pediátrico</h1><div class="facts"><span><b>Paciente:</b> ${esc(p.name)}</span><span><b>Mãe:</b> ${esc(p.mother)}</span><span><b>Leito:</b> ${esc(p.bed)}</span><span><b>Sexo:</b> ${esc(p.sex)}</span><span><b>Idade:</b> ${esc(p.age)}</span><span><b>Alergias:</b> ${esc(p.allergies)}</span><span><b>Data/hora:</b> ${esc(h.date+' '+h.time)}</span><span><b>DIH:</b> ${esc(h.dih)}</span></div><h2>Resumo clínico</h2>${['reason','comorbidities','clinicalHistory','impression','conduct','pending','devices'].map(get).join('')}<h2>Sinais vitais e eliminações</h2><div class="vitals">${vital}</div><div class="page"></div><h1>Exame físico</h1>${physical}${get('neurology')}<footer>PedCare • Versão salva em ${esc(h.savedAt||stamp())}</footer></body></html>`;
- const w=window.open('','_blank');if(!w)return alert('Permita pop-ups para imprimir.');w.document.open();w.document.write(doc);w.document.close();w.focus();
-}
-function tabs(){let container=el('tabs-bar');if(!container||typeof patients==='undefined')return;const order=meta().tabOrder;const ids=patients.map(p=>p.id);meta().tabOrder=[...order.filter(id=>ids.includes(id)),...ids.filter(id=>!order.includes(id))];const map=new Map([...container.querySelectorAll('.tab-btn')].filter(n=>n.id!=='tab-archive-btn').map(n=>[n.dataset.pcid,n]));for(const btn of [...container.querySelectorAll('.tab-btn')]){if(btn.id==='tab-archive-btn')continue;let name=btn.querySelector('span')?.textContent||'';let p=patients.find(x=>name.startsWith(x.name||'Novo Paciente'));if(p)btn.dataset.pcid=p.id;map.set(btn.dataset.pcid,btn)};
- for(const id of meta().tabOrder){let node=map.get(id);if(node)container.appendChild(node)}
- container.querySelectorAll('.tab-btn:not(.archive-tab)').forEach(btn=>{btn.draggable=true;btn.ondragstart=e=>{dragged=btn.dataset.pcid;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',dragged)};btn.ondragover=e=>{e.preventDefault();btn.classList.add('pc-over')};btn.ondragleave=()=>btn.classList.remove('pc-over');btn.ondrop=e=>{e.preventDefault();btn.classList.remove('pc-over');let dest=btn.dataset.pcid;if(!dragged||!dest||dragged===dest)return;let o=meta().tabOrder.filter(x=>x!==dragged);o.splice(o.indexOf(dest),0,dragged);meta().tabOrder=o;persist();tabs()};btn.ondragend=()=>{dragged=null;container.querySelectorAll('.pc-over').forEach(n=>n.classList.remove('pc-over'))}});
-}
-function mount(){style();if(!el('pc-tools')){let bar=document.createElement('div');bar.id='pc-tools';bar.className='pc-tools';bar.innerHTML='<button id="pc-open-tasks">☑ Programações</button><button id="pc-open-folders">📁 Pastas de pacientes</button><button id="pc-open-handoff">📋 Passagem de caso</button><button id="pc-open-pending">🔔 Pendências do dia</button>';let anchor=el('patient-main-view');if(anchor)anchor.parentNode.insertBefore(bar,anchor);el('pc-open-tasks').onclick=()=>openTasks();el('pc-open-folders').onclick=openFolders;el('pc-open-handoff').onclick=()=>openHandoff();el('pc-open-pending').onclick=showDaily}tabs()}
-function init(){mount();const original=window.renderTabs;if(typeof original==='function'&&!window.__pcWrappedTabs){window.__pcWrappedTabs=true;window.renderTabs=function(){let value=original.apply(this,arguments);tabs();return value}};const logout=window.disconnectGitHub;if(typeof logout==='function'&&!window.__pcWrappedLogout){window.__pcWrappedLogout=true;window.disconnectGitHub=function(){if(beforeLogout())return logout.apply(this,arguments)}};setTimeout(showDaily,1200);}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
-window.PedCareWorkflow={openTasks,openFolders,openHandoff,showDaily};
-})();
-
-</script>
-</body>. Requer script original sem erros de sintaxe. */
+   Adicionar após o script original, antes de </body>. Requer script original sem erros de sintaxe. */
 (() => {
   'use strict';
 
@@ -3995,39 +3895,58 @@ window.PedCareWorkflow={openTasks,openFolders,openHandoff,showDaily};
       kind==='down'?'<span class="ped-trend ped-down" title="Diminuiu em relação ao exame anterior" aria-label="Diminuiu">↓</span>':
       kind==='same'?'<span class="ped-trend ped-same" title="Sem alteração em relação ao exame anterior" aria-label="Sem alteração">→</span>':'';
   }
-  let lastLabPatientId=null;
+  // Reorganiza colunas VISÍVEIS: não basta ordenar os objetos na memória,
+  // porque o renderer original pode manter a ordem de inserção dos elementos.
   function refreshLabOrderAndTrends(){
-    const p=getPat();if(!p)return;
-    if(sortLabEntries(p)){
-      save();
-      if(typeof renderLabTable==='function')renderLabTable();
-    }
-    lastLabPatientId=p.id;
-    // Sinalizar tendências no quadro visível apenas quando as colunas refletem a ordem das datas.
-    const scopes=[...document.querySelectorAll('table')].filter(t=>{
-      const head=t.querySelector('thead');if(!head)return false;
-      const entries=p.labHistory||[];
-      return entries.length>=2 && entries.every(x=>head.textContent.includes(x.date));
-    });
-    for(const table of scopes){
-      const headerCells=[...table.querySelectorAll('thead tr:last-child th, thead tr:last-child td')];
-      const indices=(p.labHistory||[]).map(e=>headerCells.findIndex(th=>th.textContent.includes(e.date)));
-      if(indices.some(i=>i<0)||new Set(indices).size!==indices.length)continue;
-      const bodyRows=[...table.querySelectorAll('tbody tr')];
-      const keys=(p.labHistory||[]).flatMap(e=>Object.keys(e.values||{}));
-      for(const row of bodyRows){
-        const cells=[...row.children].filter(c=>c.matches('td,th'));
-        if(cells.length!==headerCells.length)continue;
-        const testName=norm(cells[0].textContent);
-        const key=keys.find(k=>norm(k)===testName||norm(p.customLabDefs?.[k]?.label||labels.get(k)||k)===testName);
+    const p=getPat(); if(!p) return;
+    if(sortLabEntries(p)) save();
+    const entries=p.labHistory||[];
+    if(!entries.length) return;
+    const dateKeys=new Map(entries.map((e,i)=>[examDateNumber(e.date),i]));
+    if(!dateKeys.size)return;
+    const tables=[...document.querySelectorAll('table')];
+    for(const table of tables){
+      const head=table.tHead; if(!head || !head.rows.length)continue;
+      const header=head.rows[head.rows.length-1];
+      const cells=[...header.cells];
+      if(cells.length<3 || cells.some(c=>c.colSpan>1))continue;
+      const dataCols=cells.map((cell,index)=>{
+        const m=cell.textContent.trim().match(/(\d{1,2}[.\/-]\d{1,2}(?:[.\/-]\d{2,4})?|\d{4}-\d{1,2}-\d{1,2})/);
+        return m?{index,key:examDateNumber(m[1])}:null;
+      }).filter(Boolean);
+      if(dataCols.length<2 || dataCols.length!==entries.length)continue;
+      if(dataCols.some(col=>!dateKeys.has(col.key)))continue;
+      const dateCols=dataCols.map(x=>x.index);
+      const ordered=dataCols.slice().sort((a,b)=>a.key-b.key);
+      const destSlots=dateCols.slice().sort((a,b)=>a-b);
+      const indexOrder=cells.map((_,i)=>i);
+      for(let i=0;i<destSlots.length;i++)indexOrder[destSlots[i]]=ordered[i].index;
+      if(indexOrder.some((src,i)=>src!==i)){
+        const reorder=(row)=>{
+          const rc=[...row.cells];
+          if(rc.length!==cells.length || rc.some(c=>c.colSpan>1||c.rowSpan>1))return;
+          // appendChild MOVE os elementos existentes preservando listeners e valores.
+          indexOrder.forEach(i=>row.appendChild(rc[i]));
+        };
+        reorder(header);
+        for(const section of [...table.tBodies])for(const row of section.rows)reorder(row);
+      }
+      // As colunas agora estão em ordem crescente; só então aplicar tendências.
+      const keys=[...new Set(entries.flatMap(e=>Object.keys(e.values||{})))];
+      const rowList=[...table.tBodies].flatMap(t=>[...t.rows]);
+      for(const row of rowList){
+        const rc=[...row.cells];
+        if(rc.length!==cells.length || rc.some(c=>c.colSpan>1))continue;
+        const raw=norm(rc[0]?.textContent||'');
+        const key=keys.find(k=>norm(k)===raw || norm(p.customLabDefs?.[k]?.label||labels.get(k)||k)===raw);
         if(!key)continue;
-        for(let i=1;i<indices.length;i++){
-          const cell=cells[indices[i]];
-          if(!cell||cell.dataset.pedTrendKey===key+':'+i)continue;
-          cell.querySelectorAll('.ped-trend').forEach(e=>e.remove());
-          const previous=p.labHistory[i-1].values?.[key],now=p.labHistory[i].values?.[key];
-          const mark=trendMark(trend(now,previous));
-          if(mark){cell.insertAdjacentHTML('beforeend',mark);cell.dataset.pedTrendKey=key+':'+i;}
+        for(let i=0;i<ordered.length;i++){
+          const cell=rc[destSlots[i]];
+          if(!cell)continue;
+          cell.querySelectorAll('.ped-trend').forEach(n=>n.remove());
+          if(i===0)continue;
+          const mark=trendMark(trend(entries[i].values?.[key],entries[i-1].values?.[key]));
+          if(mark)cell.insertAdjacentHTML('beforeend',mark);
         }
       }
     }
@@ -4228,109 +4147,7 @@ window.PedCareWorkflow={openTasks,openFolders,openHandoff,showDaily};
       }
     `;
 
-    return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PedCare — ${esc(MODES[mode])} — ${esc(p.name || 'Paciente')}</title><style>${css}</style></head><body><div class="viewer"><button class="print-btn" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>${content}<footer>PedCare • Documento gerado em ${esc(new Date().toLocaleString('pt-BR'))}</footer></div><script>
-/* PedCare — módulos de organização e passagem de caso, 2026-10 */
-(()=>{
-'use strict';
-const el=(id)=>document.getElementById(id);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const pat=()=>typeof patients!=='undefined'?patients.find(p=>p.id===currentPatientId):null;
-const stamp=()=>new Date().toLocaleString('pt-BR');
-const today=()=>new Date().toISOString().slice(0,10);
-const safeSave=()=>{if(typeof saveAllPatients==='function')saveAllPatients();};
-let currentFolder='', dragged=null;
-const meta=()=>{if(typeof obsidianData==='undefined')return {patientFolders:[],tabOrder:[]};obsidianData.patientFolders??=[];obsidianData.tabOrder??=[];return obsidianData;};
-const persist=()=>{if(typeof saveObsidianData==='function')saveObsidianData();safeSave();};
-function style(){if(el('pc-workstyle'))return;const st=document.createElement('style');st.id='pc-workstyle';st.textContent=`
-.pc-tools{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0}.pc-tools button,.pc-inline-btn{background:#f0f9ff;border:1px solid #bae6fd;color:#075985;padding:8px 11px;border-radius:7px;font-weight:700;cursor:pointer}
-.pc-overlay{position:fixed;inset:0;background:rgba(15,23,42,.70);z-index:4500;display:flex;align-items:center;justify-content:center;padding:12px}
-.pc-dialog{width:min(880px,100%);max-height:94vh;overflow:auto;background:white;color:#0f172a;border-radius:12px;box-shadow:0 18px 60px #0005;padding:18px}
-.pc-dialog h2{font-size:18px;margin:0 0 10px}.pc-dialog h3{font-size:14px;margin:12px 0 5px;color:#075985}.pc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.pc-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:7px 0}
-.pc-dialog input[type=text],.pc-dialog input[type=date],.pc-dialog textarea,.pc-dialog select{width:100%;border:1px solid #cbd5e1;padding:7px;border-radius:6px;font:inherit;background:#fff}.pc-dialog textarea{min-height:85px;resize:vertical}
-.pc-dialog button{border:1px solid #94a3b8;border-radius:6px;padding:7px 10px;cursor:pointer;background:#f8fafc;color:#0f172a}.pc-dialog button.pc-primary{background:#0284c7;border-color:#0284c7;color:white;font-weight:700}
-.pc-task{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #e2e8f0;border-radius:6px;margin:5px 0}.pc-task small{color:#64748b;margin-left:auto}.pc-patient{border:1px solid #dbe4ee;padding:8px;border-radius:8px;margin:6px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.pc-folder-list{margin:12px 0}.pc-folder{padding:7px;margin:4px 0 4px 14px;cursor:pointer;border-left:3px solid #bae6fd}.pc-folder.sel{background:#e0f2fe}.pc-handoff{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pc-handoff>label{font-weight:700;font-size:12px}.pc-handoff>label input,.pc-handoff>label textarea{margin-top:5px;font-weight:400}.pc-handoff .wide{grid-column:1/-1}.pc-exam{border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin:6px 0}.pc-exam label{display:inline-flex;gap:4px;margin:3px 8px 3px 0;font-size:12px}
-.tab-btn[draggable=true]{cursor:grab}.tab-btn.pc-over{outline:2px dashed #0ea5e9}
-@media(max-width:650px){.pc-grid,.pc-handoff{grid-template-columns:1fr}}
-@media print{.pc-overlay,.pc-tools{display:none!important}}
-`;document.head.appendChild(st)}
-function overlay(title,render){const old=el('pc-overlay');if(old)old.remove();const root=document.createElement('div');root.id='pc-overlay';root.className='pc-overlay';root.innerHTML=`<div class="pc-dialog" role="dialog" aria-modal="true"><div class="pc-row" style="justify-content:space-between"><h2>${esc(title)}</h2><button id="pc-close">Fechar ✕</button></div><div id="pc-content"></div></div>`;document.body.appendChild(root);el('pc-close').onclick=()=>root.remove();root.addEventListener('click',e=>{if(e.target===root)root.remove()});render(el('pc-content'));return root}
-function program(p){p.programs??=[];return p.programs}
-function openTasks(p=pat()){
- if(!p){alert('Selecione um paciente.');return}
- overlay('Programações e pendências — '+(p.name||'Paciente'),host=>{
-  const paint=()=>{
-   const tasks=program(p).slice().sort((a,b)=>Number(a.done)-Number(b.done)||String(a.date).localeCompare(String(b.date)));
-   host.innerHTML=`<p>Programações anteriores ainda pendentes continuam visíveis até serem concluídas ou canceladas.</p><div id="pc-tasklist">${tasks.map(t=>`<div class="pc-task"><input type="checkbox" data-done="${esc(t.id)}" ${t.done?'checked':''}><div style="flex:1"><strong>${esc(t.text)}</strong><br><small>${esc(t.date||'')}</small></div><button data-remove="${esc(t.id)}">Excluir</button></div>`).join('')||'<p>Sem programações.</p>'}</div><div class="pc-grid"><label>Nova programação<input id="pc-taskname" type="text" placeholder="Descreva a pendência"></label><label>Data<input id="pc-taskdate" type="date" value="${today()}"></label></div><div class="pc-row"><button class="pc-primary" id="pc-taskadd">Adicionar programação</button></div>`;
-   host.querySelectorAll('[data-done]').forEach(n=>n.onchange=()=>{let x=program(p).find(t=>t.id===n.dataset.done);if(x){x.done=n.checked;x.finishedAt=n.checked?stamp():'';safeSave();paint()}});
-   host.querySelectorAll('[data-remove]').forEach(n=>n.onclick=()=>{if(confirm('Excluir esta programação?')){p.programs=program(p).filter(t=>t.id!==n.dataset.remove);safeSave();paint()}});
-   el('pc-taskadd').onclick=()=>{let value=el('pc-taskname').value.trim();if(!value)return;program(p).push({id:'task_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),text:value,date:el('pc-taskdate').value||today(),done:false});safeSave();paint()};
-  };paint();
- })
-}
-function showDaily(){let pending=patients.flatMap(p=>program(p).filter(t=>!t.done&&(!t.date||t.date<=today())).map(t=>({p,t})));if(!pending.length)return;overlay('Pendências e programações de pacientes',host=>{host.innerHTML=`<p>Há ${pending.length} programação(ões) não concluída(s), incluindo dias anteriores.</p>${pending.map(({p,t})=>`<div class="pc-task"><strong>${esc(p.name)} (${esc(p.bed||'sem leito')})</strong><span>${esc(t.text)}</span><small>${esc(t.date)}</small><button data-p="${esc(p.id)}">Abrir</button></div>`).join('')}`;host.querySelectorAll('[data-p]').forEach(n=>n.onclick=()=>{let p=patients.find(x=>x.id===n.dataset.p);if(p){switchPatientTab(p.id);openTasks(p)}})})}
-function beforeLogout(){if(!Array.isArray(patients)||!patients.length)return true;const q=confirm('Antes de encerrar: deseja revisar ou adicionar programações para os pacientes?\n\nOK = abrir programações, Cancelar = continuar logout.');if(q){openTasks(pat());return false}return true}
-function folderTree(host){let folders=meta().patientFolders;const make=(parent,depth)=>folders.filter(f=>f.parent===parent).map(f=>`<div class="pc-folder ${currentFolder===f.id?'sel':''}" style="margin-left:${depth*18}px" data-folder="${esc(f.id)}">📁 ${esc(f.name)} <small>(${patients.filter(p=>p.folderId===f.id).length})</small></div>${make(f.id,depth+1)}`).join('');host.innerHTML=`<div class="pc-folder ${!currentFolder?'sel':''}" data-folder="">📂 Todos os pacientes</div>${make('',1)}`;host.querySelectorAll('[data-folder]').forEach(n=>n.onclick=()=>{currentFolder=n.dataset.folder;drawFolders()})}
-function drawFolders(){let host=el('pc-content');if(!host)return;host.innerHTML=`<div class="pc-row"><button id="pc-newfolder">+ Pasta / Subpasta</button><button id="pc-renamefolder">Renomear</button><button id="pc-deletefolder">Excluir pasta vazia</button></div><div id="pc-tree" class="pc-folder-list"></div><h3>Pacientes nesta pasta</h3><div id="pc-patientlist"></div>`;folderTree(el('pc-tree'));
- const list=currentFolder?patients.filter(p=>p.folderId===currentFolder):patients;
- el('pc-patientlist').innerHTML=list.map(p=>`<div class="pc-patient"><strong style="flex:1">${esc(p.name)} (${esc(p.bed||'—')})</strong><select data-patient="${esc(p.id)}"><option value="">Sem pasta</option>${meta().patientFolders.map(f=>`<option value="${esc(f.id)}" ${p.folderId===f.id?'selected':''}>${esc(f.name)}</option>`).join('')}</select><button data-open="${esc(p.id)}">Abrir</button></div>`).join('')||'<p>Nenhum paciente nesta pasta.</p>';
- el('pc-patientlist').querySelectorAll('[data-patient]').forEach(n=>n.onchange=()=>{let p=patients.find(x=>x.id===n.dataset.patient);if(p){p.folderId=n.value;safeSave();drawFolders()}});
- el('pc-patientlist').querySelectorAll('[data-open]').forEach(n=>n.onclick=()=>{switchPatientTab(n.dataset.open);el('pc-overlay').remove()});
- el('pc-newfolder').onclick=()=>{let name=prompt('Nome da nova pasta'+(currentFolder?' (subpasta)':''));if(!name?.trim())return;meta().patientFolders.push({id:'fld_'+Date.now(),name:name.trim(),parent:currentFolder});persist();drawFolders()};
- el('pc-renamefolder').onclick=()=>{let f=meta().patientFolders.find(f=>f.id===currentFolder);if(!f)return alert('Selecione uma pasta.');let name=prompt('Renomear pasta',f.name);if(name?.trim()){f.name=name.trim();persist();drawFolders()}};
- el('pc-deletefolder').onclick=()=>{if(!currentFolder)return;let f=meta().patientFolders.find(f=>f.id===currentFolder);if(!f)return;if(meta().patientFolders.some(x=>x.parent===f.id)||patients.some(x=>x.folderId===f.id))return alert('Mova os pacientes e subpastas antes de excluir.');if(confirm('Excluir pasta vazia?')){meta().patientFolders=meta().patientFolders.filter(x=>x.id!==f.id);currentFolder=f.parent||'';persist();drawFolders()}};
-}
-function openFolders(){overlay('Pastas e subpastas de pacientes',()=>drawFolders())}
-const examBlocks=[
- ['Estado geral',['BEG','REG','MEG','Ativo/reativo','Hipoativo','Irritado','Letárgico','Hidratado','Desidratado','Corado','Hipocorado','Anictérico','Ictérico','Acianótico','Cianótico']],
- ['Pele e mucosas',['Sem lesões','Exantema','Petéquias/púrpura','Turgor preservado','Turgor diminuído','Mucosas úmidas','Mucosas secas']],
- ['Orofaringe',['Sem hiperemia','Faringe hiperemiada','Amígdalas normotróficas','Amígdalas hipertróficas','Sem placas','Exsudato/placas']],
- ['Tórax e mecânica respiratória',['Tórax simétrico','Tiragem subcostal','Tiragem intercostal','Batimento de asa nasal','Retração de fúrcula','Ar ambiente','Em oxigenoterapia']],
- ['Aparelho respiratório',['Eupneico','Taquipneico','Dispneico','MV presente bilateralmente','MV diminuído','Sem ruídos adventícios','Roncos','Sibilos','Crepitações','Percussão clara','Macicez/timpanismo']],
- ['Cardiovascular',['BNF em 2 tempos','Bulhas hipofonéticas','RCR','Ritmo irregular','Sem sopros','Sopro']],
- ['Abdômen',['Plano','Globoso/distendido','Flácido','Indolor','Doloroso à palpação','Sem irritação peritoneal','Defesa','RHA presentes','RHA diminuídos/abolidos','Sem visceromegalias']],
- ['Extremidades e perfusão',['Normoperfundidas','TEC < 3 s','TEC > 3 s','Aquecidas','Frias/moteadas','Pulsos cheios e simétricos','Pulsos diminuídos','Sem edema','Com edema']],
- ['Neurológico direcionado',['Alerta','Responsivo','Sonolento','Pupilas isocóricas','Sem déficits focais aparentes']]
-];
-const handFields=[['reason','Motivo da internação'],['comorbidities','Comorbidades'],['clinicalHistory','História clínica'],['impression','Impressão clínica / Diagnósticos ativos'],['conduct','Condutas atuais'],['pending','Pendências para o próximo plantão'],['devices','Dispositivos / suporte em uso'],['neurology','Exame neurológico e observações adicionais']];
-function handoffFor(p){p.handoffs??=[];return p.handoffs}
-function seedHandoff(p){let a=handoffFor(p);if(a.length)return structuredClone(a[a.length-1]);return {date:today(),time:new Date().toTimeString().slice(0,5),dih:'',reason:p.reason||'',comorbidities:p.comorbidities||'',clinicalHistory:p.clinicalHistory||'',impression:'',conduct:'',pending:program(p).filter(t=>!t.done).map(t=>t.text).join('\n'),devices:'',neurology:'',exam:{},notes:{},vitals:{},id:''}}
-function openHandoff(p=pat()){
- if(!p)return alert('Selecione um paciente.');let draft=seedHandoff(p);
- overlay('Passagem de caso — modelo editável',host=>{
-  const textData=`<div class="pc-handoff"><label>Data<input type="date" data-hfield="date" value="${esc(draft.date)}"></label><label>Hora<input type="text" data-hfield="time" value="${esc(draft.time)}"></label><label>Dia de internação (DIH)<input type="text" data-hfield="dih" value="${esc(draft.dih)}"></label><label>Leito<input type="text" disabled value="${esc(p.bed||'')}"></label>${handFields.map(([k,label])=>`<label class="wide">${esc(label)}<textarea data-hfield="${k}">${esc(draft[k]||'')}</textarea></label>`).join('')}</div>`;
-  const examHTML=examBlocks.map(([name,opts],idx)=>`<div class="pc-exam"><h3>${idx+1}. ${esc(name)}</h3>${opts.map((o,i)=>`<label><input type="checkbox" data-exam="${idx}:${i}" ${draft.exam?.[idx+':'+i]?'checked':''}>${esc(o)}</label>`).join('')}<label style="display:block">Observações<textarea data-enote="${idx}">${esc(draft.notes?.[idx]||'')}</textarea></label></div>`).join('');
-  host.innerHTML=`<p>Dados importados do prontuário são editáveis nesta passagem de caso, sem alterar a anamnese original. Nenhum achado do exame físico é pré-marcado.</p><div class="pc-handoff"><label>Paciente<input disabled value="${esc(p.name||'')}"></label><label>Nome da mãe<input disabled value="${esc(p.mother||'')}"></label><label>Sexo / idade<input disabled value="${esc((p.sex||'')+' / '+(p.age||''))}"></label><label>Alergias<input disabled value="${esc(p.allergies||'')}"></label></div><h3>1. Resumo clínico</h3>${textData}<h3>2. Sinais vitais</h3><div class="pc-grid">${[['fc','FC'],['pa','PA'],['fr','FR'],['tx','Temperatura'],['weight','Peso'],['satO2','SatO₂'],['height','Altura'],['diuresis','Diurese'],['evacuations','Evacuações'],['flatus','Flatos']].map(([k,label])=>`<label>${label}<input data-vital="${k}" type="text" value="${esc(draft.vitals?.[k]??p[k]??'')}"></label>`).join('')}</div><h3>3. Exame físico estruturado</h3>${examHTML}<div class="pc-row"><button id="pc-hand-save" class="pc-primary">Salvar versão</button><button id="pc-hand-print">Salvar e imprimir</button><button id="pc-hand-new">Nova versão a partir desta</button><select id="pc-hand-history"><option value="">Versões salvas</option>${handoffFor(p).map((h,i)=>`<option value="${i}">${esc(h.savedAt||h.date||'Versão')}</option>`).join('')}</select></div>`;
-  const collect=()=>{host.querySelectorAll('[data-hfield]').forEach(x=>draft[x.dataset.hfield]=x.value);draft.exam={};host.querySelectorAll('[data-exam]').forEach(x=>{if(x.checked)draft.exam[x.dataset.exam]=true});draft.notes={};host.querySelectorAll('[data-enote]').forEach(x=>draft.notes[x.dataset.enote]=x.value);draft.vitals={};host.querySelectorAll('[data-vital]').forEach(x=>draft.vitals[x.dataset.vital]=x.value);return draft};
-  const save=()=>{collect();draft.id='hand_'+Date.now();draft.savedAt=stamp();handoffFor(p).push(structuredClone(draft));safeSave();return draft};
-  el('pc-hand-save').onclick=()=>{save();alert('Versão salva no prontuário.');el('pc-overlay').remove()};
-  el('pc-hand-print').onclick=()=>{let rec=save();printHandoff(p,rec);el('pc-overlay').remove()};
-  el('pc-hand-new').onclick=()=>{save();openHandoff(p)};
-  el('pc-hand-history').onchange=e=>{let i=Number(e.target.value);if(e.target.value!==''){let copy=structuredClone(handoffFor(p)[i]);draft=copy;openHandoffVersion(p,copy)}};
- });
-}
-function openHandoffVersion(p,rec){ // Abrir uma versão escolhida sem modificar a versão histórica.
- const clone=structuredClone(rec);p.handoffs.push(clone);openHandoff(p);p.handoffs.pop();
-}
-function printHandoff(p,h){
- const vital=Object.entries(h.vitals||{}).filter(([,v])=>String(v).trim()).map(([k,v])=>`<span><b>${esc(k.toUpperCase())}:</b> ${esc(v)}</span>`).join('');
- const get=(key)=>`<section><h3>${esc(handFields.find(x=>x[0]===key)?.[1]||key)}</h3><div class="paragraph">${esc(h[key]||'—')}</div></section>`;
- const physical=examBlocks.map(([name,opts],idx)=>{let selected=opts.filter((o,i)=>h.exam?.[idx+':'+i]);return `<section><h3>${idx+1}. ${esc(name)}</h3><div>${esc(selected.join(' • ')||'Não informado')}</div>${h.notes?.[idx]?`<div class="paragraph">${esc(h.notes[idx])}</div>`:''}</section>`}).join('');
- const css=`@page{size:A4;margin:9mm 9mm}*{box-sizing:border-box}body{font:10pt/1.42 Arial,sans-serif;color:#16263b;margin:0}h1{font-size:16pt;border-bottom:2px solid #0284c7;padding-bottom:7px;margin:0 0 10px}h2{font-size:11pt;background:#e7f2fc;padding:6px 8px;break-after:avoid}h3{font-size:9.5pt;color:#075985;margin:8px 0 3px;break-after:avoid}section{margin:6px 0}.paragraph{white-space:pre-wrap;overflow-wrap:anywhere}.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;border:1px solid #cbd5e1;padding:8px}.vitals{display:flex;gap:8px;flex-wrap:wrap;padding:8px;background:#f8fafc;border:1px solid #cbd5e1}.page{break-before:page}.button{padding:9px;border:0;background:#0284c7;color:white;border-radius:6px;margin-bottom:12px}@media print{.button{display:none}h2{-webkit-print-color-adjust:exact;print-color-adjust:exact}}`;
- const doc=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Passagem de caso — ${esc(p.name)}</title><style>${css}</style></head><body><button class="button" onclick="print()">Imprimir / Salvar PDF</button><h1>Passagem de caso pediátrico</h1><div class="facts"><span><b>Paciente:</b> ${esc(p.name)}</span><span><b>Mãe:</b> ${esc(p.mother)}</span><span><b>Leito:</b> ${esc(p.bed)}</span><span><b>Sexo:</b> ${esc(p.sex)}</span><span><b>Idade:</b> ${esc(p.age)}</span><span><b>Alergias:</b> ${esc(p.allergies)}</span><span><b>Data/hora:</b> ${esc(h.date+' '+h.time)}</span><span><b>DIH:</b> ${esc(h.dih)}</span></div><h2>Resumo clínico</h2>${['reason','comorbidities','clinicalHistory','impression','conduct','pending','devices'].map(get).join('')}<h2>Sinais vitais e eliminações</h2><div class="vitals">${vital}</div><div class="page"></div><h1>Exame físico</h1>${physical}${get('neurology')}<footer>PedCare • Versão salva em ${esc(h.savedAt||stamp())}</footer></body></html>`;
- const w=window.open('','_blank');if(!w)return alert('Permita pop-ups para imprimir.');w.document.open();w.document.write(doc);w.document.close();w.focus();
-}
-function tabs(){let container=el('tabs-bar');if(!container||typeof patients==='undefined')return;const order=meta().tabOrder;const ids=patients.map(p=>p.id);meta().tabOrder=[...order.filter(id=>ids.includes(id)),...ids.filter(id=>!order.includes(id))];const map=new Map([...container.querySelectorAll('.tab-btn')].filter(n=>n.id!=='tab-archive-btn').map(n=>[n.dataset.pcid,n]));for(const btn of [...container.querySelectorAll('.tab-btn')]){if(btn.id==='tab-archive-btn')continue;let name=btn.querySelector('span')?.textContent||'';let p=patients.find(x=>name.startsWith(x.name||'Novo Paciente'));if(p)btn.dataset.pcid=p.id;map.set(btn.dataset.pcid,btn)};
- for(const id of meta().tabOrder){let node=map.get(id);if(node)container.appendChild(node)}
- container.querySelectorAll('.tab-btn:not(.archive-tab)').forEach(btn=>{btn.draggable=true;btn.ondragstart=e=>{dragged=btn.dataset.pcid;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',dragged)};btn.ondragover=e=>{e.preventDefault();btn.classList.add('pc-over')};btn.ondragleave=()=>btn.classList.remove('pc-over');btn.ondrop=e=>{e.preventDefault();btn.classList.remove('pc-over');let dest=btn.dataset.pcid;if(!dragged||!dest||dragged===dest)return;let o=meta().tabOrder.filter(x=>x!==dragged);o.splice(o.indexOf(dest),0,dragged);meta().tabOrder=o;persist();tabs()};btn.ondragend=()=>{dragged=null;container.querySelectorAll('.pc-over').forEach(n=>n.classList.remove('pc-over'))}});
-}
-function mount(){style();if(!el('pc-tools')){let bar=document.createElement('div');bar.id='pc-tools';bar.className='pc-tools';bar.innerHTML='<button id="pc-open-tasks">☑ Programações</button><button id="pc-open-folders">📁 Pastas de pacientes</button><button id="pc-open-handoff">📋 Passagem de caso</button><button id="pc-open-pending">🔔 Pendências do dia</button>';let anchor=el('patient-main-view');if(anchor)anchor.parentNode.insertBefore(bar,anchor);el('pc-open-tasks').onclick=()=>openTasks();el('pc-open-folders').onclick=openFolders;el('pc-open-handoff').onclick=()=>openHandoff();el('pc-open-pending').onclick=showDaily}tabs()}
-function init(){mount();const original=window.renderTabs;if(typeof original==='function'&&!window.__pcWrappedTabs){window.__pcWrappedTabs=true;window.renderTabs=function(){let value=original.apply(this,arguments);tabs();return value}};const logout=window.disconnectGitHub;if(typeof logout==='function'&&!window.__pcWrappedLogout){window.__pcWrappedLogout=true;window.disconnectGitHub=function(){if(beforeLogout())return logout.apply(this,arguments)}};setTimeout(showDaily,1200);}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
-window.PedCareWorkflow={openTasks,openFolders,openHandoff,showDaily};
-})();
-
-</script>
-</body></html>`;
+    return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PedCare — ${esc(MODES[mode])} — ${esc(p.name || 'Paciente')}</title><style>${css}</style></head><body><div class="viewer"><button class="print-btn" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>${content}<footer>PedCare • Documento gerado em ${esc(new Date().toLocaleString('pt-BR'))}</footer></div></body></html>`;
   }
 
   function printUpgrade(mode){
@@ -4581,7 +4398,7 @@ window.PedCareWorkflow={openTasks,openFolders,openHandoff,showDaily};
     refreshLabOrderAndTrends();
     if (typeof window.parseAndAddLab === 'function') window.parseAndAddLab = importLab;
     if (typeof window.printDocument === 'function') window.printDocument = printUpgrade;
-    setInterval(heartbeat, 800);
+    setInterval(heartbeat, 1200);
     console.info('PedCare Upgrade ativado: SatO2, impressão modular e layout refinado.');
   }
 
@@ -4593,6 +4410,7 @@ window.PedCareWorkflow={openTasks,openFolders,openHandoff,showDaily};
 
 </script>
 <script>
+
 /* PedCare — módulos de organização e passagem de caso, 2026-10 */
 (()=>{
 'use strict';
@@ -4692,6 +4510,7 @@ function init(){mount();const original=window.renderTabs;if(typeof original==='f
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 window.PedCareWorkflow={openTasks,openFolders,openHandoff,showDaily};
 })();
+
 
 </script>
 </body>
