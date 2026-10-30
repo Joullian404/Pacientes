@@ -4473,7 +4473,33 @@ function style(){if(el('pc-workstyle'))return;const st=document.createElement('s
 .pc-dialog h2{font-size:18px;margin:0 0 10px}.pc-dialog h3{font-size:14px;margin:12px 0 5px;color:#075985}.pc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.pc-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:7px 0}
 .pc-dialog input[type=text],.pc-dialog input[type=date],.pc-dialog textarea,.pc-dialog select{width:100%;border:1px solid #cbd5e1;padding:7px;border-radius:6px;font:inherit;background:#fff}.pc-dialog textarea{min-height:85px;resize:vertical}
 .pc-dialog button{border:1px solid #94a3b8;border-radius:6px;padding:7px 10px;cursor:pointer;background:#f8fafc;color:#0f172a}.pc-dialog button.pc-primary{background:#0284c7;border-color:#0284c7;color:white;font-weight:700}
-.pc-daily-title{font-size:12px;color:#475569;margin-bottom:8px}.pc-daily-question{display:flex;align-items:center;gap:10px;padding:12px 10px;border:1px solid #cbd5e1;border-radius:9px;margin:7px 0;cursor:pointer;font-size:13px;font-weight:650}.pc-daily-question input{width:18px;height:18px;flex-shrink:0;accent-color:#0284c7}.pc-daily-question:has(input:checked){background:#f0fdf4;border-color:#86efac}.pc-daily-entry{display:flex;align-items:center;gap:8px}.pc-daily-entry .pc-daily-question{flex:1;min-width:0}.pc-dialog .pc-daily-delete{flex:0 0 auto;background:#fff1f2;color:#be123c;border-color:#fecdd3;padding:7px 10px}.pc-daily-sectionhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:15px 0 8px;color:#075985}.pc-daily-sectionhead span{color:#64748b;font-size:12px}.pc-daily-add{padding:13px;margin-top:13px;border:1px dashed #93c5fd;border-radius:12px;background:#f8fbff}.pc-daily-add>label{display:block;font-size:12px;font-weight:700;color:#075985}.pc-daily-add small{display:block;color:#64748b;font-size:11px}.pc-daily-add .pc-row{align-items:stretch}.pc-daily-add input{flex:1}.pc-overdue{font-size:11px;color:#9a3412;font-weight:650}.pc-task{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #e2e8f0;border-radius:6px;margin:5px 0}.pc-task small{color:#64748b;margin-left:auto}.pc-patient{border:1px solid #dbe4ee;padding:8px;border-radius:8px;margin:6px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.pc-folder-list{margin:12px 0}.pc-folder{padding:7px;margin:4px 0 4px 14px;cursor:pointer;border-left:3px solid #bae6fd}.pc-folder.sel{background:#e0f2fe}.pc-handoff{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pc-handoff>label{font-weight:700;font-size:12px}.pc-handoff>label input,.pc-handoff>label textarea{margin-top:5px;font-weight:400}.pc-handoff .wide{grid-column:1/-1}.pc-exam{border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin:6px 0}.pc-exam label{display:inline-flex;gap:4px;margin:3px 8px 3px 0;font-size:12px}
+.pc-daily-title{font-size:12px;color:#475569;margin-bottom:8px}.pc-daily-question{display:flex;align-items:center;gap:10px;padding:12px 10px;border:1px solid #cbd5e1;border-radius:9px;margin:7px 0;cursor:pointer;font-size:13px;font-weight:650}.pc-daily-question input{width:18px;height:18px;flex-shrink:0;accent-color:#0284c7}.pc-daily-question:has(input:checked){background:#f0fdf4;border-color:#86efac}.pc-daily-entry{display:flex;align-items:center;gap:8px}.pc-daily-entry .pc-daily-question{flex:1;min-width:0}.pc-dialog .pc-daily-delete{flex:0 0 auto;background:#fff1f2;color:#be123c;border-color:#fecdd3;padding:7px 10px}.pc-daily-sectionhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:15px 0 8px;color:#075985}.pc-daily-sectionhead span{color:#64748b;font-size:12px}.pc-daily-add{padding:13px;margin-top:13px;border:1px dashed #93c5fd;border-radius:12px;background:#f8fbff}.pc-daily-add>label{display:block;font-size:12px;font-weight:700;color:#075985}.pc-daily-add small{display:block;color:#64748b;font-size:11px}.pc-daily-add .pc-row{align-items:stretch}.pc-daily-add input{flex:1}.pc-overdue{font-size:11px;color:#9a3412;font-weight:650}
+/* Gaveta de revisões: visão de todos os pacientes e lembretes persistentes. */
+.pc-reminder-floating{position:absolute;top:-5px;right:-5px;display:none;min-width:21px;height:21px;padding:0 5px;border-radius:20px;background:#e11d48;color:white;font:700 11px/21px system-ui;text-align:center;border:2px solid white;box-shadow:0 2px 9px #9f123955;pointer-events:none}
+.pc-reminder-floating.active{display:block}
+.pc-reminder-head{padding:13px 14px;border-radius:14px;background:linear-gradient(120deg,#e0f2fe,#f0fdfa);border:1px solid #bae6fd;margin-bottom:13px}
+.pc-reminder-head strong{font-size:16px;color:#0c4a6e}.pc-reminder-head small{display:block;margin-top:4px;color:#475569}
+.pc-review-patient{border:1px solid #d6e4ef;border-radius:13px;margin:9px 0;background:#fff;overflow:hidden}
+.pc-review-patient>summary{display:flex;align-items:center;gap:10px;padding:12px 13px;cursor:pointer;background:#f8fafc;list-style:none;font-weight:700;color:#0f172a}
+.pc-review-patient>summary::-webkit-details-marker{display:none}
+.pc-review-patient>summary::before{content:'▸';font-size:13px;color:#64748b}.pc-review-patient[open]>summary::before{content:'▾'}
+.pc-review-patient .pc-review-body{padding:10px 13px 13px}.pc-review-patient .pc-daily-question{padding:9px 10px;margin:5px 0}
+.pc-review-status{margin-left:auto;font-size:11px;color:#0369a1;background:#e0f2fe;padding:4px 8px;border-radius:50px;white-space:nowrap}
+.pc-review-status.complete{background:#dcfce7;color:#166534}
+.pc-followup{border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin:8px 0;background:#fff}
+.pc-followup small{color:#64748b}.pc-followup-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.pc-followup-actions button{font-size:12px}.pc-followup-actions .pc-checked-today{color:#166534;background:#f0fdf4;border-color:#86efac}
+.pc-followup-note{font-size:12px;color:#334155;border-left:3px solid #bae6fd;padding:6px 9px;margin-top:6px;background:#f8fafc;white-space:pre-wrap;overflow-wrap:anywhere}
+.pc-followup-history{font-size:12px;color:#475569;max-height:220px;overflow:auto;margin:8px 0}
+.pc-followup-history>div{border-bottom:1px solid #e2e8f0;padding:7px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.pc-followup-compose{margin:10px 0 6px;padding:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px}
+.pc-followup-compose label{display:block;font-size:12px;color:#334155;font-weight:650;margin-bottom:5px}
+.pc-followup-compose textarea{width:100%;min-height:64px;resize:vertical;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:8px;padding:9px;font:13px/1.45 system-ui,sans-serif;background:#fff;color:#0f172a}
+.pc-followup-compose small{display:block;margin:5px 0;color:#64748b}
+.pc-followup-compose .pc-followup-actions{margin-top:7px}
+.pc-drawer-heading{display:flex;align-items:center;justify-content:space-between;margin:16px 0 6px}
+.pc-drawer-heading h3{margin:0;color:#0c4a6e;font-size:14px}
+.pc-task{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #e2e8f0;border-radius:6px;margin:5px 0}.pc-task small{color:#64748b;margin-left:auto}.pc-patient{border:1px solid #dbe4ee;padding:8px;border-radius:8px;margin:6px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.pc-folder-list{margin:12px 0}.pc-folder{padding:7px;margin:4px 0 4px 14px;cursor:pointer;border-left:3px solid #bae6fd}.pc-folder.sel{background:#e0f2fe}.pc-handoff{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pc-handoff>label{font-weight:700;font-size:12px}.pc-handoff>label input,.pc-handoff>label textarea{margin-top:5px;font-weight:400}.pc-handoff .wide{grid-column:1/-1}.pc-exam{border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin:6px 0}.pc-exam label{display:inline-flex;gap:4px;margin:3px 8px 3px 0;font-size:12px}
 
 /* Unified floating launcher */
 .fab-container{display:none!important}
@@ -4482,7 +4508,7 @@ function style(){if(el('pc-workstyle'))return;const st=document.createElement('s
 .pc-launcher{width:58px;height:58px;border:0!important;border-radius:20px!important;background:linear-gradient(140deg,#0369a1,#0f766e)!important;color:#fff!important;box-shadow:0 12px 32px #0c4a6e66;display:flex;align-items:center;justify-content:center;gap:0;font-size:24px!important;cursor:pointer;transition:transform .22s ease,box-shadow .22s ease}
 .pc-launcher[aria-expanded=true]{transform:rotate(45deg);box-shadow:0 10px 28px #0369a155}
 .pc-launcher span{display:block;transition:transform .22s}
-.pc-launcher[aria-expanded=true] span{transform:rotate(-45deg)}
+.pc-launcher[aria-expanded=true] span:first-child{transform:rotate(-45deg)}
 .pc-fab-list{display:flex;flex-direction:column;gap:7px;align-items:flex-end;max-height:min(72vh,580px);overflow-y:auto;overflow-x:hidden;padding:8px 5px 4px;pointer-events:none;opacity:0;transform:translateY(14px) scale(.96);transform-origin:bottom right;visibility:hidden;transition:opacity .2s ease,transform .2s ease,visibility .2s}
 .pc-tools.is-expanded .pc-fab-list{visibility:visible;pointer-events:auto;opacity:1;transform:translateY(0) scale(1)}
 .pc-fab-list button{border:1px solid #bfdbfe!important;background:#fff!important;color:#164e63!important;min-height:42px;border-radius:13px!important;padding:9px 13px!important;box-shadow:0 4px 16px #0f172a25;display:flex;align-items:center;gap:9px;font:600 12px/1.2 system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:transform .15s,background .15s;max-width:min(80vw,300px)}
@@ -4510,7 +4536,7 @@ function reminderFrom(t){
  const next=new Date(y,m-1,d);next.setDate(next.getDate()+1);
  return `${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,'0')}-${String(next.getDate()).padStart(2,'0')}`;
 }
-function reminderDue(t){const start=reminderFrom(t);return !t.done && !!start && today()>=start}
+function reminderDue(t){const start=reminderFrom(t);return !t.done && !programCheckToday(t) && !!start && today()>=start}
 function allReminders(){return Array.isArray(patients)?patients.flatMap(p=>program(p).filter(reminderDue).map(t=>({p,t}))):[]}
 
 // Revisões diárias padrão e perguntas personalizáveis, aplicadas a todos os pacientes.
@@ -4558,7 +4584,7 @@ function openDailyChecklist(p=pat()){
        due.map(t=>`<div class="pc-task"><span style="flex:1">${esc(t.text)} <small>${esc(t.date||'Sem data')}</small>${reminderFrom(t)?'<span class="pc-overdue"> • Lembrar desde '+esc(reminderFrom(t).split('-').reverse().join('/'))+'</span>':''}</span></div>`).join('')+
        `<div class="pc-row"><button id="pc-daily-programs">Editar programações</button><button id="pc-daily-close" class="pc-primary">Concluir revisão</button></div>`;
      host.querySelectorAll('[data-daily]').forEach(input=>input.addEventListener('change',()=>{
-       check[input.dataset.daily]=input.checked;safeSave();
+       check[input.dataset.daily]=input.checked;safeSave();updatePendingBadge();
        const counter=host.querySelector('.pc-daily-sectionhead span');
        if(counter)counter.textContent=`${questions.filter(([key])=>!!check[key]).length} de ${questions.length} concluídas`;
      }));
@@ -4569,7 +4595,7 @@ function openDailyChecklist(p=pat()){
        if(allDailyQuestions().some(([,text])=>text.toLocaleLowerCase('pt-BR')===label.toLocaleLowerCase('pt-BR'))){alert('Esta pergunta já está no checklist.');return;}
        customDailyQuestions();
        meta().dailyReviewQuestions.push({id:'custom_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),text:label});
-       persist();paint();
+       persist();updatePendingBadge();paint();
      };
      el('pc-add-daily-btn').onclick=add;
      el('pc-add-daily-input').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();add();}};
@@ -4577,40 +4603,129 @@ function openDailyChecklist(p=pat()){
        const key=button.dataset.removeDaily;
        if(!confirm('Remover esta pergunta dos checklists de todos os pacientes? As marcações anteriores permanecerão no histórico.'))return;
        meta().dailyReviewQuestions=customDailyQuestions().filter(q=>q.id!==key);
-       persist();paint();
+       persist();updatePendingBadge();paint();
      });
      el('pc-daily-programs').onclick=()=>openTasks(p);
      el('pc-daily-close').onclick=()=>el('pc-overlay')?.remove();
    };
    paint();
- });
+ },'side');
 }
+function uncheckedDailyCount(){
+ if(!Array.isArray(patients))return 0;
+ const questions=allDailyQuestions();
+ return patients.reduce((n,p)=>{
+   if(!p || p.archived || p.isArchived)return n;
+   const check=dailyChecklist(p);
+   return n+questions.filter(([key])=>!check[key]).length;
+ },0);
+}
+function pendingCounts(){return {daily:uncheckedDailyCount(),programs:allReminders().length}}
 function updatePendingBadge(){
- const due=allReminders().length;
- const btn=el('pc-open-pending');if(!btn)return;
- btn.innerHTML=`🔔 Lembretes do dia${due?` <span class="pc-fab-count">${due}</span>`:''}`;
+ const counts=pendingCounts();
+ const due=counts.daily+counts.programs;
+ const btn=el('pc-open-pending');
+ if(btn)btn.innerHTML=`🔔 Revisões e lembretes${due?` <span class="pc-fab-count">${due}</span>`:''}`;
+ const dailyBtn=el('pc-open-daily');
+ if(dailyBtn)dailyBtn.innerHTML=`✅ Checklist diário${counts.daily?` <span class="pc-fab-count">${counts.daily}</span>`:''}`;
+ const badge=el('pc-reminder-floating');
+ if(badge){badge.textContent=due>99?'99+':String(due);badge.classList.toggle('active',due>0);badge.title=`${counts.daily} revisões diárias e ${counts.programs} programações para conferir`}
+}
+function programCheckToday(t){return t.checkedOn===today()}
+// Programações reaparecem no dia seguinte se foram conferidas sem encerramento.
+// Registros parciais não encerram a programação e não equivalem à conferência diária.
+function appendProgramObservation(p,t,note,markChecked=false){
+ if(t.done)return false;
+ const content=String(note||'').trim().slice(0,1200);
+ if(!content && !markChecked)return false;
+ t.checkHistory??=[];
+ if(markChecked)t.checkedOn=today();
+ t.checkHistory.push({date:today(),at:stamp(),note:content||(markChecked?'Conferido hoje; acompanhamento ainda pendente':''),kind:markChecked?'checked':'observation'});
+ t.checkHistory=t.checkHistory.slice(-250);
+ safeSave();updatePendingBadge();
+ return true;
+}
+function checkProgramToday(p,t,note){appendProgramObservation(p,t,note,true)}
+function programHistory(t){
+ const items=Array.isArray(t.checkHistory)?t.checkHistory:[];
+ if(!items.length)return '<small>Nenhum comentário ou conferência registrada.</small>';
+ return `<details open><summary style="font-size:12px;color:#0369a1;cursor:pointer">Histórico de acompanhamento (${items.length})</summary><div class="pc-followup-history">${items.slice().reverse().map(h=>`<div><b>${esc(h.date||'')}</b> · ${h.kind==='observation'?'Atualização parcial':'Conferência'}${h.at?' · '+esc(String(h.at).split('T').pop()?.slice(0,5)||''):''}<div>${esc(h.note||'Conferido')}</div></div>`).join('')}</div></details>`;
+}
+function followupItem(p,t,refresh,allowOpen){
+ const checked=programCheckToday(t);
+ const wrapper=document.createElement('div');
+ wrapper.className='pc-followup';
+ wrapper.innerHTML=`<div><strong>${esc(t.text)}</strong></div><small>${esc(p.name||'Paciente')} · Cadastrada: ${esc(t.createdOn||'não registrada')} ${t.date?' · Prevista: '+esc(t.date):''}</small>`+
+ (t.done?'<p style="font-size:12px;color:#166534">✓ Programação concluída</p>':(checked?'<div class="pc-followup-note">✓ Conferido hoje — permanece pendente para amanhã.</div>':''))+
+ (!t.done?`<div class="pc-followup-compose"><label>Comentário ou resultado parcial (opcional)</label><textarea data-followup-comment maxlength="1200" placeholder="Ex.: Hemocultura com crescimento preliminar de bacilos Gram-negativos; identificação e antibiograma pendentes."></textarea><small>Registre atualizações sem concluir a programação. O histórico fica vinculado ao paciente.</small><div class="pc-followup-actions"><button type="button" data-add-observation>+ Salvar comentário</button><button type="button" class="pc-checked-today" data-check-today ${checked?'disabled':''}>${checked?'✓ Conferido hoje':'✓ Conferido hoje, ainda pendente'}</button></div></div>`:'')+
+ `<div class="pc-followup-actions">${!t.done?'<button data-finish>Concluir programação</button>':''}${allowOpen?'<button data-open-patient>Ver programações</button>':''}</div>${programHistory(t)}`;
+ wrapper.querySelector('[data-add-observation]')?.addEventListener('click',()=>{
+   const input=wrapper.querySelector('[data-followup-comment]');
+   const note=input?.value.trim()||'';
+   if(!note){input?.focus();return}
+   if(appendProgramObservation(p,t,note,false))refresh();
+ });
+ wrapper.querySelector('[data-check-today]')?.addEventListener('click',()=>{
+   const input=wrapper.querySelector('[data-followup-comment]');
+   checkProgramToday(p,t,input?.value||'');refresh();
+ });
+ wrapper.querySelector('[data-finish]')?.addEventListener('click',()=>{
+   if(!confirm('Marcar esta programação como definitivamente concluída?'))return;
+   const note=wrapper.querySelector('[data-followup-comment]')?.value.trim();
+   if(note)appendProgramObservation(p,t,note,false);
+   t.done=true;t.finishedAt=stamp();safeSave();updatePendingBadge();refresh();
+ });
+ wrapper.querySelector('[data-open-patient]')?.addEventListener('click',()=>{
+   if(typeof switchPatientTab==='function')switchPatientTab(p.id);
+   openTasks(p);
+ });
+ return wrapper;
 }
 function openTasks(p=pat()){
  if(!p){alert('Selecione um paciente.');return}
- overlay('Programações e lembretes — '+(p.name||'Paciente'),host=>{
+ overlay('Programações e acompanhamentos — '+(p.name||'Paciente'),host=>{
   const paint=()=>{
-   const tasks=program(p).slice().sort((a,b)=>Number(a.done)-Number(b.done)||String(a.date).localeCompare(String(b.date)));
-   host.innerHTML=`<p>Qualquer programação registrada <strong>hoje</strong> será lembrada <strong>amanhã</strong>, mesmo que a execução esteja planejada para outra data. Lembretes ainda não concluídos permanecem visíveis nos dias seguintes.</p><div id="pc-tasklist">${tasks.map(t=>`<div class="pc-task"><input type="checkbox" data-done="${esc(t.id)}" ${t.done?'checked':''}><div style="flex:1"><strong>${esc(t.text)}</strong><br><small>Registrada: ${esc(t.createdOn?t.createdOn.split('-').reverse().join('/'):'data não disponível')} · Prevista: ${esc(t.date||'não informada')}</small></div><button data-remove="${esc(t.id)}">Excluir</button></div>`).join('')||'<p>Sem programações.</p>'}</div><div class="pc-grid"><label>Nova programação<input id="pc-taskname" type="text" placeholder="Descreva a pendência"></label><label>Data prevista para execução (opcional)<input id="pc-taskdate" type="date"></label></div><div class="pc-row"><button class="pc-primary" id="pc-taskadd">Adicionar programação</button></div>`;
-   host.querySelectorAll('[data-done]').forEach(n=>n.onchange=()=>{let x=program(p).find(t=>t.id===n.dataset.done);if(x){x.done=n.checked;x.finishedAt=n.checked?stamp():'';safeSave();updatePendingBadge();paint()}});
-   host.querySelectorAll('[data-remove]').forEach(n=>n.onclick=()=>{if(confirm('Excluir esta programação?')){p.programs=program(p).filter(t=>t.id!==n.dataset.remove);safeSave();updatePendingBadge();paint()}});
-   el('pc-taskadd').onclick=()=>{let value=el('pc-taskname').value.trim();if(!value)return;program(p).push({id:'task_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),text:value,date:el('pc-taskdate').value||'',createdOn:today(),remindOn:tomorrow(),done:false});safeSave();updatePendingBadge();paint()};
+   const tasks=program(p).slice().sort((a,b)=>Number(a.done)-Number(b.done)||String(a.createdOn).localeCompare(String(b.createdOn)));
+   host.innerHTML=`<p>Uma programação criada hoje passa a gerar lembrete amanhã. Para anotar um resultado parcial, use <strong>Salvar comentário</strong> (sem encerrar a programação). Ao terminar a conferência do dia, marque <strong>Conferido hoje, ainda pendente</strong>: a checagem fica no histórico e o lembrete volta no dia seguinte. Use <strong>Concluir</strong> somente quando a pendência estiver resolvida.</p><div id="pc-tasklist"></div><div class="pc-grid"><label>Nova programação<input id="pc-taskname" type="text" placeholder="Ex.: checar hemocultura diariamente"></label><label>Data prevista para execução (opcional)<input id="pc-taskdate" type="date"></label></div><div class="pc-row"><button class="pc-primary" id="pc-taskadd">Adicionar programação</button></div>`;
+   const list=el('pc-tasklist');
+   if(!tasks.length)list.innerHTML='<p>Sem programações cadastradas.</p>';
+   for(const t of tasks){
+     const item=followupItem(p,t,paint,false);
+     const row=document.createElement('div');row.className='pc-row';
+     const remove=document.createElement('button');remove.textContent='Excluir programação';
+     remove.onclick=()=>{if(confirm('Excluir esta programação e seu histórico de conferências?')){p.programs=program(p).filter(x=>x.id!==t.id);safeSave();updatePendingBadge();paint()}};
+     row.appendChild(remove);item.appendChild(row);list.appendChild(item);
+   }
+   el('pc-taskadd').onclick=()=>{const value=el('pc-taskname').value.trim();if(!value)return;program(p).push({id:'task_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),text:value,date:el('pc-taskdate').value||'',createdOn:today(),remindOn:tomorrow(),done:false,checkedOn:'',checkHistory:[]});safeSave();updatePendingBadge();paint()};
   };paint();
- },"side")
+ },'side');
 }
-function showDaily(){
- const pending=allReminders();
- updatePendingBadge();
- if(!pending.length)return false;
- if(el('pc-overlay'))return false;
- overlay('Lembretes das programações anteriores',host=>{
-   host.innerHTML=`<p><strong>${pending.length}</strong> programação(ões) registrada(s) em dias anteriores ainda precisa(m) de revisão. Elas são lembradas a partir do dia seguinte ao cadastro, sem depender da data prevista de execução. Avisos aparecem dentro do PedCare, não com o navegador fechado.</p>`+
-     pending.map(({p,t})=>`<div class="pc-task"><div style="flex:1"><strong>${esc(p.name||'Paciente')} (${esc(p.bed||'sem leito')})</strong><br>${esc(t.text)}<br><small>Criada em: ${esc(t.createdOn||'')} · Execução prevista: ${esc(t.date||'sem data')}</small></div><button data-open-task="${esc(p.id)}">Abrir</button></div>`).join('');
-   host.querySelectorAll('[data-open-task]').forEach(n=>n.onclick=()=>{const target=patients.find(x=>x.id===n.dataset.openTask);if(target){switchPatientTab(target.id);openTasks(target)}});
+function showDaily(force=false){
+ if(el('pc-overlay')&&!force)return false;
+ const list=Array.isArray(patients)?patients.filter(p=>p&&!p.archived&&!p.isArchived):[];
+ overlay('Revisões e lembretes de hoje',host=>{
+   const paint=()=>{
+     const questions=allDailyQuestions();
+     const counts=pendingCounts();
+     host.innerHTML=`<div class="pc-reminder-head"><strong>Rotina da enfermaria · ${esc(today().split('-').reverse().join('/'))}</strong><small>${counts.daily} revisão(ões) ainda não marcada(s) · ${counts.programs} programação(ões) para conferir hoje. Feche esta gaveta quando quiser; o indicador continuará visível até concluir as revisões diárias.</small></div><div class="pc-drawer-heading"><h3>Checklist diário por paciente</h3><small>${list.length} paciente(s)</small></div><div id="pc-drawer-patients"></div><div class="pc-drawer-heading"><h3>Programações para acompanhar</h3></div><div id="pc-drawer-programs"></div>`;
+     const dailyHost=host.querySelector('#pc-drawer-patients');
+     if(!list.length)dailyHost.innerHTML='<p>Nenhum paciente ativo cadastrado.</p>';
+     for(const p of list){
+       const check=dailyChecklist(p);
+       const done=questions.filter(([k])=>check[k]).length;
+       const details=document.createElement('details');details.className='pc-review-patient';
+       details.open=done<questions.length;
+       details.innerHTML=`<summary><span>${esc(p.name||'Paciente')} ${p.bed?'· Leito '+esc(p.bed):''}</span><span class="pc-review-status ${done===questions.length?'complete':''}">${done}/${questions.length}</span></summary><div class="pc-review-body">${questions.map(([key,q])=>`<label class="pc-daily-question"><input type="checkbox" data-question="${esc(key)}" ${check[key]?'checked':''}><span>${esc(q)}</span></label>`).join('')}<button data-configure>Personalizar perguntas</button></div>`;
+       details.querySelectorAll('[data-question]').forEach(box=>box.onchange=()=>{check[box.dataset.question]=box.checked;safeSave();updatePendingBadge();const total=questions.filter(([key])=>check[key]).length;const chip=details.querySelector('.pc-review-status');chip.textContent=`${total}/${questions.length}`;chip.classList.toggle('complete',total===questions.length);if(total===questions.length)details.open=false;const countHost=host.querySelector('.pc-reminder-head small');const c=pendingCounts();if(countHost)countHost.textContent=`${c.daily} revisão(ões) ainda não marcada(s) · ${c.programs} programação(ões) para conferir hoje. Feche esta gaveta quando quiser; o indicador continuará visível até concluir as revisões diárias.`;});
+       details.querySelector('[data-configure]').onclick=()=>openDailyChecklist(p);
+       dailyHost.appendChild(details);
+     }
+     const tasksHost=host.querySelector('#pc-drawer-programs');
+     const pending=allReminders();
+     if(!pending.length)tasksHost.innerHTML='<p style="color:#64748b">Nenhuma programação aguardando conferência hoje.</p>';
+     for(const {p,t} of pending)tasksHost.appendChild(followupItem(p,t,paint,true));
+     updatePendingBadge();
+   };paint();
  },'side');
  return true;
 }
@@ -4766,10 +4881,10 @@ function mount(){
      <button id="pc-open-diagnostics">🔬 Exames e imagens</button>
      <button id="pc-open-notes">📌 Notas do paciente</button>
      <button id="pc-open-obsidian">🟣 Caderno clínico</button>
-   </div><button class="pc-launcher" id="pc-launcher" type="button" aria-label="Abrir ferramentas" aria-expanded="false" aria-controls="pc-fab-list"><span>✦</span></button>`;
+   </div><button class="pc-launcher" id="pc-launcher" type="button" aria-label="Abrir ferramentas" aria-expanded="false" aria-controls="pc-fab-list"><span>✦</span><span class="pc-reminder-floating" id="pc-reminder-floating" aria-live="polite"></span></button>`;
    document.body.appendChild(bar);
    el('pc-launcher').onclick=()=>{const open=bar.classList.toggle('is-expanded');el('pc-launcher').setAttribute('aria-expanded',String(open))};
-   [['pc-open-daily',()=>openDailyChecklist()],['pc-open-tasks',()=>openTasks()],['pc-open-handoff',()=>openHandoff()],['pc-open-pending',()=>showDaily()||alert('Nenhuma programação anterior pendente de revisão.')],['pc-open-folders',openFolders],['pc-open-diagnostics',()=>launchNative('popup-diagnostics')],['pc-open-notes',()=>launchNative('popup-patient-notes')],['pc-open-obsidian',()=>launchNative('popup-obsidian')]].forEach(([id,fn])=>el(id).onclick=()=>{closeLauncher();fn()});
+   [['pc-open-daily',()=>openDailyChecklist()],['pc-open-tasks',()=>openTasks()],['pc-open-handoff',()=>openHandoff()],['pc-open-pending',()=>showDaily(true)],['pc-open-folders',openFolders],['pc-open-diagnostics',()=>launchNative('popup-diagnostics')],['pc-open-notes',()=>launchNative('popup-patient-notes')],['pc-open-obsidian',()=>launchNative('popup-obsidian')]].forEach(([id,fn])=>el(id).onclick=()=>{closeLauncher();fn()});
    document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeLauncher();el('pc-overlay')?.remove()}});
    document.addEventListener('pointerdown',e=>{if(!bar.contains(e.target))closeLauncher()});
  }
@@ -4788,7 +4903,7 @@ function init(){
    window.switchPatientTab=function(id){
      const value=originalSwitch.apply(this,arguments);
      const selected=patients.find(p=>p.id===id);
-     if(selected){dailyChecklist(selected);setTimeout(()=>openDailyChecklist(selected),80)}
+     if(selected){dailyChecklist(selected);updatePendingBadge()}
      return value;
    };
  }
@@ -4806,7 +4921,7 @@ function init(){
    if(!Array.isArray(patients) || !patients.length)return;
    patients.forEach(dailyChecklist);
    updatePendingBadge();
-   if(!showDaily() && !el('pc-overlay'))openDailyChecklist(pat());
+   if(!el('pc-overlay'))showDaily();
  },1600);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
@@ -5089,3 +5204,4 @@ window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,sho
 </script>
 </body>
 </html>
+
