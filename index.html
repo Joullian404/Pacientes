@@ -1129,6 +1129,46 @@
 @media(max-width:730px){.pc-folder-manager-grid{grid-template-columns:1fr}.pc-archive-intro{flex-wrap:wrap}.pc-archive-patient{flex-wrap:wrap}.pc-archive-patient-main{flex-basis:65%}.pc-archive-patient select{max-width:none;flex:1}.pc-folder-drop-label{display:none}}
 @media print{#pc-archive-folders{display:none!important}}
 </style>
+<style id="pc-master-style">
+.pc-master-trigger{background:#1e3a5f!important;border:1px solid #426286!important;white-space:nowrap}
+.pc-master-overlay{position:fixed;inset:0;background:rgba(10,22,43,.55);z-index:100100;display:none;justify-content:center;align-items:center;padding:16px;backdrop-filter:blur(3px)}
+.pc-master-overlay.open{display:flex}
+.pc-master-dialog{background:#fff;border-radius:18px;max-width:960px;width:100%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 25px 90px #0e264654}
+.pc-master-head{background:linear-gradient(120deg,#163c63,#276d8d);color:#fff;padding:19px 22px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.pc-master-head h2{font-size:19px;margin:0}.pc-master-head p{font-size:12px;opacity:.85;margin:4px 0 0}
+.pc-master-close{border:1px solid #ffffff77;color:white;background:transparent;padding:7px 11px;border-radius:9px;cursor:pointer}
+.pc-master-body{display:grid;grid-template-columns: minmax(230px, .85fr) minmax(290px,1.5fr);min-height:0;overflow:hidden;flex:1}
+.pc-master-sidebar{background:#f3f7fc;border-right:1px solid #dfe8f2;padding:15px;overflow:auto}
+.pc-master-editor{padding:20px;overflow:auto;display:flex;flex-direction:column;gap:12px}
+.pc-master-cat{border:1px solid #dce7f4;background:white;border-radius:10px;padding:10px 12px;margin:0 0 7px;cursor:pointer;text-align:left;width:100%;color:#1c334f;font-weight:650}
+.pc-master-cat.active{background:#e2f1fc;border-color:#7bb6da}
+.pc-master-cat small{color:#697d91;display:block;font-weight:400;padding-top:3px}
+.pc-master-field{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:650;color:#264560}
+.pc-master-field input,.pc-master-field textarea,.pc-master-field select{font-family:inherit;font-size:13px;width:100%;padding:10px;border:1px solid #cad7e5;border-radius:9px;background:white;color:#132a43}
+.pc-master-field textarea{min-height:98px;resize:vertical;line-height:1.5}
+.pc-master-actions{display:flex;gap:8px;flex-wrap:wrap}
+.pc-master-btn{background:#176b95;color:white;border:none;padding:9px 13px;border-radius:9px;font-weight:650;cursor:pointer}
+.pc-master-btn.secondary{background:#e8f0f8;color:#1d5077}
+.pc-master-btn.danger{background:#9f3543}
+.pc-master-alert{font-size:12px;background:#fff8e8;border:1px solid #f2d8a8;color:#705023;padding:10px 12px;border-radius:10px;line-height:1.5}
+.pc-master-items{display:flex;flex-direction:column;gap:7px}
+.pc-master-item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;background:#f7fafe;border:1px solid #e2eaf3;border-radius:9px;text-align:left;cursor:pointer;font-size:12.5px}
+.pc-master-item span{flex:1;text-align:left}.pc-master-item.active{border-color:#4e99c0;background:#eaf6fc}
+.pc-master-confirm{position:fixed;inset:0;z-index:100110;background:#10253fc9;display:none;align-items:center;justify-content:center;padding:16px}
+.pc-master-confirm.open{display:flex}.pc-master-confirm-inner{width:min(450px,100%);background:white;padding:23px;border-radius:16px;box-shadow:0 20px 50px #0015}
+.pc-master-confirm-inner h3{margin:0 0 8px;color:#173a57}.pc-master-confirm-inner p{line-height:1.5;font-size:13px;color:#4e6173}
+.pc-master-confirm-inner input{width:100%;padding:11px;border:1px solid #9baec2;border-radius:8px;font-size:15px;margin:7px 0 14px}
+#subview-presc .category-card .pc-collapsible-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none}
+#subview-presc .pc-cat-arrow{height:25px;width:25px;display:grid;place-items:center;border:1px solid #b6ccde;border-radius:8px;background:#ffffffb8;flex-shrink:0;transition:transform .2s ease,background .2s;transform:rotate(0deg)}
+#subview-presc .pc-cat-arrow svg{width:15px;height:15px;stroke:#1b5b7d;fill:none;stroke-width:2;transition:transform .2s}
+#subview-presc .category-card.pc-collapsed .pc-cat-arrow svg{transform:rotate(-90deg)}
+#subview-presc .category-card.pc-collapsed > :not(.category-header){display:none!important}
+#subview-presc .category-card.pc-collapsed{margin-bottom:7px}
+#subview-presc .pc-collapsible-heading:focus-visible{outline:3px solid #38bdf8}
+.pc-master-review{display:inline-flex;margin:3px 5px;padding:3px 6px;background:#fff1db;color:#81510d;border-radius:6px;font-size:10px;font-weight:700}
+@media(max-width:650px){.pc-master-body{grid-template-columns:1fr}.pc-master-sidebar{max-height:170px;border-right:0;border-bottom:1px solid #dfe8f2}.pc-master-dialog{max-height:95vh}.pc-master-editor{padding:13px}.pc-master-head{padding:12px}}
+@media print{.pc-master-overlay,.pc-master-confirm,.pc-master-trigger,.pc-cat-arrow,.pc-master-review{display:none!important}#subview-presc .category-card.pc-collapsed > :not(.category-header){display:block!important}#subview-presc .category-card.pc-collapsed > table{display:table!important}}
+</style>
 </head>
 <body>
 
@@ -1155,6 +1195,7 @@
         <span class="status-save" id="save-status">● Salvo localmente</span>
       </div>
       <div class="btn-action-group">
+        <button class="btn-new-patient pc-master-trigger" type="button" onclick="PedCareMaster.open()">⚙️ Controle mestre</button>
         <button class="btn-new-patient" onclick="createNewPatient()">+ Novo Paciente</button>
         
         <div class="print-dropdown-wrapper">
@@ -3086,6 +3127,8 @@
       document.querySelectorAll('.floating-popup').forEach(p => p.style.display = 'none');
       
       if (!isVisible) {
+        const lateral = document.getElementById('pc-overlay');
+        if (lateral) { lateral.dispatchEvent(new Event('pc-before-close')); lateral.remove(); }
         popup.style.display = 'flex';
         if (popupId === 'popup-obsidian') renderObsidianUI();
         if (popupId === 'popup-diagnostics') {
@@ -4526,6 +4569,29 @@ function style(){if(el('pc-workstyle'))return;const st=document.createElement('s
 .pc-dialog h2{font-size:18px;margin:0 0 10px}.pc-dialog h3{font-size:14px;margin:12px 0 5px;color:#075985}.pc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.pc-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:7px 0}
 .pc-dialog input[type=text],.pc-dialog input[type=date],.pc-dialog textarea,.pc-dialog select{width:100%;border:1px solid #cbd5e1;padding:7px;border-radius:6px;font:inherit;background:#fff}.pc-dialog textarea{min-height:85px;resize:vertical}
 .pc-dialog button{border:1px solid #94a3b8;border-radius:6px;padding:7px 10px;cursor:pointer;background:#f8fafc;color:#0f172a}.pc-dialog button.pc-primary{background:#0284c7;border-color:#0284c7;color:white;font-weight:700}
+/* Formulário da passagem de plantão: visual clínico limpo e compacto. */
+.pc-handoff-overlay .pc-dialog{background:#f6f9fd;width:min(750px,100vw);padding:18px 19px 25px}
+.pc-handoff-overlay .pc-dialog>.pc-row:first-child{background:#f6f9fd;border-bottom-color:#dbe5f0}
+.pc-handoff-overlay .pc-dialog h2{color:#123954;letter-spacing:-.3px}
+.pc-handoff-overlay #pc-content>p:first-child{padding:10px 12px;background:#eaf5fe;border:1px solid #cfe4f3;border-radius:11px;color:#34546c;font-size:12px;line-height:1.5;margin:0 0 12px}
+.pc-handoff-overlay #pc-content>h3{font-size:13px;background:linear-gradient(90deg,#e3f0fd,#f4f9fe);padding:9px 12px;margin:17px 0 10px;border-left:3px solid #1682bd;border-radius:9px;color:#164867}
+.pc-handoff-overlay .pc-handoff{gap:9px 11px}
+.pc-handoff-overlay .pc-handoff>label,.pc-handoff-overlay .pc-grid>label{display:flex;flex-direction:column;gap:5px;font-size:11.5px;font-weight:700;color:#406077}
+.pc-handoff-overlay .pc-handoff>label input,.pc-handoff-overlay .pc-handoff>label textarea,.pc-handoff-overlay .pc-grid>label input{font-weight:400;background:#fff;border-color:#cfdeea;border-radius:9px;min-height:36px;color:#19344b;box-shadow:0 1px 3px #16324f08}
+.pc-handoff-overlay .pc-handoff>label textarea{min-height:76px;line-height:1.55}
+.pc-handoff-overlay input:focus,.pc-handoff-overlay textarea:focus{outline:2px solid #7dd3fc;outline-offset:0;border-color:#38bdf8}
+.pc-handoff-overlay .pc-exam{background:#fff;border:1px solid #dce7f0;border-radius:12px;padding:11px 13px;box-shadow:0 2px 12px #16324f0a}
+.pc-handoff-overlay .pc-exam h3{font-size:13px;color:#115e82;margin:0 0 9px;padding-bottom:6px;border-bottom:1px solid #e8eff6}
+.pc-handoff-overlay .pc-exam label{background:#f8fafc;border:1px solid #e9eef5;border-radius:7px;padding:5px 8px;margin:3px;font-size:11.5px;align-items:center}
+.pc-handoff-overlay .pc-exam input[type=checkbox]{accent-color:#0284c7;width:15px;height:15px}
+.pc-handoff-overlay .pc-exam label:has(input[type=checkbox]:checked){background:#e8f7f0;border-color:#b7e5ce}
+.pc-handoff-overlay .pc-exam label:has(textarea){background:transparent;border:0;padding:3px 0;display:block}
+.pc-handoff-overlay .pc-exam textarea{min-height:52px;width:100%}
+.pc-handoff-overlay .pc-viscera-label{flex-wrap:wrap}
+.pc-handoff-overlay .pc-viscera-label .pc-viscera-input{flex:1;min-width:120px;width:auto;max-width:100%;font-size:12px;padding:5px 7px;min-height:30px}
+.pc-handoff-overlay #pc-hand-save,.pc-handoff-overlay #pc-hand-print{font-weight:750}
+.pc-handoff-overlay #pc-hand-print{background:#0369a1;color:white;border-color:#0369a1}
+@media(max-width:650px){.pc-handoff-overlay .pc-dialog{padding:12px 12px 22px}.pc-handoff-overlay .pc-exam{padding:9px}}
 .pc-daily-title{font-size:12px;color:#475569;margin-bottom:8px}.pc-daily-question{display:flex;align-items:center;gap:10px;padding:12px 10px;border:1px solid #cbd5e1;border-radius:9px;margin:7px 0;cursor:pointer;font-size:13px;font-weight:650}.pc-daily-question input{width:18px;height:18px;flex-shrink:0;accent-color:#0284c7}.pc-daily-question:has(input:checked){background:#f0fdf4;border-color:#86efac}.pc-daily-entry{display:flex;align-items:center;gap:8px}.pc-daily-entry .pc-daily-question{flex:1;min-width:0}.pc-dialog .pc-daily-delete{flex:0 0 auto;background:#fff1f2;color:#be123c;border-color:#fecdd3;padding:7px 10px}.pc-daily-sectionhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:15px 0 8px;color:#075985}.pc-daily-sectionhead span{color:#64748b;font-size:12px}.pc-daily-add{padding:13px;margin-top:13px;border:1px dashed #93c5fd;border-radius:12px;background:#f8fbff}.pc-daily-add>label{display:block;font-size:12px;font-weight:700;color:#075985}.pc-daily-add small{display:block;color:#64748b;font-size:11px}.pc-daily-add .pc-row{align-items:stretch}.pc-daily-add input{flex:1}.pc-overdue{font-size:11px;color:#9a3412;font-weight:650}
 /* Gaveta de revisões: visão de todos os pacientes e lembretes persistentes. */
 .pc-reminder-floating{position:absolute;top:auto;bottom:calc(58px + 9px);right:14px;display:none;min-width:23px;height:23px;padding:0 6px;border-radius:20px;background:#e11d48;color:white;font:700 11px/23px system-ui;text-align:center;border:2px solid white;box-shadow:0 3px 10px #9f123955;pointer-events:none;z-index:8}
@@ -4544,7 +4610,45 @@ function style(){if(el('pc-workstyle'))return;const st=document.createElement('s
 .pc-review-patient .pc-review-body{padding:10px 13px 13px}.pc-review-patient .pc-daily-question{padding:9px 10px;margin:5px 0}
 .pc-review-status{margin-left:auto;font-size:11px;color:#0369a1;background:#e0f2fe;padding:4px 8px;border-radius:50px;white-space:nowrap}
 .pc-review-status.complete{background:#dcfce7;color:#166534}
+/* Programações: dois grupos expansíveis, com ênfase visual no andamento. */
+.pc-tasks-intro{display:flex;align-items:flex-start;gap:12px;padding:15px 16px;margin:2px 0 16px;border:1px solid #b9dbe8;border-radius:16px;background:linear-gradient(120deg,#f0f9ff,#f0fdfa);color:#164e63}
+.pc-tasks-intro-icon{width:38px;height:38px;flex:none;border-radius:12px;background:#d7f0f8;display:grid;place-items:center;font-size:23px;color:#0369a1}
+.pc-tasks-intro strong{font-size:14px}.pc-tasks-intro p{font-size:12px;line-height:1.55;color:#476579;margin:4px 0 0}
+.pc-program-groups{display:flex;flex-direction:column;gap:14px}
+.pc-program-group{border:1px solid #d7e4ee;border-radius:16px;background:#fff;overflow:hidden;box-shadow:0 4px 18px #102a4310}
+.pc-program-group>summary{display:flex;align-items:center;gap:11px;cursor:pointer;padding:15px 14px;list-style:none;background:#f4f9fd;user-select:none}
+.pc-program-group>summary::-webkit-details-marker{display:none}
+.pc-program-group>summary:focus-visible{outline:2px solid #0ea5e9;outline-offset:-3px}
+.pc-program-group-active>summary{background:linear-gradient(100deg,#eaf7ff,#f4fbff)}
+.pc-program-group-completed>summary{background:#f7fafc}
+.pc-program-group-icon{width:37px;height:37px;border-radius:11px;display:grid;place-items:center;background:#dbeefe;color:#075985;font-size:23px;font-weight:700;flex:none}
+.pc-program-group-completed .pc-program-group-icon{background:#e2f6e9;color:#15803d}
+.pc-program-group-label{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.pc-program-group-label strong{font-size:15px;color:#163a52}
+.pc-program-group-label small{font-size:11px;color:#64748b;line-height:1.3}
+.pc-program-group-count{display:inline-flex;min-width:28px;height:26px;align-items:center;justify-content:center;border-radius:999px;padding:0 8px;background:#dbeafe;color:#075985;font-size:12px;font-weight:800}
+.pc-program-group-completed .pc-program-group-count{background:#dcfce7;color:#166534}
+.pc-program-group-chevron{font-size:22px;color:#64748b;transition:transform .18s ease}
+.pc-program-group:not([open]) .pc-program-group-chevron{transform:rotate(-90deg)}
+.pc-program-group-content{padding:11px 13px 13px}
+.pc-program-group-content .pc-followup{margin:7px 0 11px;border-color:#dae6ef;box-shadow:0 2px 8px #0f172a0a}
+.pc-program-group-completed .pc-followup{background:#fbfefc}
+.pc-program-empty{text-align:center;color:#64748b;font-size:12px;padding:15px;margin:0;background:#fafcff;border:1px dashed #dce6ee;border-radius:11px}
+.pc-program-new{margin-top:17px;padding:15px;border-radius:15px;background:#f8fafc;border:1px solid #d9e5ed}
+.pc-program-new h3{font-size:14px;margin:0 0 12px;color:#0c4a6e}
+.pc-program-new> .pc-row{justify-content:flex-end;margin-top:12px}
+.pc-program-remove{justify-content:flex-end;margin-top:10px!important;padding-top:8px;border-top:1px dashed #e2e8f0}
+.pc-program-remove button{font-size:11px!important;color:#9f1239!important;background:#fff8fa!important;border-color:#fecdd3!important}
+@media(max-width:550px){.pc-program-group>summary{padding:12px 10px;gap:8px}.pc-program-group-content{padding:9px}.pc-program-group-label small{font-size:10px}.pc-tasks-intro{padding:12px}}
 .pc-followup{border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin:8px 0;background:#fff}
+.pc-followup-toggle{width:100%;display:flex;gap:10px;align-items:center;text-align:left;background:transparent!important;color:#0f172a!important;border:0!important;border-radius:8px!important;padding:3px 2px!important;cursor:pointer;font:inherit;box-shadow:none!important}
+.pc-followup-toggle .pc-followup-title{flex:1;min-width:0;overflow-wrap:anywhere;font-size:14px;font-weight:750}
+.pc-followup-toggle .pc-followup-chevron{font-size:17px;color:#64748b;transition:transform .18s;flex:none}
+.pc-followup.is-minimized .pc-followup-chevron{transform:rotate(-90deg)}
+.pc-followup.is-minimized .pc-followup-body{display:none}
+.pc-followup.is-minimized{background:#f8fafc;padding:10px 12px}
+.pc-followup-toggle:focus-visible{outline:2px solid #0284c7;outline-offset:2px}
+
 .pc-followup small{color:#64748b}.pc-followup-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
 .pc-followup-actions button{font-size:12px}.pc-followup-actions .pc-checked-today{color:#166534;background:#f0fdf4;border-color:#86efac}
 .pc-followup-note{font-size:12px;color:#334155;border-left:3px solid #bae6fd;padding:6px 9px;margin-top:6px;background:#f8fafc;white-space:pre-wrap;overflow-wrap:anywhere}
@@ -4598,7 +4702,7 @@ function style(){if(el('pc-workstyle'))return;const st=document.createElement('s
 .pc-fab-list button .pc-menu-counter-daily{background:#e11d48}
 .pc-fab-list button .pc-menu-counter-program{background:#d97706}
 `;document.head.appendChild(st)}
-function overlay(title,render,mode="modal"){const old=el('pc-overlay');if(old)old.remove();const root=document.createElement('div');root.id='pc-overlay';root.className='pc-overlay'+(mode==='side'?' pc-side-overlay':'');root.innerHTML=`<div class="pc-dialog" role="dialog" aria-modal="true"><div class="pc-row" style="justify-content:space-between"><h2>${esc(title)}</h2><button id="pc-close">Fechar ✕</button></div><div id="pc-content"></div></div>`;document.body.appendChild(root);el('pc-close').onclick=()=>root.remove();root.addEventListener('click',e=>{if(e.target===root)root.remove()});render(el('pc-content'));return root}
+function overlay(title,render,mode="modal"){document.querySelectorAll('.floating-popup').forEach(n=>{n.style.display='none'});const old=el('pc-overlay');if(old){old.dispatchEvent(new Event('pc-before-close'));old.remove()}const root=document.createElement('div');root.id='pc-overlay';root.className='pc-overlay'+(mode==='side'?' pc-side-overlay':'')+(title.startsWith('Passagem de plantão')?' pc-handoff-overlay':'');root.innerHTML=`<div class="pc-dialog" role="dialog" aria-modal="true"><div class="pc-row" style="justify-content:space-between"><h2>${esc(title)}</h2><button id="pc-close">Fechar ✕</button></div><div id="pc-content"></div></div>`;document.body.appendChild(root);el('pc-close').onclick=()=>root.remove();root.addEventListener('click',e=>{if(e.target===root)root.remove()});render(el('pc-content'));return root}
 function program(p){p.programs??=[];return p.programs}
 // Reminder is based on when the note was CREATED, not the planned execution date.
 function reminderFrom(t){
@@ -4771,14 +4875,33 @@ function programHistory(t){
  if(!items.length)return '<small>Nenhum comentário ou conferência registrada.</small>';
  return `<details open><summary style="font-size:12px;color:#0369a1;cursor:pointer">Histórico de acompanhamento (${items.length})</summary><div class="pc-followup-history">${items.slice().reverse().map(h=>`<div><b>${esc(pcDateBR(h.date))}</b> · ${h.kind==='observation'?'Atualização parcial':'Conferência'}${h.at?' · '+esc(String(h.at).split('T').pop()?.slice(0,5)||''):''}<div>${esc(h.note||'Conferido')}</div></div>`).join('')}</div></details>`;
 }
+// Estado visual temporário: recolher um cartão não apaga a programação nem seu histórico.
+const minimizedPrograms=new Set();
+// Preferências visuais por paciente: andamento aberto e concluídas recolhidas por padrão.
+const programGroupState=new Map();
+function programGroupOpen(p,kind){
+ const key=String(p.id)+':'+kind;
+ return programGroupState.has(key)?programGroupState.get(key):kind==='active';
+}
+
 function followupItem(p,t,refresh,allowOpen){
  const checked=programCheckToday(t);
  const wrapper=document.createElement('div');
- wrapper.className='pc-followup';
- wrapper.innerHTML=`<div><strong>${esc(t.text)}</strong></div><small>${esc(p.name||'Paciente')} · Cadastrada: ${esc(pcDateBR(t.createdOn)||'não registrada')} ${t.date?' · Prevista: '+esc(pcDateBR(t.date)):''}</small>`+
+ const collapseKey=String(p.id)+':'+String(t.id);
+ const minimized=minimizedPrograms.has(collapseKey);
+ wrapper.className='pc-followup'+(minimized?' is-minimized':'');
+ wrapper.innerHTML=`<button type="button" class="pc-followup-toggle" data-toggle-program aria-expanded="${!minimized}" aria-label="${minimized?'Expandir':'Minimizar'} programação: ${esc(t.text)}"><span class="pc-followup-title">${esc(t.text)}</span><span class="pc-followup-chevron" aria-hidden="true"></span></button><div class="pc-followup-body"><small>${esc(p.name||'Paciente')} · Cadastrada: ${esc(pcDateBR(t.createdOn)||'não registrada')} ${t.date?' · Prevista: '+esc(pcDateBR(t.date)):''}</small>`+
  (t.done?'<p style="font-size:12px;color:#166534">✓ Programação concluída</p>':(checked?'<div class="pc-followup-note">✓ Conferido hoje — permanece pendente para amanhã.</div>':''))+
  (!t.done?`<div class="pc-followup-compose"><label>Comentário ou resultado parcial (opcional)</label><textarea data-followup-comment maxlength="1200" placeholder="Ex.: Hemocultura com crescimento preliminar de bacilos Gram-negativos; identificação e antibiograma pendentes."></textarea><small>Registre atualizações sem concluir a programação. O histórico fica vinculado ao paciente.</small><div class="pc-followup-actions"><button type="button" data-add-observation>+ Salvar comentário</button><button type="button" class="pc-checked-today" data-check-today ${checked?'disabled':''}>${checked?'✓ Conferido hoje':'✓ Conferido hoje, ainda pendente'}</button></div></div>`:'')+
- `<div class="pc-followup-actions">${!t.done?'<button data-finish>Concluir programação</button>':''}${allowOpen?'<button data-open-patient>Ver programações</button>':''}</div>${programHistory(t)}`;
+ `<div class="pc-followup-actions">${!t.done?'<button data-finish>Concluir programação</button>':''}${allowOpen?'<button data-open-patient>Ver programações</button>':''}</div>${programHistory(t)}</div>`;
+ wrapper.querySelector('[data-toggle-program]')?.addEventListener('click',()=>{
+   const collapse=!wrapper.classList.contains('is-minimized');
+   wrapper.classList.toggle('is-minimized',collapse);
+   if(collapse)minimizedPrograms.add(collapseKey);else minimizedPrograms.delete(collapseKey);
+   const toggle=wrapper.querySelector('[data-toggle-program]');
+   toggle.setAttribute('aria-expanded',String(!collapse));
+   toggle.setAttribute('aria-label',(collapse?'Expandir':'Minimizar')+' programação: '+t.text);
+ });
  wrapper.querySelector('[data-add-observation]')?.addEventListener('click',()=>{
    const input=wrapper.querySelector('[data-followup-comment]');
    const note=input?.value.trim()||'';
@@ -4805,18 +4928,40 @@ function openTasks(p=pat()){
  if(!p){alert('Selecione um paciente.');return}
  overlay('Programações e acompanhamentos — '+(p.name||'Paciente'),host=>{
   const paint=()=>{
-   const tasks=program(p).slice().sort((a,b)=>Number(a.done)-Number(b.done)||String(a.createdOn).localeCompare(String(b.createdOn)));
-   host.innerHTML=`<p>Uma programação criada hoje passa a gerar lembrete amanhã. Para anotar um resultado parcial, use <strong>Salvar comentário</strong> (sem encerrar a programação). Ao terminar a conferência do dia, marque <strong>Conferido hoje, ainda pendente</strong>: a checagem fica no histórico e o lembrete volta no dia seguinte. Use <strong>Concluir</strong> somente quando a pendência estiver resolvida.</p><div id="pc-tasklist"></div><div class="pc-grid"><label>Nova programação<input id="pc-taskname" type="text" placeholder="Ex.: checar hemocultura diariamente"></label><label>Data prevista para execução (opcional)<input id="pc-taskdate" type="date" lang="pt-BR"></label></div><div class="pc-row"><button class="pc-primary" id="pc-taskadd">Adicionar programação</button></div>`;
-   const list=el('pc-tasklist');
-   if(!tasks.length)list.innerHTML='<p>Sem programações cadastradas.</p>';
-   for(const t of tasks){
+   const tasks=program(p).slice().sort((a,b)=>String(a.createdOn||'').localeCompare(String(b.createdOn||'')));
+   const active=tasks.filter(t=>!t.done),finished=tasks.filter(t=>!!t.done);
+   host.innerHTML=`<div class="pc-tasks-intro"><div class="pc-tasks-intro-icon" aria-hidden="true">◷</div><div><strong>Acompanhamento do paciente</strong><p>Registre os resultados parciais sem encerrar o acompanhamento. Após conferir hoje, a programação poderá voltar aos lembretes amanhã.</p></div></div><div class="pc-program-groups" id="pc-tasklist"></div><section class="pc-program-new"><h3>＋ Nova programação</h3><div class="pc-grid"><label>O que acompanhar?<input id="pc-taskname" type="text" placeholder="Ex.: checar hemocultura diariamente"></label><label>Data prevista (opcional)<input id="pc-taskdate" type="date" lang="pt-BR"></label></div><div class="pc-row"><button class="pc-primary" id="pc-taskadd">Adicionar programação</button></div></section>`;
+   const list=host.querySelector('#pc-tasklist');
+   const groups=[
+    {kind:'active',title:'Em andamento',symbol:'◷',items:active,empty:'Nenhuma programação em andamento.'},
+    {kind:'completed',title:'Concluídas',symbol:'✓',items:finished,empty:'Nenhuma programação concluída.'}
+   ];
+   for(const group of groups){
+    const details=document.createElement('details');
+    details.className='pc-program-group pc-program-group-'+group.kind;
+    if(programGroupOpen(p,group.kind))details.open=true;
+    details.innerHTML=`<summary><span class="pc-program-group-icon" aria-hidden="true">${group.symbol}</span><span class="pc-program-group-label"><strong>${group.title}</strong><small>${group.kind==='active'?'Programações que seguem em acompanhamento':'Histórico de programações encerradas'}</small></span><span class="pc-program-group-count">${group.items.length}</span><span class="pc-program-group-chevron" aria-hidden="true"></span></summary><div class="pc-program-group-content"></div>`;
+    details.addEventListener('toggle',()=>programGroupState.set(String(p.id)+':'+group.kind,details.open));
+    const content=details.querySelector('.pc-program-group-content');
+    if(!group.items.length){
+     const empty=document.createElement('p');empty.className='pc-program-empty';empty.textContent=group.empty;content.appendChild(empty);
+    }
+    for(const t of group.items){
      const item=followupItem(p,t,paint,false);
-     const row=document.createElement('div');row.className='pc-row';
-     const remove=document.createElement('button');remove.textContent='Excluir programação';
+     const row=document.createElement('div');row.className='pc-row pc-program-remove';
+     const remove=document.createElement('button');remove.type='button';remove.textContent='Excluir programação';
      remove.onclick=()=>{if(confirm('Excluir esta programação e seu histórico de conferências?')){p.programs=program(p).filter(x=>x.id!==t.id);safeSave();updatePendingBadge();paint()}};
-     row.appendChild(remove);item.appendChild(row);list.appendChild(item);
+     row.appendChild(remove);item.querySelector('.pc-followup-body')?.appendChild(row);content.appendChild(item);
+    }
+    list.appendChild(details);
    }
-   el('pc-taskadd').onclick=()=>{const value=el('pc-taskname').value.trim();if(!value)return;const taskIso=el('pc-taskdate').value;program(p).push({id:'task_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),text:value,date:taskIso||'',createdOn:today(),remindOn:tomorrow(),done:false,checkedOn:'',checkHistory:[]});safeSave();updatePendingBadge();paint()};
+   el('pc-taskadd').onclick=()=>{
+    const value=el('pc-taskname').value.trim();if(!value){el('pc-taskname').focus();return}
+    const taskIso=el('pc-taskdate').value;
+    program(p).push({id:'task_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),text:value,date:taskIso||'',createdOn:today(),remindOn:tomorrow(),done:false,checkedOn:'',checkHistory:[]});
+    programGroupState.set(String(p.id)+':active',true);
+    safeSave();updatePendingBadge();paint();
+   };
   };paint();
  },'side');
 }
@@ -4973,19 +5118,20 @@ function openHandoff(p=pat(),initialDraft=null){
  overlay('Passagem de plantão — edição independente',host=>{
   const fields=handFields.map(([k,label])=>`<label class="wide">${esc(label)}<textarea data-hfield="${k}">${esc(draft[k]||'')}</textarea></label>`).join('');
   const textData=`<div class="pc-handoff"><label>Data da passagem<input type="date" lang="pt-BR" data-hfield="date" value="${esc(pcDateISO(draft.date||today())||today())}"></label><label>Hora<input type="text" data-hfield="time" value="${esc(draft.time||'')}"></label><label>Dia de internação (DIH)<input type="text" data-hfield="dih" value="${esc(draft.dih||'')}"></label><label>Leito<input type="text" disabled value="${esc(p.bed||'')}"></label>${fields}</div>`;
-  const examHTML=examBlocks.map(([name,opts],idx)=>`<div class="pc-exam"><h3>${idx+1}. ${esc(name)}</h3>${opts.map((o,i)=>`<label><input type="checkbox" data-exam="${idx}:${i}" ${draft.exam?.[idx+':'+i]?'checked':''}>${esc(o)}</label>`).join('')}<label style="display:block">Observações<textarea data-enote="${idx}">${esc(draft.notes?.[idx]||'')}</textarea></label></div>`).join('');
+  const examHTML=examBlocks.map(([name,opts],idx)=>`<div class="pc-exam"><h3>${idx+1}. ${esc(name)}</h3>${opts.map((o,i)=>`<label class="${o==='Outras visceromegalias'?'pc-viscera-label':''}"><input type="checkbox" data-exam="${idx}:${i}" ${draft.exam?.[idx+':'+i]?'checked':''}>${esc(o)}${o==='Outras visceromegalias'?`<input type="text" class="pc-viscera-input" data-hvisc placeholder="Qual(is)?" aria-label="Especificar outras visceromegalias" value="${esc(draft.otherViscera||'')}">`:''}</label>`).join('')}<label style="display:block">Observações<textarea data-enote="${idx}">${esc(draft.notes?.[idx]||'')}</textarea></label></div>`).join('');
   host.innerHTML=`<p><strong>Documento independente:</strong> editar esta passagem não modifica a ficha clínica. Alterações do rascunho são salvas neste paciente; "Salvar versão" cria um registro histórico.</p><div class="pc-handoff"><label>Paciente<input disabled value="${esc(p.name||'')}"></label><label>Nome da mãe<input disabled value="${esc(p.mother||'')}"></label><label>Sexo / idade<input disabled value="${esc([p.sex,p.age].filter(Boolean).join(' / '))}"></label><label>Alergias<input disabled value="${esc(p.allergies||'')}"></label></div><h3>1. Resumo clínico</h3>${textData}<h3>2. Sinais vitais</h3><div class="pc-grid">${[['fc','FC'],['pa','PA'],['fr','FR'],['tx','Temperatura'],['weight','Peso'],['satO2','SatO₂'],['height','Altura'],['diuresis','Diurese'],['evacuations','Evacuações'],['flatus','Flatos']].map(([k,label])=>`<label>${label}<input data-vital="${k}" type="text" value="${esc(draft.vitals?.[k]??p[k]??'')}"></label>`).join('')}</div><h3>3. Exame físico estruturado</h3>${examHTML}<div class="pc-row"><button id="pc-hand-save" class="pc-primary">Salvar versão</button><button id="pc-hand-print">Salvar e imprimir</button><button id="pc-hand-new">Nova passagem (cópia editável)</button><select id="pc-hand-history"><option value="">Consultar versões anteriores</option>${handoffFor(p).map((h,i)=>`<option value="${i}">${esc(h.savedAt||h.date||'Versão')}</option>`).join('')}</select></div>`;
   const collect=()=>{
    host.querySelectorAll('[data-hfield]').forEach(x=>{if(x.dataset.hfield==='date'){draft.date=x.value||'';}else draft[x.dataset.hfield]=x.value;});
    draft.exam={};host.querySelectorAll('[data-exam]').forEach(x=>{if(x.checked)draft.exam[x.dataset.exam]=true});
    draft.notes={};host.querySelectorAll('[data-enote]').forEach(x=>draft.notes[x.dataset.enote]=x.value);
+   draft.otherViscera=host.querySelector('[data-hvisc]')?.value||'';
    draft.vitals={};host.querySelectorAll('[data-vital]').forEach(x=>draft.vitals[x.dataset.vital]=x.value);
    return draft;
   };
   let timer=null;
   const storeDraft=()=>{collect();p.handoffDraft=structuredClone(draft);safeSave()};
   const queueDraft=()=>{clearTimeout(timer);timer=setTimeout(storeDraft,400)};
-  host.querySelectorAll('[data-hfield],[data-vital],[data-exam],[data-enote]').forEach(n=>{n.addEventListener('input',queueDraft);n.addEventListener('change',queueDraft)});
+  host.querySelectorAll('[data-hfield],[data-vital],[data-exam],[data-enote],[data-hvisc]').forEach(n=>{n.addEventListener('input',queueDraft);n.addEventListener('change',queueDraft)});
   const save=()=>{
    clearTimeout(timer);storeDraft();
    const version=structuredClone(draft);
@@ -5000,6 +5146,7 @@ function openHandoff(p=pat(),initialDraft=null){
   // Fechar não perde o texto já digitado.
   const root=el('pc-overlay');
   root?.addEventListener('click',event=>{if(event.target===root || event.target.id==='pc-close'){clearTimeout(timer);storeDraft()}}, {capture:true});
+  root?.addEventListener('pc-before-close',()=>{clearTimeout(timer);storeDraft()});
  },'side');
 }
 function openHandoffVersion(p,rec){
@@ -5019,7 +5166,7 @@ function printHandoff(p,h){
  const physical=examBlocks.map(([name,opts],idx)=>{
    const checklist=opts.map((option,i)=>{
      const marked=Boolean(h.exam?.[idx+':'+i]);
-     return `<span class="physical-option"><span class="physical-box${marked?' checked':''}" aria-label="${marked?'Marcado':'Não marcado'}">${marked?'✓':''}</span><span>${esc(option)}</span></span>`;
+     return `<span class="physical-option"><span class="physical-box${marked?' checked':''}" aria-label="${marked?'Marcado':'Não marcado'}">${marked?'✓':''}</span><span>${esc(option)}${option==='Outras visceromegalias'?`: <span class="viscera-write">${esc(h.otherViscera||'') || '&nbsp;'}</span>`:''}</span></span>`;
    }).join('');
    return `<section class="physical-section"><h3>${idx+1}. ${esc(name)}</h3><div class="physical-options">${checklist}</div>${h.notes?.[idx]?`<div class="paragraph physical-notes">${esc(h.notes[idx])}</div>`:''}<div class="physical-observation-line" aria-hidden="true"></div></section>`;
  }).join('');
@@ -5045,22 +5192,61 @@ function printHandoff(p,h){
   .vital-label{font-weight:700;white-space:nowrap;font-size:8.7pt}
   .vital-write{flex:1;min-width:10px;border-bottom:1px solid #9aaec0;text-align:center;min-height:7mm;padding-top:1mm;font-size:9pt}
   .vital-unit{font-size:7.2pt;color:#536578;white-space:nowrap}
+  /* Sinais vitais encostados à parte inferior da primeira folha A4. */
+  .handoff-first-page{display:flex;flex-direction:column;min-height:277mm;break-after:page;page-break-after:always}
+  .handoff-first-top{flex:0 0 auto}
+  .handoff-first-page>.vital-section{margin-top:auto;margin-bottom:0}
   .page{break-before:page;page-break-before:always}
-  .physical-section{break-inside:avoid;page-break-inside:avoid;padding-bottom:4px;border-bottom:1px solid #e2e8f0}
-  .physical-section h3{margin:6px 0 4px}
-  .physical-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px 10px}
-  .physical-option{display:flex;align-items:flex-start;gap:5px;font-size:8.6pt;line-height:1.23;min-width:0;break-inside:avoid}
+  .physical-section{break-inside:avoid;page-break-inside:avoid;padding-bottom:3px;border-bottom:1px solid #e2e8f0}
+  .physical-section h3{margin:5px 0 3px}
+  .physical-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2.5px 8px}
+  .physical-option{display:flex;align-items:flex-start;gap:5px;font-size:9.2pt;line-height:1.2;min-width:0;break-inside:avoid}
+  .viscera-write{display:inline-block;min-width:23mm;border-bottom:1px solid #94a3b8;min-height:1em;vertical-align:baseline}
   .physical-box{flex:0 0 11px;width:11px;height:11px;border:1.25px solid #334155;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;font:bold 10px/1 Arial,sans-serif;margin-top:1px;color:#0f172a}
   .physical-box.checked{border-width:1.6px}
   .physical-notes{margin-top:4px;font-size:8.5pt}
-  .physical-observation-line{border-bottom:1px dotted #cbd5e1;height:6mm;margin-top:3px}
+  .physical-observation-line{border-bottom:1px dotted #cbd5e1;height:4mm;margin-top:2px}
   @media(max-width:650px){.physical-options{grid-template-columns:repeat(2,minmax(0,1fr))}}
   footer{font-size:7.5pt;color:#64748b;margin-top:15px}
   .button{padding:9px 13px;border:0;background:#0284c7;color:white;border-radius:6px;margin:10px}
   @media print{.button{display:none}h2{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
  `;
  const summary=['reason','comorbidities','clinicalHistory','conduct','pending','devices'].map(get).join('');
- const doc=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Passagem de caso — ${esc(p.name)}</title><style>${css}</style></head><body><button class="button" onclick="window.print()">Imprimir / Salvar PDF</button><h1>Passagem de caso pediátrico</h1><div class="facts">${[['Paciente',p.name],['Mãe',p.mother],['Leito',p.bed],['Sexo',p.sex],['Idade',p.age],['Alergias',p.allergies],['Data/hora',[pcDateBR(h.date),h.time].filter(Boolean).join(' ')],['Data de admissão',pcDateBR(p.admissionDate)],['DIH',h.dih]].filter(([,v])=>String(v??'').trim()).map(([k,v])=>`<span><b>${esc(k)}:</b> ${esc(v)}</span>`).join('')}</div><h2>Resumo clínico</h2>${summary}${impression}${vitals}<div class="page"></div><h1>Exame físico</h1>${physical}${get('neurology')}<footer>PedCare • Versão salva em ${esc(h.savedAt||stamp())}</footer></body></html>`;
+ const doc=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Passagem de caso — ${esc(p.name)}</title><style>${css}
+/* Refinamento compacto: grupos e cartões das programações */
+.pc-tasks-intro{gap:9px;padding:10px 12px;margin:0 0 10px;border-radius:12px}
+.pc-tasks-intro-icon{width:30px;height:30px;border-radius:9px;font-size:18px}
+.pc-tasks-intro strong{font-size:13px}
+.pc-tasks-intro p{font-size:11px;line-height:1.35;margin:2px 0 0}
+.pc-program-groups{gap:9px}
+.pc-program-group{border-radius:12px;box-shadow:0 2px 9px #102a430a}
+.pc-program-group>summary{gap:8px;padding:10px 11px;min-height:50px}
+.pc-program-group-icon{width:28px;height:28px;border-radius:8px;font-size:17px}
+.pc-program-group-label{gap:1px}
+.pc-program-group-label strong{font-size:13px}
+.pc-program-group-label small{font-size:10px;line-height:1.25}
+.pc-program-group-count{min-width:23px;height:22px;padding:0 6px;font-size:11px}
+.pc-program-group-chevron,.pc-followup-toggle .pc-followup-chevron{display:inline-block;flex:none;width:9px;height:9px;border-right:2px solid #64748b;border-bottom:2px solid #64748b;font-size:0;transform:rotate(45deg);transition:transform .18s ease,border-color .18s ease;margin:0 4px 4px 3px}
+.pc-program-group:not([open]) .pc-program-group-chevron{transform:rotate(-45deg)}
+.pc-program-group>summary:hover .pc-program-group-chevron,.pc-followup-toggle:hover .pc-followup-chevron{border-color:#0369a1}
+.pc-program-group-content{padding:7px 9px 9px}
+.pc-program-group-content .pc-followup{margin:5px 0 7px}
+.pc-program-empty{padding:9px 10px;font-size:11px;border-radius:8px}
+.pc-followup{padding:9px 10px;margin:6px 0;border-radius:9px}
+.pc-followup-toggle{gap:8px!important;padding:2px 1px!important;min-height:24px}
+.pc-followup-toggle .pc-followup-title{font-size:13px}
+.pc-followup.is-minimized .pc-followup-chevron{transform:rotate(-45deg)}
+.pc-followup.is-minimized{padding:7px 10px}
+.pc-followup-compose{margin:7px 0 4px;padding:8px;border-radius:8px}
+.pc-followup-compose textarea{min-height:56px;padding:7px}
+.pc-followup-history{margin:6px 0;max-height:175px}
+.pc-followup-actions{gap:5px;margin-top:6px}
+.pc-program-new{margin-top:11px;padding:11px;border-radius:11px}
+.pc-program-new h3{font-size:13px;margin-bottom:9px}
+.pc-program-remove{margin-top:7px!important;padding-top:6px}
+@media(max-width:550px){.pc-program-group>summary{padding:9px 10px;gap:7px;min-height:46px}.pc-program-group-content{padding:6px 8px 8px}.pc-tasks-intro{padding:9px 10px}}
+
+</style></head><body><button class="button" onclick="window.print()">Imprimir / Salvar PDF</button><main class="handoff-first-page"><div class="handoff-first-top"><h1>Passagem de caso pediátrico</h1><div class="facts">${[['Paciente',p.name],['Mãe',p.mother],['Leito',p.bed],['Sexo',p.sex],['Idade',p.age],['Alergias',p.allergies],['Data/hora',[pcDateBR(h.date),h.time].filter(Boolean).join(' ')],['Data de admissão',pcDateBR(p.admissionDate)],['DIH',h.dih]].filter(([,v])=>String(v??'').trim()).map(([k,v])=>`<span><b>${esc(k)}:</b> ${esc(v)}</span>`).join('')}</div><h2>Resumo clínico</h2>${summary}${impression}</div>${vitals}</main><h1>Exame físico</h1>${physical}${get('neurology')}<footer>PedCare • Versão salva em ${esc(h.savedAt||stamp())}</footer></body></html>`;
  const w=window.open('','_blank');if(!w)return alert('Permita pop-ups para imprimir.');w.document.open();w.document.write(doc);w.document.close();w.focus();
 }
 function tabs(){let container=el('tabs-bar');if(!container||typeof patients==='undefined')return;const order=meta().tabOrder;const ids=patients.map(p=>p.id);meta().tabOrder=[...order.filter(id=>ids.includes(id)),...ids.filter(id=>!order.includes(id))];const map=new Map([...container.querySelectorAll('.tab-btn')].filter(n=>n.id!=='tab-archive-btn').map(n=>[n.dataset.pcid,n]));for(const btn of [...container.querySelectorAll('.tab-btn')]){if(btn.id==='tab-archive-btn')continue;let name=btn.querySelector('span')?.textContent||'';let p=patients.find(x=>name.startsWith(x.name||'Novo Paciente'));if(p)btn.dataset.pcid=p.id;map.set(btn.dataset.pcid,btn)};
@@ -5070,7 +5256,7 @@ function tabs(){let container=el('tabs-bar');if(!container||typeof patients==='u
 }
 function launchNative(id){
  document.querySelectorAll('.floating-popup').forEach(n=>{if(n.id!==id)n.style.display='none'});
- el('pc-overlay')?.remove();
+ const active=el('pc-overlay');if(active){active.dispatchEvent(new Event('pc-before-close'));active.remove()}
  if(typeof togglePopup==='function')togglePopup(id);
 }
 function closeLauncher(){el('pc-tools')?.classList.remove('is-expanded');el('pc-launcher')?.setAttribute('aria-expanded','false')}
@@ -5090,9 +5276,9 @@ function mount(){
    </div><div class="pc-launcher-anchor"><div class="pc-launcher-badges" aria-hidden="true"><span id="pc-launcher-daily-count" class="pc-launcher-count pc-launcher-count-daily"></span><span id="pc-launcher-program-count" class="pc-launcher-count pc-launcher-count-program"></span></div><button class="pc-launcher" id="pc-launcher" type="button" aria-label="Abrir ferramentas" aria-expanded="false" aria-controls="pc-fab-list"><span class="pc-launcher-symbol">✦</span></button></div>`;
    document.body.appendChild(bar);
    el('pc-launcher').onclick=()=>{const open=bar.classList.toggle('is-expanded');el('pc-launcher').setAttribute('aria-expanded',String(open))};
-   [['pc-open-daily',()=>openDailyChecklist()],['pc-open-tasks',()=>openTasks()],['pc-open-handoff',()=>openHandoff()],['pc-open-pending',()=>showDaily(true)],['pc-open-folders',openFolders],['pc-open-diagnostics',()=>launchNative('popup-diagnostics')],['pc-open-notes',()=>launchNative('popup-patient-notes')],['pc-open-obsidian',()=>launchNative('popup-obsidian')]].forEach(([id,fn])=>el(id).onclick=()=>{closeLauncher();fn()});
-   document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeLauncher();el('pc-overlay')?.remove()}});
-   document.addEventListener('pointerdown',e=>{if(!bar.contains(e.target))closeLauncher()});
+   [['pc-open-daily',()=>openDailyChecklist()],['pc-open-tasks',()=>openTasks()],['pc-open-handoff',()=>openHandoff()],['pc-open-pending',()=>showDaily(true)],['pc-open-folders',openFolders],['pc-open-diagnostics',()=>launchNative('popup-diagnostics')],['pc-open-notes',()=>launchNative('popup-patient-notes')],['pc-open-obsidian',()=>launchNative('popup-obsidian')]].forEach(([id,fn])=>el(id).onclick=()=>{fn()});
+   document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeLauncher();const active=el('pc-overlay');if(active){active.dispatchEvent(new Event('pc-before-close'));active.remove()}}});
+   // O menu permanece expandido ao fechar painéis; recolha-o pelo botão principal ou Escape.
  }
  tabs();updatePendingBadge();
 }
@@ -5406,6 +5592,254 @@ window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,sho
     syncRich(true);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',activate,{once:true});else activate();
+})();
+</script>
+<div class="pc-master-overlay" id="pc-master-overlay" aria-hidden="true">
+<div class="pc-master-dialog" role="dialog" aria-modal="true" aria-labelledby="pc-master-title">
+ <div class="pc-master-head"><div><h2 id="pc-master-title">Controle mestre da prescrição</h2><p>Gerenciar classes e modelos de medicamentos e intervenções</p></div><button type="button" class="pc-master-close" onclick="PedCareMaster.close()">✕ Fechar</button></div>
+ <div class="pc-master-body"><aside class="pc-master-sidebar"><div class="pc-master-actions" style="margin-bottom:12px"><button class="pc-master-btn" type="button" onclick="PedCareMaster.addCategory()">+ Nova classe</button></div><div id="pc-master-categories"></div></aside>
+ <section class="pc-master-editor"><div class="pc-master-alert">Alterações no catálogo afetam a visualização dos modelos de prescrição de todos os pacientes. Não selecionam medicamentos automaticamente. Confira concentrações, indicações e doses com protocolos atualizados antes de utilizar.</div>
+ <div id="pc-master-category-editor"></div><div id="pc-master-items" class="pc-master-items"></div><div id="pc-master-item-editor"></div></section></div></div></div>
+<div class="pc-master-confirm" id="pc-master-confirm"><div class="pc-master-confirm-inner" role="alertdialog" aria-modal="true"><h3>Confirmar alteração global</h3><p id="pc-master-confirm-description"></p><p>Esta mudança será aplicada ao catálogo usado por <b>todos os pacientes</b>. Para continuar, digite <b>CONFIRMAR</b>.</p><input id="pc-master-confirm-input" autocomplete="off" placeholder="Digite CONFIRMAR" aria-label="Confirmação da alteração"><div class="pc-master-actions"><button type="button" class="pc-master-btn secondary" onclick="PedCareMaster.cancelConfirmation()">Cancelar</button><button type="button" id="pc-master-confirm-apply" class="pc-master-btn danger" disabled onclick="PedCareMaster.commitConfirmation()">Aplicar a todos</button></div></div></div>
+<style id="pc-master-dose-style">
+/* Modelo individual de cálculo de dose: parâmetros preenchidos pelo usuário */
+.pc-master-dose-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0;padding:13px;border:1px solid #cbdde9;background:#f4f9fd;border-radius:12px}
+.pc-master-dose-heading{grid-column:1/-1;font-size:13px;font-weight:800;color:#163a5c}
+.pc-master-dose-hint{grid-column:1/-1;font-size:11px;color:#526c82;line-height:1.5}
+.pc-custom-dose{display:block;margin-top:7px;padding:7px 9px;border-radius:8px;border:1px solid #a9cfe2;background:#ebf6fb;color:#123e59;font-size:12px;line-height:1.45}
+.pc-custom-dose b{font-weight:800}.pc-custom-dose em{font-style:normal;color:#80551c}
+@media(max-width:560px){.pc-master-dose-grid{grid-template-columns:1fr}}
+</style>
+<script id="pc-master-script">
+(()=>{
+'use strict';
+const CATALOG_KEY='pedcare_master_prescription_v1';
+const ROOT=()=>document.getElementById('subview-presc');
+const $=(id)=>document.getElementById(id);
+const escape=(v)=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+let baseline=[],config={categories:{},items:{},customCategories:[],customItems:[]};
+let selectedCategory='',selectedItem='',pending=null,rendering=false;
+let catSequence=0,itemSequence=0;
+function catalog(){return config}
+function takeBaseline(){
+ baseline=[...ROOT().querySelectorAll('.category-card')].map((card,index)=>({
+  id:'built_cat_'+index,card,index,title:card.querySelector('.category-header')?.textContent.trim()||'Classe',
+  rows:[...card.querySelectorAll('.med-check-single[data-item]')].map(check=>{const row=check.closest('tr');return {id:check.dataset.item,row,name:row?.querySelector('.cell-name')?.textContent.trim()||'',desc:row?.querySelector('.cell-desc')?.innerHTML||'',descText:row?.querySelector('.cell-desc')?.textContent.trim()||'',special:!!row?.querySelector('.cell-desc input,.cell-desc select,.cell-desc textarea,#holliday-calc-sugg')}})
+ }));
+ baseline.forEach(b=>b.card.dataset.masterCat=b.id);
+}
+function loadConfig(){
+ try{const saved=typeof obsidianData!=='undefined'&&obsidianData.masterPrescriptionCatalog;
+ const local=JSON.parse(localStorage.getItem(CATALOG_KEY)||'null');
+ config=saved&&typeof saved==='object'?saved:local&&typeof local==='object'?local:{categories:{},items:{},customCategories:[],customItems:[]};
+ }catch{config={categories:{},items:{},customCategories:[],customItems:[]}}
+ config.categories||={};config.items||={};config.customCategories||=[];config.customItems||=[];
+}
+function saveConfig(){
+ try{localStorage.setItem(CATALOG_KEY,JSON.stringify(config))}catch(e){console.error(e)}
+ if(typeof obsidianData!=='undefined'){
+  obsidianData.masterPrescriptionCatalog=JSON.parse(JSON.stringify(config));
+  if(typeof saveObsidianData==='function')saveObsidianData();
+ }
+}
+function categories(){return [...baseline.map(b=>({id:b.id,title:config.categories[b.id]?.title||b.title,original:true})),...config.customCategories.map(c=>({...c,original:false}))]}
+function items(categoryId){
+ const base=baseline.find(x=>x.id===categoryId)?.rows.map(r=>({id:r.id,name:config.items[r.id]?.name??r.name,description:config.items[r.id]?.description??r.descText,doseCalc:config.items[r.id]?.doseCalc??null,original:true,hasOverride:!!config.items[r.id]}))||[];
+ const custom=config.customItems.filter(i=>i.categoryId===categoryId).map(i=>({...i,original:false}));return [...base,...custom];
+}
+function doseParametersValid(p){
+ if(!p || p.enabled!==true)return false;
+ const rate=Number(p.rate),max=Number(p.maximum);
+ return Number.isFinite(rate)&&rate>0&&rate<=10000&&Number.isFinite(max)&&max>0&&max<=10000000
+  &&(p.basis==='dose'||p.basis==='dia')&&(!p.administrations||Number.isInteger(Number(p.administrations))&&Number(p.administrations)>=1&&Number(p.administrations)<=12);
+}
+function formNumber(value){return Number(value).toLocaleString('pt-BR',{maximumFractionDigits:2});}
+function currentWeight(){
+ const w=Number($('p-weight')?.value);
+ return Number.isFinite(w)&&w>0&&w<=500?w:NaN;
+}
+function paintCustomDose(cell,params){
+ let badge=cell.querySelector('.pc-custom-dose');
+ if(!badge){badge=document.createElement('div');badge.className='pc-custom-dose';cell.appendChild(badge)}
+ const weight=currentWeight();
+ if(!doseParametersValid(params)){badge.textContent='Parâmetros de dose inválidos — revise o controle mestre.';return}
+ if(!Number.isFinite(weight)){badge.textContent='Cálculo por peso: informe o peso do paciente.';return}
+ const raw=weight*Number(params.rate),maximum=Number(params.maximum),result=Math.min(raw,maximum);
+ const daily=params.basis==='dia';
+ const n=Number(params.administrations)||1;
+ const values=daily&&n>1?`Total: ${formNumber(result)} mg/dia • ${formNumber(result/n)} mg por administração (${n} ao dia)`:`${formNumber(result)} mg/${daily?'dia':'dose'}`;
+ badge.replaceChildren();
+ const strong=document.createElement('b');strong.textContent='Cálculo com parâmetros cadastrados: '+values;
+ badge.appendChild(strong);
+ const foot=document.createElement('div');foot.style.cssText='font-size:10px;margin-top:3px';
+ foot.textContent=`${formNumber(params.rate)} mg/kg/${params.basis} × ${formNumber(weight)} kg; teto cadastrado: ${formNumber(maximum)} mg/${params.basis}`;
+ badge.appendChild(foot);
+ if(raw>maximum){const capped=document.createElement('em');capped.textContent=' • Limitado ao teto informado';foot.appendChild(capped)}
+ const warning=document.createElement('div');warning.style.cssText='font-size:10px;margin-top:4px';
+ warning.textContent='Conferir indicação, faixa etária, via, função renal, concentração e protocolo. Resultado matemático, não prescrição validada.';
+ badge.appendChild(warning);
+}
+function refreshCustomDoses(){
+ if(!ROOT())return;
+ for(const row of ROOT().querySelectorAll('tr[data-master-dose-item]')){
+  const id=row.dataset.masterDoseItem;
+  const entry=config.customItems.find(i=>i.id===id)||config.items[id];
+  const cell=row.querySelector('.cell-desc');
+  if(!cell)continue;
+  if(doseParametersValid(entry?.doseCalc))paintCustomDose(cell,entry.doseCalc);
+  else cell.querySelector('.pc-custom-dose')?.remove();
+ }
+}
+function applyCatalog(){
+ if(rendering)return;rendering=true;
+ try{
+ baseline.forEach(b=>{
+  const h=b.card.querySelector('.category-header');const label=h?.querySelector('.pc-master-title');if(label)label.textContent=config.categories[b.id]?.title||b.title;
+  b.rows.forEach(r=>{
+   const data=config.items[r.id];const title=r.row?.querySelector('.cell-name');const desc=r.row?.querySelector('.cell-desc');
+   if(!title||!desc)return;
+   title.textContent=data?.name??r.name;
+   if(data){
+    // Keep only neutral source string; embedded calculators are deliberately not reused when a model is modified.
+    if(r.special){
+      // Preserve patient-specific form controls and dose UI while showing the edited catalog text separately.
+      desc.innerHTML=r.desc;const inserted=document.createElement('div');inserted.textContent=data.description??'';inserted.style.cssText='padding:6px 8px;background:#edf6fd;border-radius:6px;margin-bottom:6px;white-space:pre-wrap';desc.prepend(inserted);
+    }else{desc.textContent=data.description??''}
+    if(!desc.querySelector('.pc-master-review')){const tag=document.createElement('span');tag.className='pc-master-review';tag.textContent='Modelo alterado • revisão clínica necessária';desc.appendChild(tag)}
+    if(doseParametersValid(data.doseCalc)){r.row.dataset.masterDoseItem=r.id;paintCustomDose(desc,data.doseCalc)}else delete r.row.dataset.masterDoseItem;
+   }else{desc.innerHTML=r.desc;delete r.row.dataset.masterDoseItem}
+  });
+ });
+ ROOT().querySelectorAll('.pc-master-generated').forEach(n=>n.remove());
+ for(const c of config.customCategories){
+  const section=document.createElement('div');section.className='category-card pc-master-generated';section.dataset.masterCat=c.id;
+  section.innerHTML='<div class="category-header"></div><table class="item-table"></table>';
+  ROOT().appendChild(section);
+ }
+ config.customItems.forEach(it=>{
+  const card=[...ROOT().querySelectorAll('.category-card')].find(c=>c.dataset.masterCat===it.categoryId);if(!card)return;
+  const table=card.querySelector('.item-table');if(!table)return;
+  const tr=document.createElement('tr');tr.className='pc-master-generated';tr.dataset.masterDoseItem=it.id;
+  const td1=document.createElement('td');td1.className='cell-check';const check=document.createElement('input');check.type='checkbox';check.className='med-check-single';check.dataset.item=it.id;check.onchange=()=>{if(typeof toggleMedication==='function')toggleMedication(check)};
+  try{const pat=patients.find(p=>p.id===currentPatientId);check.checked=!!pat?.checks?.[it.id]}catch{}
+  tr.classList.toggle('row-selected',check.checked);td1.appendChild(check);
+  const td2=document.createElement('td');td2.className='cell-name';td2.textContent=it.name;td2.onclick=()=>{check.checked=!check.checked;check.dispatchEvent(new Event('change',{bubbles:true}))};
+  const td3=document.createElement('td');td3.className='cell-desc';td3.textContent=it.description||'';if(doseParametersValid(it.doseCalc))paintCustomDose(td3,it.doseCalc);
+  tr.append(td1,td2,td3);table.appendChild(tr);
+ });
+ for(const c of config.customCategories){const card=[...ROOT().querySelectorAll('.category-card')].find(el=>el.dataset.masterCat===c.id);if(card){const t=card.querySelector('.category-header .pc-master-title');if(t)t.textContent=c.title;}}
+ initializeCollapsibles();refreshCustomDoses();
+ if(typeof updatePrintClasses==='function')updatePrintClasses();
+ }finally{rendering=false}
+}
+function initializeCollapsibles(){
+ ROOT().querySelectorAll('.category-card').forEach(card=>{
+ const header=card.querySelector('.category-header');if(!header)return;
+ const title=header.querySelector('.pc-master-title');if(!title){
+  const span=document.createElement('span');span.className='pc-master-title';span.textContent=header.textContent.trim();header.replaceChildren(span);
+ }
+ if(!header.querySelector('.pc-cat-arrow')){
+ const ico=document.createElement('span');ico.className='pc-cat-arrow';ico.innerHTML='<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>';header.appendChild(ico);
+ header.classList.add('pc-collapsible-heading');header.tabIndex=0;header.setAttribute('role','button');header.setAttribute('aria-expanded','true');
+ const toggle=()=>{card.classList.toggle('pc-collapsed');header.setAttribute('aria-expanded',String(!card.classList.contains('pc-collapsed')))};
+ header.addEventListener('click',toggle);header.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}});
+ }
+ });
+}
+function render(){
+ const catlist=$('pc-master-categories');catlist.replaceChildren();
+ for(const cat of categories()){
+  const b=document.createElement('button');b.type='button';b.className='pc-master-cat'+(cat.id===selectedCategory?' active':'');b.textContent=cat.title;
+  const n=document.createElement('small');n.textContent=`${items(cat.id).length} itens`;b.appendChild(n);b.onclick=()=>{selectedCategory=cat.id;selectedItem='';render()};catlist.appendChild(b);
+ }
+ const cat=categories().find(c=>c.id===selectedCategory);
+ const ce=$('pc-master-category-editor'),list=$('pc-master-items'),ed=$('pc-master-item-editor');ce.replaceChildren();list.replaceChildren();ed.replaceChildren();
+ if(!cat){ce.textContent='Escolha uma classe ou crie uma nova.';return}
+ ce.innerHTML=`<label class="pc-master-field">Nome da classe<input id="pc-master-cat-name" maxlength="110" value="${escape(cat.title)}"></label><div class="pc-master-actions"><button type="button" class="pc-master-btn" id="pc-master-save-cat">Salvar nome da classe</button><button type="button" class="pc-master-btn secondary" id="pc-master-add-item">+ Novo medicamento / intervenção</button></div>`;
+ $('pc-master-save-cat').onclick=()=>{
+ const name=$('pc-master-cat-name').value.trim();if(!name)return alert('Informe o nome da classe.');
+ confirmChange('Renomear a classe “'+cat.title+'” para “'+name+'”',()=>{if(cat.original)config.categories[cat.id]={title:name};else config.customCategories.find(c=>c.id===cat.id).title=name;saveConfig();applyCatalog();render()});
+ };
+ $('pc-master-add-item').onclick=()=>{selectedItem='NEW';render()};
+ for(const it of items(cat.id)){
+ const b=document.createElement('button');b.type='button';b.className='pc-master-item'+(selectedItem===it.id?' active':'');
+ const t=document.createElement('span');t.textContent=it.name;b.appendChild(t);const e=document.createElement('span');e.textContent='Editar ›';b.appendChild(e);b.onclick=()=>{selectedItem=it.id;render()};list.appendChild(b);
+ }
+ if(!selectedItem)return;
+ const entry=items(cat.id).find(i=>i.id===selectedItem);
+ const isNew=selectedItem==='NEW';if(!isNew&&!entry)return;
+ ed.innerHTML=`<hr style="border:0;border-top:1px solid #d9e6ef;margin:8px 0"><h3 style="font-size:15px;margin:0">${isNew?'Novo item':'Editar modelo'}</h3><label class="pc-master-field">Medicamento ou intervenção<input id="pc-master-item-name" maxlength="180" value="${escape(entry?.name||'')}"></label><label class="pc-master-field" style="margin-top:9px">Texto do modelo / descrição<textarea id="pc-master-item-desc" placeholder="Descrição a ser revisada clinicamente antes do uso">${escape(entry?.description||'')}</textarea></label><div class="pc-master-actions" style="margin-top:10px"><button type="button" class="pc-master-btn" id="pc-master-save-item">${isNew?'Adicionar ao catálogo':'Salvar alterações'}</button>${!isNew&&!entry.original?'<button type="button" class="pc-master-btn danger" id="pc-master-remove-item">Excluir item criado</button>':''}${!isNew&&entry.original&&entry.hasOverride?'<button type="button" class="pc-master-btn secondary" id="pc-master-reset-item">Restaurar modelo original</button>':''}</div>`;
+ // A calculadora fica desativada até o usuário cadastrar critérios numéricos completos.
+ const doseConfig=entry?.doseCalc||{};
+ const zone=document.createElement('div');zone.className='pc-master-dose-grid';
+ zone.innerHTML=`<div class="pc-master-dose-heading">Calculadora automática por peso (opcional)</div>
+ <label class="pc-master-field" style="grid-column:1/-1"><span><input id="pc-master-dose-enabled" type="checkbox" style="width:auto;margin-right:7px" ${doseConfig.enabled?'checked':''}>Ativar cálculo para este medicamento</span></label>
+ <label class="pc-master-field">Referência do cálculo<select id="pc-master-dose-basis"><option value="dose">mg/kg/dose</option><option value="dia">mg/kg/dia</option></select></label>
+ <label class="pc-master-field">Dose cadastrada (mg/kg)<input id="pc-master-dose-rate" type="number" min="0.0001" max="10000" step="any" inputmode="decimal" placeholder="Informe a dose" value="${escape(doseConfig.rate??'')}"></label>
+ <label class="pc-master-field">Dose máxima no mesmo intervalo (mg)<input id="pc-master-dose-max" type="number" min="0.0001" max="10000000" step="any" inputmode="decimal" placeholder="Informe o teto" value="${escape(doseConfig.maximum??'')}"></label>
+ <label class="pc-master-field">Administrações por dia (modo mg/kg/dia)<input id="pc-master-dose-times" type="number" min="1" max="12" step="1" value="${escape(doseConfig.administrations??1)}"></label>
+ <div class="pc-master-dose-hint">Sem valores padronizados automáticos. O peso atual do paciente será utilizado apenas para calcular uma referência em mg. O teto é aplicado à mesma base escolhida (por dose ou por dia). Não calcula diluição, volume em mL nem valida segurança pediátrica.</div>`;
+ ed.insertBefore(zone,ed.querySelector('.pc-master-actions'));
+ $('pc-master-dose-basis').value=doseConfig.basis==='dia'?'dia':'dose';
+ const times=$('pc-master-dose-times'),basis=$('pc-master-dose-basis');
+ const refreshTimes=()=>{times.disabled=basis.value!=='dia';times.closest('label').style.opacity=times.disabled?'.5':'1'};
+ basis.addEventListener('change',refreshTimes);refreshTimes();
+ $('pc-master-save-item').onclick=()=>{
+ const name=$('pc-master-item-name').value.trim(),description=$('pc-master-item-desc').value.trim();
+ if(!name)return alert('Informe o nome do item.');
+ const enabled=$('pc-master-dose-enabled').checked;
+ const doseCalc=enabled?{
+  enabled:true,basis:$('pc-master-dose-basis').value,
+  rate:Number($('pc-master-dose-rate').value),maximum:Number($('pc-master-dose-max').value),
+  administrations:Number($('pc-master-dose-times').value)||1
+ }:null;
+ if(enabled&&(!$('pc-master-dose-rate').value||!$('pc-master-dose-max').value||!doseParametersValid(doseCalc)))
+  return alert('Informe uma dose em mg/kg e um teto máximo válidos, com a mesma base (por dose ou por dia).');
+ const count=items(cat.id).length;
+ if(isNew&&count>200)return alert('Limite de itens por classe atingido.');
+ confirmChange((isNew?'Adicionar':'Atualizar')+' “'+name+'” no catálogo mestre',()=>{
+ if(isNew){const id='master_item_'+Date.now()+'_'+(++itemSequence);config.customItems.push({id,categoryId:cat.id,name,description,doseCalc});selectedItem=id}
+ else if(entry.original)config.items[entry.id]={name,description,doseCalc};
+ else Object.assign(config.customItems.find(x=>x.id===entry.id),{name,description,doseCalc});
+ saveConfig();applyCatalog();render();
+ });
+ };
+ if($('pc-master-remove-item'))$('pc-master-remove-item').onclick=()=>confirmChange('Excluir o item do catálogo (as marcações anteriores permanecerão nos registros)',()=>{config.customItems=config.customItems.filter(x=>x.id!==entry.id);selectedItem='';saveConfig();applyCatalog();render()});
+ if($('pc-master-reset-item'))$('pc-master-reset-item').onclick=()=>confirmChange('Restaurar o modelo original deste item',()=>{delete config.items[entry.id];saveConfig();applyCatalog();render()});
+}
+function confirmChange(msg,callback){
+ pending=callback;$('pc-master-confirm-description').textContent=msg;
+ $('pc-master-confirm-input').value='';$('pc-master-confirm-apply').disabled=true;
+ $('pc-master-confirm').classList.add('open');$('pc-master-confirm-input').focus();
+}
+function addCategory(){
+ const name=prompt('Nome da nova classe de medicamentos ou intervenções:');if(!name?.trim())return;
+ if(name.trim().length>110)return alert('Nome muito longo.');
+ confirmChange('Criar a classe “'+name.trim()+'” para todas as prescrições',()=>{
+ const id='master_cat_'+Date.now()+'_'+(++catSequence);config.customCategories.push({id,title:name.trim()});selectedCategory=id;selectedItem='';saveConfig();applyCatalog();render()});
+}
+function open(){selectedCategory=categories()[0]?.id||'';selectedItem='';render();$('pc-master-overlay').classList.add('open');$('pc-master-overlay').setAttribute('aria-hidden','false')}
+function close(){$('pc-master-overlay').classList.remove('open');$('pc-master-overlay').setAttribute('aria-hidden','true')}
+function cancelConfirmation(){pending=null;$('pc-master-confirm').classList.remove('open')}
+function commitConfirmation(){if($('pc-master-confirm-input').value.trim()!=='CONFIRMAR'||!pending)return;const run=pending;cancelConfirmation();try{run()}catch(e){console.error(e);alert('Não foi possível aplicar a alteração.')}}
+function init(){if(!ROOT())return;takeBaseline();loadConfig();selectedCategory=categories()[0]?.id||'';applyCatalog();
+ $('pc-master-confirm-input').addEventListener('input',()=>{$('pc-master-confirm-apply').disabled=$('pc-master-confirm-input').value.trim()!=='CONFIRMAR'});
+ $('p-weight')?.addEventListener('input',refreshCustomDoses);
+ $('p-weight')?.addEventListener('change',refreshCustomDoses);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('pc-master-confirm').classList.contains('open'))cancelConfirmation();else if($('pc-master-overlay').classList.contains('open'))close()}});
+ // Reapply after cloud pull: the cloud payload includes obsidianData.masterPrescriptionCatalog.
+ if(typeof pullFromGitHub==='function'){
+  const old=pullFromGitHub;
+  window.pullFromGitHub=async function(...args){const result=await old.apply(this,args);loadConfig();applyCatalog();return result};
+ }
+ // New patients are created by the original system, then dynamically appended catalog items are read from their checks.
+ if(typeof loadPatientDataIntoForm==='function'){
+  const old=loadPatientDataIntoForm;
+  window.loadPatientDataIntoForm=function(...args){const result=old.apply(this,args);applyCatalog();return result};
+ }
+}
+window.PedCareMaster={open,close,addCategory,cancelConfirmation,commitConfirmation,refreshDoses:refreshCustomDoses};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
 </body>
