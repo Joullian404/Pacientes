@@ -1169,6 +1169,63 @@
 @media(max-width:650px){.pc-master-body{grid-template-columns:1fr}.pc-master-sidebar{max-height:170px;border-right:0;border-bottom:1px solid #dfe8f2}.pc-master-dialog{max-height:95vh}.pc-master-editor{padding:13px}.pc-master-head{padding:12px}}
 @media print{.pc-master-overlay,.pc-master-confirm,.pc-master-trigger,.pc-cat-arrow,.pc-master-review{display:none!important}#subview-presc .category-card.pc-collapsed > :not(.category-header){display:block!important}#subview-presc .category-card.pc-collapsed > table{display:table!important}}
 </style>
+
+<!-- PedCare: aprimoramento responsivo da ficha clínica, sem impacto na impressão -->
+<style id="pc-mobile-clinical-card">
+@media screen and (max-width: 768px) {
+  #subview-pront { width: 100%; min-width: 0; }
+  #subview-pront .prontuario-card {
+    width: 100%; max-width: 100%;
+    padding: 16px 14px 20px;
+    margin: 12px 0 18px;
+    border-radius: 15px;
+    border: 1px solid #d7e2ed;
+    box-shadow: 0 4px 16px rgba(15, 45, 80, .055);
+  }
+  #subview-pront .prontuario-section-title {
+    font-size: clamp(16px, 4.35vw, 19px);
+    line-height: 1.3;
+    letter-spacing: .01em;
+    margin: 20px 0 15px;
+    padding-bottom: 10px;
+    overflow-wrap: anywhere;
+  }
+  #subview-pront .prontuario-section-title:first-child { margin-top: 0; }
+  #subview-pront .grid-2 { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; margin-bottom: 16px!important; }
+  #subview-pront .input-group { display: flex; flex-direction: column; min-width: 0; gap: 7px; }
+  #subview-pront .input-group label {
+    display: block; white-space: normal; overflow: visible;
+    font-size: 13.5px; line-height: 1.45; letter-spacing: .02em;
+  }
+  #subview-pront .input-group input,
+  #subview-pront .input-group textarea {
+    display: block; box-sizing: border-box;
+    width: 100%; max-width: 100%; min-width: 0;
+    border-radius: 11px; border: 1.5px solid #cbd5e1;
+    padding: 13px 14px;
+    font-size: 17px!important; line-height: 1.55;
+    color: #162d45; background: #fff;
+    -webkit-text-size-adjust: 100%;
+  }
+  #subview-pront .input-group input { min-height: 53px; }
+  #subview-pront .input-group textarea {
+    resize: vertical; overflow-y: auto;
+    min-height: 115px;
+  }
+  #subview-pront #pront-history { min-height: 190px; }
+  #subview-pront #pront-exames { min-height: 148px; }
+  #subview-pront .input-group input::placeholder,
+  #subview-pront .input-group textarea::placeholder { color: #8794a4; opacity: 1; }
+  #subview-pront .input-group input:focus,
+  #subview-pront .input-group textarea:focus {
+    border-color: #0284c7; box-shadow: 0 0 0 3px #e0f2fe;
+  }
+}
+@media screen and (max-width: 370px) {
+  #subview-pront .prontuario-card { padding: 13px 11px 17px; }
+  #subview-pront .prontuario-section-title { font-size: 16px; }
+}
+</style>
 </head>
 <body>
 
