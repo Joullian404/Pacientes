@@ -1083,6 +1083,19 @@
 #popup-obsidian .pc-rich-editor blockquote{margin:8px 0;padding:8px 12px;border-left:3px solid #a68ad4;background:#f8f5ff;border-radius:0 7px 7px 0}
 #popup-obsidian .pc-rich-editor .pc-callout{border-left:4px solid #9471cb;background:#f5f0ff;margin:10px 0;padding:9px 13px;border-radius:7px}
 #popup-obsidian .pc-rich-editor .pc-callout-heading{font-weight:750;color:#5c3899;margin-bottom:3px}
+/* Caixas do Caderno Clínico — botões de criação, conteúdo editável e exclusão */
+#popup-obsidian .obsidian-toolbar{display:flex;flex-wrap:wrap;align-items:center}
+#popup-obsidian .obsidian-toolbar .obs-btn{white-space:nowrap}
+#popup-obsidian .pc-rich-editor .pc-callout{border:1px solid #ded4f1;border-left:4px solid #855ab9;background:#f8f5ff;border-radius:11px;margin:12px 0;padding:9px 12px;box-shadow:0 2px 8px rgba(61,35,108,.04)}
+#popup-obsidian .pc-rich-editor .pc-callout[data-callout="warning"]{border-color:#f2d9a6;border-left-color:#d79422;background:#fffaf0}
+#popup-obsidian .pc-rich-editor .pc-callout-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;user-select:none}
+#popup-obsidian .pc-rich-editor .pc-callout[data-callout="warning"] .pc-callout-heading{color:#9c6219}
+#popup-obsidian .pc-rich-editor .pc-callout-body{min-height:28px;outline:none;white-space:pre-wrap;overflow-wrap:anywhere}
+#popup-obsidian .pc-rich-editor .pc-callout-body:focus{border-radius:5px;box-shadow:0 2px 0 #a69ac7}
+#popup-obsidian .pc-rich-editor .pc-callout-remove{display:grid;place-items:center;flex:0 0 25px;width:25px;height:25px;border-radius:7px;border:1px solid transparent;background:transparent;color:#777082;font-size:19px;line-height:1;cursor:pointer}
+#popup-obsidian .pc-rich-editor .pc-callout-remove:hover,#popup-obsidian .pc-rich-editor .pc-callout-remove:focus-visible{background:#ffeded;border-color:#f3c5c5;color:#a22e2e}
+@media(max-width:650px){#popup-obsidian .obsidian-toolbar .obs-btn{padding:7px 9px;font-size:12px}}
+
 #popup-obsidian .pc-rich-editor .pc-task,#popup-obsidian .pc-rich-editor .pc-list-item{display:flex;align-items:baseline;gap:9px;margin:3px 0;min-height:24px}
 #popup-obsidian .pc-rich-editor .pc-task-check{accent-color:#7754b1;flex:0 0 auto;cursor:pointer}
 #popup-obsidian .pc-rich-editor .pc-task[data-checked="true"] .pc-task-text{text-decoration:line-through;color:#8d8a9a}
@@ -1226,6 +1239,176 @@
   #subview-pront .prontuario-section-title { font-size: 16px; }
 }
 </style>
+<style id="pedcare-tab-discharge-styles">
+#tabs-bar .tab-close{cursor:pointer}
+.pc-patient-manage-actions{display:flex;flex-wrap:wrap;gap:5px;justify-content:flex-end}
+.pc-patient-discharged{display:block;font-size:11px;font-weight:700;color:#15803d;margin-top:4px}
+.pc-archive-discharge,.pc-discharge-action{background:#ecfdf5!important;border:1px solid #86efac!important;color:#166534!important}
+.pc-permanent-delete{background:#fff1f2!important;border:1px solid #fecdd3!important;color:#be123c!important}
+.pc-archive-patient{flex-wrap:wrap}
+.pc-patient-manage-actions button{font-size:11px!important;padding:7px 9px!important;white-space:normal}
+@media(max-width:730px){.pc-patient-manage-actions{width:100%;justify-content:flex-start}.pc-archive-discharge{font-size:12px}}
+</style>
+<style id="pedcare-image-textareas-readable">
+/* Laudos de imagens: area de leitura ampla e rolavel no computador e no celular. */
+@media screen {
+ #popup-diagnostics .image-comment-box {
+   box-sizing:border-box!important;
+   display:block!important;
+   width:100%!important;
+   height:200px!important;
+   min-height:160px!important;
+   max-height:none!important;
+   resize:vertical!important;
+   overflow-y:auto!important;
+   -webkit-overflow-scrolling:touch;
+   padding:12px 13px!important;
+   font-size:15px!important;
+   line-height:1.55!important;
+   border-radius:10px!important;
+ }
+ #zoom-comment {
+   box-sizing:border-box!important;
+   width:100%!important;
+   height:185px!important;
+   min-height:160px!important;
+   max-height:none!important;
+   overflow-y:auto!important;
+   resize:vertical!important;
+   padding:12px!important;
+   font-size:15px!important;
+   line-height:1.5!important;
+ }
+ #pront-exames {
+   box-sizing:border-box!important;
+   height:260px!important;
+   min-height:180px!important;
+   max-height:none!important;
+   resize:vertical!important;
+   overflow-y:auto!important;
+   font-size:15px!important;
+   line-height:1.55!important;
+ }
+}
+@media screen and (max-width:768px) {
+ #popup-diagnostics .image-comment-box {height:240px!important;min-height:190px!important;font-size:16px!important;}
+ #zoom-comment {height:220px!important;min-height:180px!important;font-size:16px!important;}
+ #pront-exames {height:235px!important;min-height:190px!important;font-size:16px!important;}
+}
+</style>
+
+<style id="pc-architecture-unified-controls-2026">
+/* Shared controls and dimensions for original and newly introduced panels. */
+.floating-popup .popup-header .pc-window-actions,
+.pc-overlay .pc-dialog>.pc-row:first-child .pc-window-actions{display:inline-flex!important;align-items:center!important;gap:5px!important;margin-left:auto!important;flex-shrink:0!important}
+.floating-popup .popup-header .pc-window-actions button,
+.pc-overlay .pc-dialog>.pc-row:first-child .pc-window-actions button,
+.floating-popup .popup-header .popup-close-btn,
+.pc-overlay .pc-dialog>.pc-row:first-child #pc-close{min-height:30px!important;border-radius:9px!important;line-height:1.15!important;cursor:pointer}
+.floating-popup:not(.pc-detached) .popup-header .pc-window-min,
+.pc-overlay:not(.pc-detached) .pc-dialog>.pc-row:first-child .pc-window-min{display:none!important}
+.pc-detached .pc-window-min{display:inline-flex!important;justify-content:center;align-items:center}
+.pc-detached:not(.pc-minimized){min-height:min(190px,calc(100dvh - 18px))!important}
+.pc-detached.pc-minimized{min-height:44px!important;height:47px!important;max-height:55px!important}
+.pc-overlay.pc-detached .pc-dialog{min-height:0!important}
+.pc-overlay.pc-kind-folders:not(.pc-detached) .pc-dialog>.pc-row:first-child{background:linear-gradient(105deg,#e0f2f1,#d0eee9)!important}
+.pc-overlay.pc-kind-programs:not(.pc-detached) .pc-dialog>.pc-row:first-child{background:linear-gradient(105deg,#fff4e6,#ffe5c1)!important}
+.pc-overlay.pc-kind-checklist:not(.pc-detached) .pc-dialog>.pc-row:first-child{background:linear-gradient(105deg,#e6f7f1,#c8ebdf)!important}
+.pc-overlay.pc-kind-handoff:not(.pc-detached) .pc-dialog>.pc-row:first-child{background:linear-gradient(105deg,#e7f0ff,#cadfff)!important}
+.pc-overlay.pc-kind-reminders:not(.pc-detached) .pc-dialog>.pc-row:first-child{background:linear-gradient(105deg,#f3edff,#e5d7ff)!important}
+/* Prevent clipped action buttons at narrow widths. */
+.floating-popup .popup-header,.pc-overlay .pc-dialog>.pc-row:first-child{min-width:0!important;gap:6px!important}
+.floating-popup .popup-title,.pc-overlay .pc-dialog>.pc-row:first-child h2{min-width:0!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:700px){.pc-detached:not(.pc-minimized){max-height:calc(100dvh - 18px)!important}}
+</style>
+
+<style id="pc-dialog-system-style">
+.pc-dialog-backdrop{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.54);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);animation:pcDialogBack .16s ease-out}
+.pc-dialog-card{width:min(100%,470px);max-height:min(85dvh,680px);overflow:auto;box-sizing:border-box;border-radius:20px;background:#fff;color:#203148;border:1px solid #dbe5f0;box-shadow:0 25px 85px rgba(10,28,55,.28);animation:pcDialogIn .2s cubic-bezier(.2,.8,.2,1);font-family:inherit}
+.pc-dialog-head{display:flex;align-items:center;gap:12px;padding:22px 23px 4px}
+.pc-dialog-symbol{width:43px;height:43px;border-radius:14px;background:#eaf2fc;color:#1d639d;display:grid;place-items:center;flex:none;font-size:23px}
+.pc-dialog-backdrop[data-kind="danger"] .pc-dialog-symbol{background:#fce9eb;color:#a52e42}
+.pc-dialog-backdrop[data-kind="confirm"] .pc-dialog-symbol{background:#fff1dd;color:#a06416}
+.pc-dialog-title{font-weight:800;font-size:18px;letter-spacing:-.02em;line-height:1.3;margin:0}
+.pc-dialog-message{font-size:14px;line-height:1.58;white-space:pre-wrap;overflow-wrap:anywhere;margin:0;padding:13px 23px 0;color:#52647a}
+.pc-dialog-entry{box-sizing:border-box;display:block;width:calc(100% - 46px);margin:18px 23px 0;padding:13px 14px;min-height:46px;font:inherit;font-size:16px;background:#f8fafc;color:#152c42;border:1px solid #cbd8e8;border-radius:11px;outline:none;resize:vertical}
+.pc-dialog-entry:focus{border-color:#3180c6;box-shadow:0 0 0 3px rgba(49,128,198,.13)}
+.pc-dialog-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;padding:22px 23px 23px}
+.pc-dialog-actions button{min-height:42px;padding:10px 19px;border-radius:11px;border:1px solid #ccd7e6;background:#f4f7fb;color:#273c51;font-size:14px;font-family:inherit;font-weight:700;cursor:pointer;transition:background .14s,transform .14s}
+.pc-dialog-actions button:focus-visible{outline:3px solid #75b3e4;outline-offset:2px}
+.pc-dialog-actions button:hover{transform:translateY(-1px)}
+.pc-dialog-actions .pc-dialog-primary{background:#1666a5;border-color:#1666a5;color:white}
+.pc-dialog-backdrop[data-kind="danger"] .pc-dialog-primary{background:#a83144;border-color:#a83144}
+@keyframes pcDialogIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes pcDialogBack{from{opacity:0}to{opacity:1}}
+@media(max-width:620px){.pc-dialog-backdrop{align-items:center;padding:12px}.pc-dialog-card{border-radius:17px}.pc-dialog-head{padding:20px 18px 4px}.pc-dialog-message{padding:12px 18px 0}.pc-dialog-entry{width:calc(100% - 36px);margin:16px 18px 0}.pc-dialog-actions{padding:20px 18px;gap:8px}.pc-dialog-actions button{flex:1}}
+@media(prefers-reduced-motion:reduce){.pc-dialog-backdrop,.pc-dialog-card{animation:none}.pc-dialog-actions button{transition:none}}
+</style>
+<script id="pc-dialog-system-script">
+(function(){
+'use strict';
+const queue=[];let busy=false;
+function request(type,message,defaultValue){
+ return new Promise(resolve=>{queue.push({type,message:String(message??''),defaultValue,resolve});next();});
+}
+function next(){
+ if(busy||!queue.length)return;busy=true;
+ const job=queue.shift();
+ const kind=/exclu|apagar|remov|definitiv|desconect|limpar|restaurar/i.test(job.message)?'danger':job.type==='confirm'?'confirm':'info';
+ const backdrop=document.createElement('div');backdrop.className='pc-dialog-backdrop';backdrop.dataset.kind=kind;
+ backdrop.setAttribute('role','presentation');
+ const card=document.createElement('section');card.className='pc-dialog-card';card.setAttribute('role','alertdialog');card.setAttribute('aria-modal','true');
+ const head=document.createElement('div');head.className='pc-dialog-head';
+ const symbol=document.createElement('span');symbol.className='pc-dialog-symbol';symbol.setAttribute('aria-hidden','true');symbol.textContent=kind==='danger'?'!':job.type==='prompt'?'✎':job.type==='confirm'?'?':'i';
+ const title=document.createElement('h2');title.className='pc-dialog-title';title.id='pc-dialog-title';title.textContent=job.type==='prompt'?'Informação necessária':kind==='danger'?'Confirme esta ação':job.type==='confirm'?'Confirmação':'Aviso do PedCare';
+ const desc=document.createElement('p');desc.className='pc-dialog-message';desc.id='pc-dialog-message';desc.textContent=job.message;
+ const action=document.createElement('div');action.className='pc-dialog-actions';
+ head.append(symbol,title);card.append(head,desc);
+ card.setAttribute('aria-labelledby',title.id);card.setAttribute('aria-describedby',desc.id);
+ let entry=null;
+ if(job.type==='prompt'){
+  entry=/laudo|observaç|comentári/i.test(job.message)?document.createElement('textarea'):document.createElement('input');
+  entry.className='pc-dialog-entry';entry.value=String(job.defaultValue??'');
+  entry.setAttribute('aria-label',job.message);if(entry.tagName==='TEXTAREA')entry.rows=4;
+  card.appendChild(entry);
+ }
+ const previousFocus=document.activeElement;
+ let finished=false;
+ const done=value=>{
+  if(finished)return;finished=true;
+  document.removeEventListener('keydown',keyHandler,true);
+  backdrop.remove();busy=false;
+  try{if(previousFocus?.isConnected&&typeof previousFocus.focus==='function')previousFocus.focus({preventScroll:true});}catch(_){}
+  job.resolve(value);next();
+ };
+ const cancel=()=>done(job.type==='confirm'?false:job.type==='prompt'?null:undefined);
+ const keyHandler=e=>{
+  if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancel();}
+  if(e.key==='Enter'&&job.type==='prompt'&&entry?.tagName!=='TEXTAREA'){
+   e.preventDefault();e.stopPropagation();done(entry.value);
+  }
+  if(e.key==='Tab'){
+   const focusables=[...card.querySelectorAll('input,textarea,button')].filter(x=>!x.disabled);
+   if(!focusables.length)return;
+   const first=focusables[0],last=focusables[focusables.length-1];
+   if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+   else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+  }
+ };
+ if(job.type!=='alert'){
+  const no=document.createElement('button');no.type='button';no.textContent='Cancelar';no.addEventListener('click',cancel);action.appendChild(no);
+ }
+ const yes=document.createElement('button');yes.type='button';yes.className='pc-dialog-primary';yes.textContent=job.type==='alert'?'Entendi':job.type==='prompt'?'Salvar':kind==='danger'?'Confirmar ação':'Confirmar';
+ yes.addEventListener('click',()=>done(job.type==='confirm'?true:job.type==='prompt'?entry.value:undefined));action.appendChild(yes);
+ card.appendChild(action);backdrop.appendChild(card);document.body.appendChild(backdrop);
+ backdrop.addEventListener('mousedown',e=>{if(e.target===backdrop&&job.type!=='alert')cancel();});
+ document.addEventListener('keydown',keyHandler,true);
+ requestAnimationFrame(()=>{if(entry)entry.focus();else yes.focus();});
+}
+window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('confirm',msg),prompt:(msg,value='')=>request('prompt',msg,value)};
+})();
+</script>
+
 </head>
 <body>
 
@@ -1840,7 +2023,7 @@
           <div class="input-group" style="margin-bottom:14px;">
             <div class="pc-history-heading">
               <label for="pront-history">História Clínica / Anamnese / Evolução</label>
-              <button type="button" id="pc-history-size-toggle" class="pc-history-size-toggle" aria-controls="pront-history" aria-expanded="false" onclick="pcToggleHistorySize()">⤢ Ampliar</button>
+              <div class="pc-history-controls" role="group" aria-label="Tamanho do campo História Clínica"><button type="button" id="pc-history-expand" class="pc-history-size-toggle" aria-controls="pront-history" onclick="pcSetHistorySize(true)">⤢ Ampliar</button><button type="button" id="pc-history-shrink" class="pc-history-size-toggle" aria-controls="pront-history" onclick="pcSetHistorySize(false)" disabled>⤡ Reduzir</button></div>
             </div>
             <textarea id="pront-history" rows="4" placeholder="História da doença atual, antecedentes mórbidos, imunizações..." oninput="updateProntuarioField('clinicalHistory', this.value)"></textarea>
           </div>
@@ -2308,7 +2491,9 @@
       if (!patients.length) {
         createNewPatient();
       } else {
-        switchPatientTab(patients[0].id);
+        const firstOpen = patients.find(p => !p.tabClosed);
+        if (firstOpen) switchPatientTab(firstOpen.id);
+        else { renderTabs(); showArchiveView(); }
       }
 
       initGitHubConnection();
@@ -2431,7 +2616,7 @@
       const textarea = document.getElementById('raw-lab-input');
       const text = textarea.value.trim();
       if (!text) {
-        alert('Cole o texto dos exames antes de processar.');
+        window.PedCareDialog.alert('Cole o texto dos exames antes de processar.');
         return;
       }
 
@@ -2509,7 +2694,7 @@
       });
 
       if (Object.keys(parsedValues).length === 0) {
-        alert('Não foi possível identificar exames válidos.');
+        window.PedCareDialog.alert('Não foi possível identificar exames válidos.');
         return;
       }
 
@@ -2529,115 +2714,120 @@
       textarea.value = '';
     }
 
+    // Seleção independente da tabela: só as datas escolhidas ocupam colunas.
+    // O histórico completo de exames permanece inalterado no paciente.
+    const pcLabDateChoices = new Map();
+    function pcLabDateOrder(value) {
+      const text=String(value||'').trim();
+      let m=text.match(/^(\d{1,2})[.\/-](\d{1,2})(?:[.\/-](\d{2,4}))?$/);
+      if(m){let y=m[3]?Number(m[3]):new Date().getFullYear(); if(y<100)y+=y>=70?1900:2000;return new Date(y,Number(m[2])-1,Number(m[1])).getTime()||0;}
+      m=text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+      return m?new Date(+m[1],+m[2]-1,+m[3]).getTime():0;
+    }
+    function pcLabEscape(value) {
+      return String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+    function pcLabNumber(value) {
+      const str=String(value??'').trim();
+      if(!/^[<>≤≥]?\s*\d[\d.,]*(?:\s*[%a-zA-Zµμ/³²-]+)?$/.test(str))return null;
+      let raw=str.match(/\d[\d.,]*/)?.[0];if(!raw)return null;
+      const comma=raw.lastIndexOf(','),dot=raw.lastIndexOf('.');
+      if(comma>=0&&dot>=0)raw=comma>dot?raw.replace(/\./g,'').replace(',','.'):raw.replace(/,/g,'');
+      else if(comma>=0)raw=raw.replace(',','.');
+      else if(/^\d{1,3}(?:\.\d{3})+$/.test(raw))raw=raw.replace(/\./g,'');
+      const n=Number(raw);return Number.isFinite(n)?n:null;
+    }
+    function pcLabTrend(current,previous) {
+      const a=pcLabNumber(current),b=pcLabNumber(previous);
+      if(a===null||b===null)return '';
+      return `<span class="pc-lab-trend ${a>b?'pc-up':a<b?'pc-down':'pc-flat'}" title="Variação em relação à data selecionada anterior">${a>b?'↑':a<b?'↓':'→'}</span>`;
+    }
+    function pcToggleLabDate(encodedDate) {
+      const pat=patients.find(p=>p.id===currentPatientId);if(!pat)return;
+      const date=decodeURIComponent(encodedDate);
+      const all=[...(pat.labHistory||[])].sort((a,b)=>pcLabDateOrder(a.date)-pcLabDateOrder(b.date));
+      const available=new Set(all.map(x=>x.date));
+      if(!available.has(date))return;
+      const selection=pcLabDateChoices.get(pat.id)||new Set(all.slice(-2).map(x=>x.date));
+      if(selection.has(date)) { if(selection.size>1)selection.delete(date); }
+      else selection.add(date);
+      pcLabDateChoices.set(pat.id,selection);
+      renderLabTable();
+    }
+    window.pcToggleLabDate=pcToggleLabDate;
     function renderLabTable() {
-      const container = document.getElementById('lab-table-container');
-      const pat = patients.find(p => p.id === currentPatientId);
-
-      if (!pat || !pat.labHistory || pat.labHistory.length === 0) {
-        container.innerHTML = `
-          <div style="padding:16px; text-align:center; color:var(--text-muted); font-size:12px;">
-            Nenhum exame processado ainda. Cole os dados acima e clique em <strong>Processar</strong>!
-          </div>`;
+      const container=document.getElementById('lab-table-container');
+      const pat=patients.find(p=>p.id===currentPatientId);
+      if(!container)return;
+      if(!pat||!Array.isArray(pat.labHistory)||!pat.labHistory.length){
+        container.innerHTML='<div class="pc-lab-empty">Nenhum exame processado ainda. Cole os dados acima e clique em <strong>Processar</strong>.</div>';
         return;
       }
-
-      const dates = pat.labHistory.map(entry => entry.date);
-      const customDefs = pat.customLabDefs || {};
-      const dynamicPanels = JSON.parse(JSON.stringify(STANDARD_LAB_PANELS));
-
-      const allPatientKeys = new Set();
-      pat.labHistory.forEach(entry => {
-        Object.keys(entry.values).forEach(k => allPatientKeys.add(k));
-      });
-
-      allPatientKeys.forEach(k => {
-        let isAlreadyInPanel = false;
-        for (let p of dynamicPanels) {
-          if (p.tests.some(t => t.key === k)) { isAlreadyInPanel = true; break; }
-        }
-
-        if (!isAlreadyInPanel) {
-          const def = customDefs[k] || { label: toTitleCase(k), category: categorizeExam(k, k) };
-          let targetCategory = def.category || '📋 Exames Complementares & Outros';
-          let panel = dynamicPanels.find(p => p.name === targetCategory);
-          if (!panel) {
-            panel = dynamicPanels.find(p => p.name === '📋 Exames Complementares & Outros');
-          }
-          panel.tests.push({ key: k, label: def.label });
-        }
-      });
-
-      let tableHtml = `<table class="lab-comp-table"><thead><tr><th>Painel / Exame</th>`;
-      dates.forEach((d, idx) => {
-        const isLatest = (idx === dates.length - 1);
-        tableHtml += `<th class="${isLatest ? 'col-date-highlight' : ''}">
-          ${d} ${isLatest ? '⚡' : ''}
-          <button class="btn-del-col" onclick="deleteLabDate('${d}')" title="Excluir exames deste dia">✕</button>
-        </th>`;
-      });
-      tableHtml += `</tr></thead><tbody>`;
-
-      let hasRenderedAnyRow = false;
-
-      dynamicPanels.forEach(panel => {
-        // Regra estrita: exibe apenas os parâmetros que tenham valor em pelo menos uma data
-        const presentTests = panel.tests.filter(t => pat.labHistory.some(entry => entry.values[t.key] !== undefined && entry.values[t.key] !== null && String(entry.values[t.key]).trim() !== ''));
-        
-        if (presentTests.length > 0) {
-          hasRenderedAnyRow = true;
-          tableHtml += `<tr class="lab-category-row"><td colspan="${dates.length + 1}">${panel.name}</td></tr>`;
-
-          presentTests.forEach(test => {
-            tableHtml += `<tr><td><strong>${test.label}</strong></td>`;
-
-            pat.labHistory.forEach(entry => {
-              const val = entry.values[test.key];
-              if (val !== undefined && val !== null && String(val).trim() !== '') {
-                const valStr = String(val);
-                const isLongOrText = valStr.length > 10 || /[a-zA-Z]/.test(valStr);
-
-                let badgeClass = '';
-                const upperVal = valStr.toUpperCase();
-                if (/POSITIV|REAGENT|CRESCIMENTO|ISOLAD|RESISTENT|DESVIO|ALTO|ALTERAD/i.test(upperVal)) {
-                  badgeClass = 'lab-badge-pos';
-                } else if (/NEGATIV|NÃO REAGENT|SEM CRESCIMENTO|NORMAL/i.test(upperVal)) {
-                  badgeClass = 'lab-badge-neg';
-                }
-
-                if (isLongOrText) {
-                  tableHtml += `<td class="lab-val-cell has-val"><span class="lab-badge-text ${badgeClass}">${valStr}</span></td>`;
-                } else {
-                  tableHtml += `<td class="lab-val-cell has-val">${valStr}</td>`;
-                }
-              } else {
-                // Se não apareceu nesta data específica, coloca o traço "-"
-                tableHtml += `<td class="lab-val-cell" style="color:#94a3b8;">-</td>`;
-              }
-            });
-
-            tableHtml += `</tr>`;
+      const all=[...pat.labHistory].sort((a,b)=>pcLabDateOrder(a.date)-pcLabDateOrder(b.date));
+      const available=new Set(all.map(x=>x.date));
+      let selection=pcLabDateChoices.get(pat.id);
+      if(!selection){selection=new Set(all.slice(-2).map(x=>x.date));pcLabDateChoices.set(pat.id,selection);}
+      for(const old of [...selection])if(!available.has(old))selection.delete(old);
+      if(!selection.size)selection.add(all[all.length-1].date);
+      const chosen=all.filter(x=>selection.has(x.date));
+      const customDefs=pat.customLabDefs||{};
+      const panels=JSON.parse(JSON.stringify(STANDARD_LAB_PANELS));
+      const known=new Set(panels.flatMap(g=>g.tests.map(t=>t.key)));
+      for(const entry of all){for(const key of Object.keys(entry.values||{})){
+        if(known.has(key))continue;known.add(key);
+        const def=customDefs[key]||{label:key,category:'📋 Exames Complementares & Outros'};
+        let panel=panels.find(g=>g.name===def.category)||panels.find(g=>g.name==='📋 Exames Complementares & Outros');
+        if(!panel){panel={name:'📋 Exames Complementares & Outros',tests:[]};panels.push(panel);}
+        panel.tests.push({key,label:def.label||key});
+      }}
+      const labelMap=new Map(panels.flatMap(group=>group.tests.map(t=>[t.key,t.label])));
+      const rail=all.map(entry=>{
+        const active=selection.has(entry.date);
+        const summary=Object.entries(entry.values||{}).filter(([,v])=>String(v??'').trim()).slice(0,3)
+          .map(([k,v])=>`<span class="pc-lab-mini"><b>${pcLabEscape(labelMap.get(k)||k)}</b> ${pcLabEscape(String(v).slice(0,18))}</span>`).join('');
+        return `<button type="button" class="pc-lab-date-card ${active?'selected':''}" aria-pressed="${active}" onclick="pcToggleLabDate('${encodeURIComponent(entry.date)}')"><span class="pc-lab-date-top"><span>${pcLabEscape(entry.date)}</span><span>${active?'✓':'+'}</span></span><span class="pc-lab-date-preview">${summary||'<i>Exames registrados</i>'}</span></button>`;
+      }).join('');
+      let html=`<div class="pc-lab-date-heading"><strong>Datas dos exames</strong><span>Selecione datas para comparar • role a faixa para ver as demais</span></div><div class="pc-lab-date-rail" id="pc-lab-date-rail" tabindex="0" aria-label="Datas dos exames laboratoriais">${rail}</div><div class="pc-lab-count">${chosen.length} ${chosen.length===1?'data selecionada':'datas selecionadas'} • ordem cronológica</div>`;
+      html+='<div class="pc-lab-table-scroll"><table class="lab-comp-table pc-lab-compare"><thead><tr><th>Exame</th>';
+      for(const entry of chosen)html+=`<th>${pcLabEscape(entry.date)} <button class="btn-del-col" onclick="deleteLabDate(decodeURIComponent('${encodeURIComponent(entry.date)}'))" title="Excluir exames desta data">✕</button></th>`;
+      html+='</tr></thead><tbody>';
+      let rows=0;
+      for(const group of panels){
+        const present=group.tests.filter(t=>chosen.some(e=>String(e.values?.[t.key]??'').trim()));
+        if(!present.length)continue;
+        rows+=present.length;
+        html+=`<tr class="lab-category-row"><td colspan="${chosen.length+1}">${pcLabEscape(group.name)}</td></tr>`;
+        for(const test of present){
+          html+=`<tr><td><strong>${pcLabEscape(customDefs[test.key]?.label||test.label)}</strong></td>`;
+          chosen.forEach((entry,i)=>{
+            const value=String(entry.values?.[test.key]??'').trim();
+            const previous=i?chosen[i-1].values?.[test.key]:null;
+            const upper=value.toUpperCase();
+            const badge=/POSITIV|REAGENT|CRESCIMENTO|ISOLAD|RESISTENT|ALTERAD/.test(upper)?' lab-badge-pos':/NEGATIV|NÃO REAGENT|SEM CRESCIMENTO|NORMAL/.test(upper)?' lab-badge-neg':'';
+            html+=`<td class="lab-val-cell">${value?`<span class="pc-lab-result${badge}">${pcLabEscape(value)}</span>${i&&String(previous??'').trim()?pcLabTrend(value,previous):''}`:''}</td>`;
           });
+          html+='</tr>';
         }
-      });
-
-      tableHtml += `</tbody></table>`;
-      container.innerHTML = hasRenderedAnyRow ? tableHtml : `<div style="padding:16px; text-align:center; color:var(--text-muted); font-size:12px;">Nenhum exame identificado.</div>`;
+      }
+      html+='</tbody></table></div>';
+      if(!rows)html+='<div class="pc-lab-empty">Nenhum resultado nas datas selecionadas.</div>';
+      container.innerHTML=html;
     }
 
-    function deleteLabDate(dateToDelete) {
+    async function deleteLabDate(dateToDelete) {
       const pat = patients.find(p => p.id === currentPatientId);
       if (!pat || !pat.labHistory) return;
-      if (confirm(`Excluir todos os exames da data ${dateToDelete}?`)) {
+      if (await window.PedCareDialog.confirm(`Excluir todos os exames da data ${dateToDelete}?`)) {
         pat.labHistory = pat.labHistory.filter(e => e.date !== dateToDelete);
         saveAllPatients();
         renderLabTable();
       }
     }
 
-    function clearLabHistory() {
+    async function clearLabHistory() {
       const pat = patients.find(p => p.id === currentPatientId);
       if (!pat) return;
-      if (confirm('Deseja limpar todo o histórico de exames laboratoriais e culturas deste paciente?')) {
+      if (await window.PedCareDialog.confirm('Deseja limpar todo o histórico de exames laboratoriais e culturas deste paciente?')) {
         pat.labHistory = [];
         pat.customLabDefs = {};
         saveAllPatients();
@@ -2710,15 +2900,15 @@
       reader.readAsDataURL(file);
     }
 
-    function saveImageToPatient(base64Data) {
+    async function saveImageToPatient(base64Data) {
       const pat = patients.find(p => p.id === currentPatientId);
       if (!pat) return;
 
       if (!pat.images) pat.images = [];
-      const title = prompt('Título do exame (ex: RX Tórax PA/Perfil, TC Crânio, USG Abdome):', 'RX Tórax');
+      const title = await window.PedCareDialog.prompt('Título do exame (ex: RX Tórax PA/Perfil, TC Crânio, USG Abdome):', 'RX Tórax');
       if (title === null) return;
 
-      const comment = prompt('Laudo / Observações do exame (opcional):', '') || '';
+      const comment = await window.PedCareDialog.prompt('Laudo / Observações do exame (opcional):', '') || '';
 
       pat.images.push({
         id: 'img_' + Date.now(),
@@ -2775,10 +2965,10 @@
       });
     }
 
-    function deletePatientImage(imgId) {
+    async function deletePatientImage(imgId) {
       const pat = patients.find(p => p.id === currentPatientId);
       if (!pat || !pat.images) return;
-      if (confirm('Deseja excluir esta imagem?')) {
+      if (await window.PedCareDialog.confirm('Deseja excluir esta imagem?')) {
         pat.images = pat.images.filter(i => i.id !== imgId);
         saveAllPatients();
         renderImageGrid();
@@ -2897,8 +3087,8 @@
       renderObsidianUI();
     }
 
-    function createFolderPrompt() {
-      const name = prompt('Nome da nova pasta clínica (ex: UTI, Pneumo, Infecto):');
+    async function createFolderPrompt() {
+      const name = await window.PedCareDialog.prompt('Nome da nova pasta clínica (ex: UTI, Pneumo, Infecto):');
       if (name && name.trim()) {
         const clean = name.trim();
         if (!obsidianData.folders.includes(clean)) {
@@ -2910,8 +3100,8 @@
       }
     }
 
-    function createNotePrompt() {
-      const title = prompt('Título da nova nota:', 'Nova Nota Clínica');
+    async function createNotePrompt() {
+      const title = await window.PedCareDialog.prompt('Título da nova nota:', 'Nova Nota Clínica');
       if (title && title.trim()) {
         const newNote = {
           id: 'note_' + Date.now(),
@@ -2927,10 +3117,10 @@
       }
     }
 
-    function deleteCurrentNote() {
+    async function deleteCurrentNote() {
       const active = obsidianData.notes.find(n => n.id === obsidianData.currentNoteId);
       if (!active) return;
-      if (confirm(`Excluir a nota "${active.title}"?`)) {
+      if (await window.PedCareDialog.confirm(`Excluir a nota "${active.title}"?`)) {
         obsidianData.notes = obsidianData.notes.filter(n => n.id !== active.id);
         const remaining = obsidianData.notes.filter(n => n.folder === obsidianData.currentFolder);
         obsidianData.currentNoteId = remaining.length ? remaining[0].id : null;
@@ -3206,7 +3396,7 @@
       const popup = document.getElementById(popupId);
       const isVisible = popup.style.display === 'flex';
       
-      document.querySelectorAll('.floating-popup').forEach(p => p.style.display = 'none');
+      document.querySelectorAll('.floating-popup:not(.pc-detached)').forEach(p => p.style.display = 'none');
       
       if (!isVisible) {
         const lateral = document.getElementById('pc-overlay');
@@ -3253,7 +3443,7 @@
 
     async function handleConnectGitHub() {
       const token = document.getElementById('gh-token-input').value.trim();
-      if (!token) { alert('Cole o Personal Access Token do seu GitHub.'); return; }
+      if (!token) { window.PedCareDialog.alert('Cole o Personal Access Token do seu GitHub.'); return; }
 
       const btn = document.getElementById('btn-connect-gh');
       btn.disabled = true;
@@ -3274,7 +3464,7 @@
           localStorage.setItem(GH_TOKEN_KEY, token);
           localStorage.setItem(GH_GIST_KEY, gistId);
           await pullFromGitHub(token, gistId);
-          alert('Conectado com sucesso! Seus dados foram carregados.');
+          window.PedCareDialog.alert('Conectado com sucesso! Seus dados foram carregados.');
         } else {
           const createRes = await fetch('https://api.github.com/gists', {
             method: 'POST',
@@ -3298,13 +3488,13 @@
 
           localStorage.setItem(GH_TOKEN_KEY, token);
           localStorage.setItem(GH_GIST_KEY, gistId);
-          alert('Banco de dados criado no seu GitHub!');
+          window.PedCareDialog.alert('Banco de dados criado no seu GitHub!');
         }
 
         closeModal('modal-github');
         initGitHubConnection();
       } catch (err) {
-        alert('Erro ao conectar ao GitHub: ' + err.message);
+        window.PedCareDialog.alert('Erro ao conectar ao GitHub: ' + err.message);
       } finally {
         btn.disabled = false;
         btn.textContent = 'Conectar e Sincronizar Tudo';
@@ -3395,7 +3585,7 @@
 
     function disconnectGitHub() {
       if(window.PedCareWorkflow?.beforeLogout) return window.PedCareWorkflow.beforeLogout();
-      alert('Não foi possível abrir a conferência de saída. Recarregue o PedCare e tente novamente.');
+      window.PedCareDialog.alert('Não foi possível abrir a conferência de saída. Recarregue o PedCare e tente novamente.');
     }
 
     function updateCloudStatus(type, text) {
@@ -3433,6 +3623,8 @@
         bed: '',
         date: defaultDate, // campo legado; não confundir com a admissão
         admissionDate: '',
+        tabClosed: false,
+        dischargedAt: '',
         age: '',
         sex: '',
         weight: '',
@@ -3464,18 +3656,37 @@
     }
 
     function switchPatientTab(id) {
-      currentPatientId = id;
+      const chosen = patients.find(p => String(p.id) === String(id));
+      if (!chosen) return;
+      if (chosen.tabClosed) { chosen.tabClosed = false; saveAllPatients(); }
+      if (String(currentPatientId) !== String(chosen.id)) window.PedCarePatientWindows?.beforeSwitch?.();
+      currentPatientId = chosen.id;
       document.getElementById('archive-view').style.display = 'none';
       document.getElementById('patient-main-view').style.display = 'block';
 
       renderTabs();
       loadPatientDataIntoForm(id);
       switchSubTab(currentSubTab);
+      window.PedCarePatientWindows?.afterSwitch?.(chosen.id);
 
       setTimeout(() => {
         const activeTab = document.querySelector('.tab-btn.active');
         if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
       }, 50);
+    }
+
+    function closePatientTab(id) {
+      const chosen = patients.find(p => String(p.id) === String(id));
+      if (!chosen) return;
+      chosen.tabClosed = true;
+      // Fechar a aba apenas oculta o paciente; todos os seus dados permanecem salvos.
+      saveAllPatients();
+      if (String(currentPatientId) === String(id)) {
+        const next = patients.find(p => !p.tabClosed);
+        if (next) switchPatientTab(next.id);
+        else { renderTabs(); showArchiveView(); }
+      } else renderTabs();
+      if (window.PedCareWorkflow?.updatePendingBadge) window.PedCareWorkflow.updatePendingBadge();
     }
 
     function renderTabs() {
@@ -3486,7 +3697,7 @@
 
       document.getElementById('archive-count').textContent = patients.length;
 
-      patients.forEach(pat => {
+      patients.filter(pat => !pat.tabClosed).forEach(pat => {
         const btn = document.createElement('button');
         btn.className = `tab-btn ${pat.id === currentPatientId ? 'active' : ''}`;
         btn.dataset.pcid = pat.id;
@@ -3499,10 +3710,11 @@
         const closeBtn = document.createElement('span');
         closeBtn.className = 'tab-close';
         closeBtn.innerHTML = '&times;';
-        closeBtn.title = 'Excluir Paciente';
+        closeBtn.title = 'Fechar aba (não exclui o prontuário)';
+        closeBtn.setAttribute('aria-label', 'Fechar aba sem excluir paciente');
         closeBtn.onclick = function(e) {
           e.stopPropagation();
-          deletePatient(pat.id);
+          closePatientTab(pat.id);
         };
         btn.appendChild(closeBtn);
 
@@ -3539,6 +3751,7 @@
       document.getElementById('pront-reason').value = pat.reason || '';
       document.getElementById('pront-comorbidities').value = pat.comorbidities || '';
       document.getElementById('pront-history').value = pat.clinicalHistory || '';
+      if (typeof pcResetHistoryView === 'function') pcResetHistoryView();
       document.getElementById('pront-exames').value = pat.labExams || '';
 
       document.getElementById('patient-general-notes').value = pat.generalNotes || '';
@@ -3601,6 +3814,7 @@
     }
 
     function switchSubTab(sub) {
+      if (sub === 'pront' && currentSubTab !== 'pront' && typeof pcResetHistoryView === 'function') pcResetHistoryView();
       currentSubTab = sub;
       document.getElementById('subview-presc').style.display = (sub === 'presc') ? 'block' : 'none';
       document.getElementById('subview-pront').style.display = (sub === 'pront') ? 'block' : 'none';
@@ -3620,7 +3834,9 @@
     }
 
     function showArchiveView() {
+      window.PedCarePatientWindows?.beforeSwitch?.();
       currentPatientId = null;
+      window.PedCarePatientWindows?.onNoPatient?.();
       document.getElementById('patient-main-view').style.display = 'none';
       document.getElementById('archive-view').style.display = 'block';
 
@@ -3663,27 +3879,37 @@
           <td style="text-align:right; white-space:nowrap;">
             <button class="btn-sm" onclick="switchPatientTab('${p.id}')">📂 Abrir</button>
             <button class="btn-sm" onclick="duplicatePatient('${p.id}')">📑 Duplicar</button>
-            <button class="btn-sm btn-danger" onclick="deletePatient('${p.id}')">🗑️ Excluir</button>
+
           </td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    function deletePatient(id) {
-      const pat = patients.find(p => p.id === id);
-      const name = pat ? pat.name : 'este paciente';
-      if (confirm(`Deseja realmente excluir a prescrição e prontuário de ${name}?`)) {
-        patients = patients.filter(p => p.id !== id);
-        saveAllPatients();
-        if (currentPatientId === id) {
-          if (patients.length > 0) switchPatientTab(patients[patients.length - 1].id);
-          else createNewPatient();
-        } else {
-          renderTabs();
-          if (document.getElementById('archive-view').style.display === 'block') renderArchiveTable();
-        }
+    async function deletePatient(id, fromManagement = false) {
+      if (!fromManagement) {
+        window.PedCareDialog.alert('A exclusão definitiva está disponível somente em Todos os pacientes > Gerenciar pastas e pacientes.');
+        return;
       }
+      const chosen = patients.find(p => String(p.id) === String(id));
+      if (!chosen) return;
+      const name = chosen.name || 'Paciente sem nome';
+      if (!await window.PedCareDialog.confirm(`EXCLUSÃO DEFINITIVA de ${name}: o prontuário e os registros associados serão removidos deste cadastro, inclusive da sincronização. Deseja continuar?`)) return;
+      const typed = await window.PedCareDialog.prompt(`Para excluir definitivamente ${name}, digite EXCLUIR:`);
+      if (typed !== 'EXCLUIR') { if (typed !== null) window.PedCareDialog.alert('Exclusão cancelada.'); return; }
+      patients = patients.filter(p => String(p.id) !== String(id));
+      if (Array.isArray(obsidianData?.tabOrder)) obsidianData.tabOrder = obsidianData.tabOrder.filter(x => String(x) !== String(id));
+      saveAllPatients();
+      if (currentPatientId && String(currentPatientId) === String(id)) {
+        const next = patients.find(p => !p.tabClosed);
+        if (next) switchPatientTab(next.id);
+        else { renderTabs(); showArchiveView(); }
+      } else {
+        renderTabs();
+        if (document.getElementById('archive-view')?.style.display === 'block') renderArchiveTable();
+      }
+      if (typeof saveObsidianData === 'function') saveObsidianData();
+      if (window.PedCareWorkflow?.updatePendingBadge) window.PedCareWorkflow.updatePendingBadge();
     }
 
     function duplicatePatient(id) {
@@ -3692,6 +3918,10 @@
       const clone = JSON.parse(JSON.stringify(orig));
       clone.id = 'pac_' + Date.now();
       clone.name = (clone.name || 'Paciente') + ' (Cópia)';
+      clone.tabClosed = false;
+      clone.dischargedAt = '';
+      clone.isArchived = false;
+      clone.archived = false;
       patients.push(clone);
       saveAllPatients();
       switchPatientTab(clone.id);
@@ -4045,11 +4275,11 @@
     const pat = getPat();
     if (!area || !pat) return;
     const text = area.value.trim();
-    if (!text) { alert('Cole os resultados para processar.'); return; }
+    if (!text) { window.PedCareDialog.alert('Cole os resultados para processar.'); return; }
     const date = parseDate(text);
     const { values, unknown } = parseInput(text);
     if (!Object.keys(values).length) {
-      alert('Nenhum resultado foi identificado. Use, por exemplo, ERIT 4,8 // PLQ 250.000 // HB: 12,5.');
+      window.PedCareDialog.alert('Nenhum resultado foi identificado. Use, por exemplo, ERIT 4,8 // PLQ 250.000 // HB: 12,5.');
       return;
     }
     pat.labHistory ||= [];
@@ -4320,64 +4550,86 @@
     content = patientHeader(p) + content;
 
     const css = `
-      @page{size:A4;margin:7mm 8mm}
+      /* PedCare: identidade de impressão compartilhada com a Passagem de Plantão. */
+      @page{size:A4;margin:9mm 10mm}
       *{box-sizing:border-box}
-      html,body{margin:0;padding:0;background:#eef3f8;color:#102133}
-      body{font:10pt/1.45 Arial,Helvetica,sans-serif}
-      .viewer{max-width:1000px;margin:0 auto;padding:18px}
-      .print-btn{position:sticky;top:10px;z-index:20;background:#0f4c81;color:#fff;border:0;border-radius:999px;padding:10px 16px;font-weight:700;cursor:pointer;box-shadow:0 10px 25px rgba(15,76,129,.18);margin-bottom:14px}
-      .patient-card,.block{background:#fff;border:1px solid #dbe5ef;border-radius:9px;box-shadow:0 5px 15px rgba(15,23,42,.04);padding:10px 11px;margin:0 0 8px} .patient-card{padding:7px 9px;margin-bottom:7px}
-      .patient-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:5px}
-      .eyebrow{font-size:7pt;letter-spacing:.14em;text-transform:uppercase;color:#4d7092;font-weight:700;margin-bottom:3px}
-      .doc-title,.page-title{margin:0 0 10px;color:#102133}
-      .doc-title{font-size:12.5pt;margin:0}
-      .page-title{font-size:16pt;padding-bottom:8px;border-bottom:2px solid #d5e1ee}
-      .generated-at{font-size:7.2pt;color:#5f7388;white-space:nowrap}
-      .section-banner{margin:8px 0 5px;padding:5px 8px;border-radius:10px;background:linear-gradient(180deg,#eef5fb 0%,#e5eef8 100%);border:1px solid #d6e3f0;font-size:10.5pt;color:#16324f;break-after:avoid}
-      .patient-card .section-banner{font-size:8.4pt;padding:3px 6px;margin:4px 0 5px} .section-banner small{float:right;font-size:8.8pt;color:#5f7388;font-weight:400}
-      .facts-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px 6px}
-      .fact{border:1px solid #e1e9f2;border-radius:5px;padding:3px 5px;background:#fafcff;min-width:0}
-      .fact-label{display:inline;font-size:7pt;text-transform:uppercase;letter-spacing:0;color:#607487;font-weight:700;margin:0 4px 0 0}
-      .fact-value{display:inline;font-size:8.5pt;color:#12263a;font-weight:600;overflow-wrap:anywhere}
-      .prose{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;font-size:10pt;color:#1f2f3f;padding:2px 1px}
-      .empty{color:#5f7388;font-style:italic}
-      .report-table{border-collapse:separate;border-spacing:0;width:100%;table-layout:auto;font-size:9.2pt;border:1px solid #d8e2ec;border-radius:12px;overflow:hidden}
-      .report-table th,.report-table td{padding:4px 5px;vertical-align:top;border-right:1px solid #d8e2ec;border-bottom:1px solid #d8e2ec;overflow-wrap:anywhere}
-      .report-table th:last-child,.report-table td:last-child{border-right:0}
-      .report-table tr:last-child td{border-bottom:0}
-      .report-table thead th{background:#eff5fb;color:#16324f;font-weight:700}
-      .report-table tbody tr:nth-child(even):not(.group){background:#fbfdff}
-      .report-table .group td{background:#e4eef8;color:#173552;font-weight:700}
-      .scan{break-inside:auto;margin-bottom:10px} .scan img{break-inside:avoid;page-break-inside:avoid} .scan>.section-banner{break-after:avoid}
-      img{display:block;max-width:100%;max-height:210mm;object-fit:contain;margin:10px auto;border:1px solid #d8e2ec;border-radius:10px;background:#fff}
-      .section-space{height:8px}
-      .laboratory-page-break{height:8px}
-      footer{font-size:8.2pt;color:#627587;margin-top:20px;text-align:center}
+      html,body{margin:0;padding:0}
+      body{font:9.6pt/1.38 Arial,Helvetica,sans-serif;color:#16263b;background:#f0f5fa}
+      .viewer{max-width:210mm;margin:0 auto;padding:18px 14px}
+      .print-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;
+        border:0;background:#0284c7;color:#fff;border-radius:6px;margin:0 0 14px;
+        font:700 10pt Arial,sans-serif;cursor:pointer}
+      .patient-card,.block{background:#fff;margin:0 0 9px;padding:0;border:0;box-shadow:none}
+      .patient-card{padding:9px 11px}
+      .block{padding:6px 10px}
+      .patient-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:7px}
+      .eyebrow{font-size:7.5pt;font-weight:700;color:#075985;letter-spacing:.07em;margin:0 0 3px}
+      .doc-title,.page-title{font-size:15pt;line-height:1.2;color:#16263b;
+        border-bottom:2px solid #0284c7;padding-bottom:6px;margin:0 0 8px;font-weight:700}
+      .generated-at{color:#64748b;font-size:7.5pt;text-align:right;white-space:nowrap}
+      .section-banner{font-size:10.5pt;line-height:1.3;color:#16263b;background:#e7f2fc;
+        border:0;border-radius:0;padding:5px 8px;margin:10px 0 6px;font-weight:700;
+        break-after:avoid;page-break-after:avoid;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+      .patient-card .section-banner{font-size:10pt;margin:8px 0 6px}
+      .section-banner small{font-size:8pt;font-weight:400;color:#64748b;float:right;margin-left:6px}
+      .facts-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:4px 8px;border:1px solid #cbd5e1;padding:7px;border-radius:4px}
+      .fact{display:flex;gap:4px;align-items:baseline;min-width:0;overflow-wrap:anywhere}
+      .fact-label{font-size:8.5pt;line-height:1.3;color:#16263b;font-weight:700}
+      .fact-label::after{content:':' }
+      .fact-value{font-size:8.9pt;line-height:1.3;color:#16263b;overflow-wrap:anywhere}
+      .prose{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.45;font-size:9.6pt;
+        color:#16263b;padding:2px 0 3px}
+      .empty{color:#64748b;font-style:italic}
+      .report-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:8.8pt;
+        border:1px solid #cbd5e1;margin:4px 0 9px}
+      .report-table th,.report-table td{padding:4px 5px;vertical-align:top;
+        border:1px solid #cbd5e1;overflow-wrap:anywhere;word-break:normal}
+      .report-table th{font-size:8.5pt;color:#16263b;background:#e7f2fc;font-weight:700}
+      .report-table tbody tr:nth-child(even):not(.group){background:#f7fbff}
+      .report-table .group td{background:#e7f2fc;color:#075985;font-weight:700}
+      .report-table tr,.scan img{break-inside:avoid;page-break-inside:avoid}
+      .report-table thead{display:table-header-group}
+      .scan{margin-bottom:12px;break-inside:auto}
+      .scan>.section-banner{break-after:avoid}
+      .scan img{display:block;max-width:100%;width:auto;height:auto;max-height:215mm;
+        object-fit:contain;margin:8px auto;border:1px solid #cbd5e1;border-radius:3px;background:#fff}
+      .section-space{height:5px}
+      .laboratory-page-break{height:4px}
+      footer{font-size:7.5pt;color:#64748b;text-align:right;margin:12px 0 0;
+        border-top:1px solid #e2e8f0;padding-top:6px}
       @media print{
-        html,body{background:#fff;font-size:9.3pt;line-height:1.34}
+        html,body{background:#fff!important}
         .viewer{max-width:none;padding:0}
-        .print-btn{display:none}
+        .print-btn{display:none!important}
+        .patient-card,.block{padding:0;margin-bottom:7px}
+        .patient-card{padding:0}
+        .block{break-inside:auto;page-break-inside:auto}
         .laboratory-page-break{display:block;height:0;break-before:page;page-break-before:always}
-        .patient-card,.block{box-shadow:none;border-color:#cfd9e4;break-inside:auto;page-break-inside:auto} .patient-card{break-inside:auto;page-break-inside:auto} .prose{break-inside:auto;page-break-inside:auto} .section-space{height:5px}
-        .section-banner{background:#eef4fa !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-        .report-table tr{break-inside:avoid;page-break-inside:avoid}.report-table thead{display:table-header-group}.report-table thead th,.report-table .group td,.fact{background:#f4f8fc !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+        .section-banner,.report-table th,.report-table .group td{background:#e7f2fc!important;
+          print-color-adjust:exact;-webkit-print-color-adjust:exact}
+        .report-table tbody tr:nth-child(even):not(.group){background:#f7fbff!important;
+          print-color-adjust:exact;-webkit-print-color-adjust:exact}
+        .report-table tr{break-inside:avoid;page-break-inside:avoid}
       }
-      @media (max-width:760px){
-        .viewer{padding:14px}
+      @media screen and (max-width:760px){
+        .viewer{padding:12px}
+        .patient-card-top{display:block}
+        .generated-at{text-align:left;margin-top:4px}
         .facts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-        .patient-card-top{flex-direction:column}
+        .report-table{font-size:8pt}
       }
     `;
 
-    return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PedCare — ${esc(MODES[mode])} — ${esc(p.name || 'Paciente')}</title><style>${css}</style></head><body><div class="viewer"><button class="print-btn" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>${content}<footer>PedCare • Documento gerado em ${esc(new Date().toLocaleString('pt-BR'))}</footer></div></body></html>`;
+    return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PedCare — ${esc(MODES[mode])} — ${esc(p.name || 'Paciente')}</title><style>${css}</style></head><body><div class="viewer pc-standard-print"><button class="print-btn" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>${content}<footer>PedCare • Documento gerado em ${esc(new Date().toLocaleString('pt-BR'))}</footer></div></body></html>`;
   }
 
   function printUpgrade(mode){
     const pat = getPat();
-    if (!pat) { alert('Abra um paciente antes de imprimir.'); return; }
+    if (!pat) { window.PedCareDialog.alert('Abra um paciente antes de imprimir.'); return; }
     const popup = window.open('', '_blank');
     if (!popup) {
-      alert('O navegador bloqueou a janela de impressão. Permita pop-ups para este site.');
+      window.PedCareDialog.alert('O navegador bloqueou a janela de impressão. Permita pop-ups para este site.');
       return;
     }
     popup.document.open();
@@ -4687,6 +4939,15 @@ function style(){if(el('pc-workstyle'))return;const st=document.createElement('s
 @media print{#tabs-bar .pc-tab-reminder{display:none!important}}
 .pc-reminder-head{padding:13px 14px;border-radius:14px;background:linear-gradient(120deg,#e0f2fe,#f0fdfa);border:1px solid #bae6fd;margin-bottom:13px}
 .pc-reminder-head strong{font-size:16px;color:#0c4a6e}.pc-reminder-head small{display:block;margin-top:4px;color:#475569}
+
+/* Agrupamento das programações por paciente na conferência geral. */
+#pc-drawer-programs .pc-reminder-program-patient{margin:9px 0 11px;border-color:#d7e4ee;box-shadow:0 2px 9px #102a430b}
+#pc-drawer-programs .pc-reminder-program-patient>summary{background:linear-gradient(105deg,#f2f8ff,#f8fbff);min-height:43px}
+#pc-drawer-programs .pc-reminder-program-patient>summary::before{content:'▸';transition:transform .18s ease;display:inline-block}
+#pc-drawer-programs .pc-reminder-program-patient[open]>summary::before{content:'▸';transform:rotate(90deg)}
+#pc-drawer-programs .pc-reminder-patient-label{flex:1;min-width:0;overflow-wrap:anywhere}
+#pc-drawer-programs .pc-reminder-program-list{padding:8px 12px 12px}
+#pc-drawer-programs .pc-reminder-program-list>.pc-followup{margin:6px 0}
 .pc-review-patient{border:1px solid #d6e4ef;border-radius:13px;margin:9px 0;background:#fff;overflow:hidden}
 .pc-review-patient>summary{display:flex;align-items:center;gap:10px;padding:12px 13px;cursor:pointer;background:#f8fafc;list-style:none;font-weight:700;color:#0f172a}
 .pc-review-patient>summary::-webkit-details-marker{display:none}
@@ -4815,7 +5076,7 @@ function style(){if(el('pc-workstyle'))return;const st=document.createElement('s
 #pc-exit-anyway{background:#b91c1c!important;color:white!important;border-color:#991b1b!important}
 @media(max-width:600px){.pc-overlay:has(.pc-exit-content) .pc-dialog{padding:13px}.pc-exit-actions button{width:100%}.pc-exit-patients{max-height:42vh}}
 `;document.head.appendChild(st)}
-function overlay(title,render,mode="modal"){document.querySelectorAll('.floating-popup').forEach(n=>{n.style.display='none'});const old=el('pc-overlay');if(old){old.dispatchEvent(new Event('pc-before-close'));old.remove()}const root=document.createElement('div');root.id='pc-overlay';root.className='pc-overlay'+(mode==='side'?' pc-side-overlay':'')+(title.startsWith('Passagem de plantão')?' pc-handoff-overlay':'');root.innerHTML=`<div class="pc-dialog" role="dialog" aria-modal="true"><div class="pc-row" style="justify-content:space-between"><h2>${esc(title)}</h2><button id="pc-close">Fechar ✕</button></div><div id="pc-content"></div></div>`;document.body.appendChild(root);el('pc-close').onclick=()=>root.remove();root.addEventListener('click',e=>{if(e.target===root)root.remove()});render(el('pc-content'));return root}
+function overlay(title,render,mode="modal"){document.querySelectorAll('.floating-popup:not(.pc-detached)').forEach(n=>{n.style.display='none'});const old=el('pc-overlay');if(old){old.dispatchEvent(new Event('pc-before-close'));old.remove()}const root=document.createElement('div');root.id='pc-overlay';root.className='pc-overlay'+(mode==='side'?' pc-side-overlay':'')+(title.startsWith('Passagem de plantão')?' pc-handoff-overlay':'');const kind=title.startsWith('Checklist diário')?'checklist':title.startsWith('Programações e acompanhamentos')?'programs':title.startsWith('Passagem de plantão')?'handoff':title.startsWith('Revisões e lembretes')?'reminders':title.startsWith('Pastas')?'folders':'';if(kind){root.classList.add('pc-kind-'+kind);root.dataset.pcWindowKind=kind;}if(['checklist','programs','handoff'].includes(kind)){const current=pat();if(current)root.dataset.pcPatientId=String(current.id);}root.innerHTML=`<div class="pc-dialog" role="dialog" aria-modal="true"><div class="pc-row" style="justify-content:space-between"><h2>${esc(title)}</h2><button id="pc-close">Fechar ✕</button></div><div id="pc-content"></div></div>`;document.body.appendChild(root);root.querySelector('#pc-close').onclick=()=>{root.dispatchEvent(new Event('pc-before-close'));root.remove()};root.addEventListener('click',e=>{if(e.target===root&&!root.classList.contains('pc-detached')){root.dispatchEvent(new Event('pc-before-close'));root.remove()}});render(root.querySelector('#pc-content'));return root}
 function program(p){p.programs??=[];return p.programs}
 // Reminder is based on when the note was CREATED, not the planned execution date.
 function reminderFrom(t){
@@ -4827,7 +5088,7 @@ function reminderFrom(t){
  return `${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,'0')}-${String(next.getDate()).padStart(2,'0')}`;
 }
 function reminderDue(t){const start=reminderFrom(t);return !t.done && !programCheckToday(t) && !!start && today()>=start}
-function allReminders(){return Array.isArray(patients)?patients.flatMap(p=>program(p).filter(reminderDue).map(t=>({p,t}))):[]}
+function allReminders(){return Array.isArray(patients)?patients.filter(p=>p&&!p.dischargedAt&&!p.isArchived&&!p.archived).flatMap(p=>program(p).filter(reminderDue).map(t=>({p,t}))):[]}
 
 // Revisões diárias padrão e perguntas personalizáveis, aplicadas a todos os pacientes.
 // As perguntas ficam em obsidianData (sincronizadas com as configurações do PedCare),
@@ -4860,7 +5121,7 @@ function dailyChecklist(p){
  return p.dailyChecklist.checked;
 }
 function openDailyChecklist(p=pat()){
- if(!p)return alert('Selecione um paciente.');
+ if(!p)return window.PedCareDialog.alert('Selecione um paciente.');
  const check=dailyChecklist(p);
  overlay('Checklist diário — '+(p.name||'Paciente'),host=>{
    const paint=()=>{
@@ -4882,16 +5143,16 @@ function openDailyChecklist(p=pat()){
        const input=el('pc-add-daily-input');
        const label=input?.value.trim();
        if(!label)return input?.focus();
-       if(allDailyQuestions().some(([,text])=>text.toLocaleLowerCase('pt-BR')===label.toLocaleLowerCase('pt-BR'))){alert('Esta pergunta já está no checklist.');return;}
+       if(allDailyQuestions().some(([,text])=>text.toLocaleLowerCase('pt-BR')===label.toLocaleLowerCase('pt-BR'))){window.PedCareDialog.alert('Esta pergunta já está no checklist.');return;}
        customDailyQuestions();
        meta().dailyReviewQuestions.push({id:'custom_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),text:label});
        persist();updatePendingBadge();paint();
      };
      el('pc-add-daily-btn').onclick=add;
      el('pc-add-daily-input').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();add();}};
-     host.querySelectorAll('[data-remove-daily]').forEach(button=>button.onclick=()=>{
+     host.querySelectorAll('[data-remove-daily]').forEach(button=>button.onclick=async()=>{
        const key=button.dataset.removeDaily;
-       if(!confirm('Remover esta pergunta dos checklists de todos os pacientes? As marcações anteriores permanecerão no histórico.'))return;
+       if(!await window.PedCareDialog.confirm('Remover esta pergunta dos checklists de todos os pacientes? As marcações anteriores permanecerão no histórico.'))return;
        meta().dailyReviewQuestions=customDailyQuestions().filter(q=>q.id!==key);
        persist();updatePendingBadge();paint();
      });
@@ -4905,14 +5166,14 @@ function uncheckedDailyCount(){
  if(!Array.isArray(patients))return 0;
  const questions=allDailyQuestions();
  return patients.reduce((n,p)=>{
-   if(!p || p.archived || p.isArchived)return n;
+   if(!p || p.archived || p.isArchived || p.dischargedAt)return n;
    const check=dailyChecklist(p);
    return n+questions.filter(([key])=>!check[key]).length;
  },0);
 }
 // Contagem individual: cada paciente tem suas revisões e programações pendentes.
 function patientPendingCounts(p){
- if(!p || p.archived || p.isArchived)return {daily:0,programs:0};
+ if(!p || p.archived || p.isArchived || p.dischargedAt)return {daily:0,programs:0};
  const checked=dailyChecklist(p);
  return {
    daily:allDailyQuestions().filter(([key])=>!checked[key]).length,
@@ -5025,8 +5286,8 @@ function followupItem(p,t,refresh,allowOpen){
    const input=wrapper.querySelector('[data-followup-comment]');
    checkProgramToday(p,t,input?.value||'');refresh();
  });
- wrapper.querySelector('[data-finish]')?.addEventListener('click',()=>{
-   if(!confirm('Marcar esta programação como definitivamente concluída?'))return;
+ wrapper.querySelector('[data-finish]')?.addEventListener('click',async()=>{
+   if(!await window.PedCareDialog.confirm('Marcar esta programação como definitivamente concluída?'))return;
    const note=wrapper.querySelector('[data-followup-comment]')?.value.trim();
    if(note)appendProgramObservation(p,t,note,false);
    t.done=true;t.finishedAt=stamp();safeSave();updatePendingBadge();refresh();
@@ -5038,7 +5299,7 @@ function followupItem(p,t,refresh,allowOpen){
  return wrapper;
 }
 function openTasks(p=pat()){
- if(!p){alert('Selecione um paciente.');return}
+ if(!p){window.PedCareDialog.alert('Selecione um paciente.');return}
  overlay('Programações e acompanhamentos — '+(p.name||'Paciente'),host=>{
   const paint=()=>{
    const tasks=program(p).slice().sort((a,b)=>String(a.createdOn||'').localeCompare(String(b.createdOn||'')));
@@ -5063,7 +5324,7 @@ function openTasks(p=pat()){
      const item=followupItem(p,t,paint,false);
      const row=document.createElement('div');row.className='pc-row pc-program-remove';
      const remove=document.createElement('button');remove.type='button';remove.textContent='Excluir programação';
-     remove.onclick=()=>{if(confirm('Excluir esta programação e seu histórico de conferências?')){p.programs=program(p).filter(x=>x.id!==t.id);safeSave();updatePendingBadge();paint()}};
+     remove.onclick=async()=>{if(await window.PedCareDialog.confirm('Excluir esta programação e seu histórico de conferências?')){p.programs=program(p).filter(x=>x.id!==t.id);safeSave();updatePendingBadge();paint()}};
      row.appendChild(remove);item.querySelector('.pc-followup-body')?.appendChild(row);content.appendChild(item);
     }
     list.appendChild(details);
@@ -5078,9 +5339,11 @@ function openTasks(p=pat()){
   };paint();
  },'side');
 }
+// Estado de expansão dos pacientes na visão geral das programações.
+const reminderProgramGroupState=new Map();
 function showDaily(force=false){
  if(el('pc-overlay')&&!force)return false;
- const list=Array.isArray(patients)?patients.filter(p=>p&&!p.archived&&!p.isArchived):[];
+ const list=Array.isArray(patients)?patients.filter(p=>p&&!p.archived&&!p.isArchived&&!p.dischargedAt):[];
  overlay('Revisões e lembretes de hoje',host=>{
    const paint=()=>{
      const questions=allDailyQuestions();
@@ -5100,7 +5363,24 @@ function showDaily(force=false){
      const tasksHost=host.querySelector('#pc-drawer-programs');
      const pending=allReminders();
      if(!pending.length)tasksHost.innerHTML='<p style="color:#64748b">Nenhuma programação aguardando conferência hoje.</p>';
-     for(const {p,t} of pending)tasksHost.appendChild(followupItem(p,t,paint,true));
+     // Agrupar por paciente sem alterar os registros ou a lógica de lembretes.
+     // Conservar o estado dos grupos quando uma conferência ou comentário repintar a gaveta.
+     const grouped=new Map();
+     for(const {p,t} of pending){
+       const key=String(p.id);
+       if(!grouped.has(key))grouped.set(key,{patient:p,tasks:[]});
+       grouped.get(key).tasks.push(t);
+     }
+     for(const [key,{patient:p,tasks}] of grouped){
+       const group=document.createElement('details');
+       group.className='pc-review-patient pc-reminder-program-patient';
+       group.open=!reminderProgramGroupState.has(key) || reminderProgramGroupState.get(key);
+       group.innerHTML=`<summary><span class="pc-reminder-patient-label">${esc(p.name||'Paciente')} ${p.bed?'· Leito '+esc(p.bed):''}</span><span class="pc-review-status">${tasks.length} ${tasks.length===1?'programação':'programações'}</span></summary><div class="pc-review-body pc-reminder-program-list"></div>`;
+       group.addEventListener('toggle',()=>reminderProgramGroupState.set(key,group.open));
+       const body=group.querySelector('.pc-reminder-program-list');
+       for(const t of tasks)body.appendChild(followupItem(p,t,paint,true));
+       tasksHost.appendChild(group);
+     }
      updatePendingBadge();
    };paint();
  },'side');
@@ -5123,7 +5403,7 @@ function performPedCareExit(){
 function beforeLogout(){
  // Janela central independente, NUNCA usa a gaveta lateral de revisões.
  document.querySelectorAll('.floating-popup').forEach(n=>n.style.display='none');
- const ps=Array.isArray(patients)?patients.filter(p=>p&&!p.archived&&!p.isArchived):[];
+ const ps=Array.isArray(patients)?patients.filter(p=>p&&!p.archived&&!p.isArchived&&!p.dischargedAt):[];
  const questions=allDailyQuestions();
  overlay('Conferência antes de encerrar a sessão',host=>{
    host.classList.add('pc-exit-content');
@@ -5178,12 +5458,40 @@ function movePatientToFolder(id,folder){
  if(el('archive-view')?.style.display==='block')renderArchiveTable();
  if(el('pc-tree'))drawFolders();
 }
+async function changeDischargeStatus(id, discharge){
+ const p=patients.find(item=>String(item.id)===String(id));if(!p)return;
+ const label=p.name||'Paciente';
+ if(discharge){
+   if(!await window.PedCareDialog.confirm(`Registrar alta de ${label}? O prontuário continuará salvo, mas as revisões diárias e as programações não gerarão mais notificações.`))return;
+   p.dischargedAt=new Date().toISOString();
+   p.isArchived=true;
+   p.tabClosed=true;
+ }else{
+   if(!await window.PedCareDialog.confirm(`Reativar ${label}? As revisões diárias e as programações em andamento voltarão a gerar notificações.`))return;
+   p.dischargedAt='';
+   p.isArchived=false;
+   p.archived=false;
+ }
+ safeSave();
+ if(p.tabClosed&&String(currentPatientId)===String(id)){
+   const next=patients.find(x=>!x.tabClosed);
+   if(next)switchPatientTab(next.id);else{renderTabs();showArchiveView()}
+ }else renderTabs();
+ updatePendingBadge();
+ if(el('archive-view')?.style.display==='block')renderArchiveTable();
+ if(el('pc-tree'))drawFolders();
+}
+function deleteFromPatientManager(id){
+ // Excluir definitivamente apenas a partir do gerenciamento de pastas e pacientes.
+ deletePatient(id,true);
+ if(el('pc-content')&&el('pc-tree'))drawFolders();
+}
 function archivePatientCard(p){
  return `<div class="pc-archive-patient" draggable="true" data-drag-patient="${esc(p.id)}" title="Arraste para outra pasta">
  <span class="pc-drag-handle" aria-hidden="true">⠿</span>
- <div class="pc-archive-patient-main"><strong>${esc(p.name||'Sem nome')}</strong><small>${p.bed?'Leito '+esc(p.bed)+' · ':''}${p.admissionDate?'Admissão '+esc(pcDateBR(p.admissionDate)):'Admissão não registrada'}</small></div>
+ <div class="pc-archive-patient-main"><strong>${esc(p.name||'Sem nome')}</strong><small>${p.bed?'Leito '+esc(p.bed)+' · ':''}${p.admissionDate?'Admissão '+esc(pcDateBR(p.admissionDate)):'Admissão não registrada'}</small>${p.dischargedAt?'<span class="pc-patient-discharged">✓ Alta registrada · Sem notificações</span>':''}</div>
  <select aria-label="Mover paciente de pasta" data-archive-move="${esc(p.id)}">${folderOptions(p.folderId||'')}</select>
- <button type="button" data-archive-open="${esc(p.id)}">Abrir</button></div>`;
+ <button type="button" data-archive-open="${esc(p.id)}">Abrir</button><button type="button" class="pc-archive-discharge" data-archive-discharge="${esc(p.id)}">${p.dischargedAt?'↩ Reativar':'✓ Dar alta'}</button></div>`;
 }
 function renderArchiveFolders(){
  const host=el('pc-archive-folders');if(!host)return;
@@ -5218,6 +5526,7 @@ function renderArchiveFolders(){
  host.querySelectorAll('details[data-archive-folder]').forEach(d=>d.addEventListener('toggle',()=>{if(term)return;let key=d.dataset.archiveFolder;if(d.open)folderExpanded.add(key);else folderExpanded.delete(key)}));
  host.querySelectorAll('[data-archive-move]').forEach(sel=>sel.addEventListener('change',()=>movePatientToFolder(sel.dataset.archiveMove,sel.value)));
  host.querySelectorAll('[data-archive-open]').forEach(btn=>btn.onclick=()=>switchPatientTab(btn.dataset.archiveOpen));
+ host.querySelectorAll('[data-archive-discharge]').forEach(btn=>btn.onclick=()=>changeDischargeStatus(btn.dataset.archiveDischarge,!patients.find(p=>String(p.id)===String(btn.dataset.archiveDischarge))?.dischargedAt));
  host.querySelectorAll('[data-drag-patient]').forEach(card=>{
   card.addEventListener('dragstart',e=>{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',card.dataset.dragPatient);card.classList.add('pc-dragging')});
   card.addEventListener('dragend',()=>{card.classList.remove('pc-dragging');host.querySelectorAll('.pc-drop-over').forEach(x=>x.classList.remove('pc-drop-over'))});
@@ -5242,15 +5551,17 @@ function drawFolders(){
  host.innerHTML=`<div class="pc-folders-hero"><div class="pc-folders-symbol">📂</div><div><strong>Organize sua enfermaria</strong><small>Pastas, subpastas e pacientes sincronizados no PedCare</small></div></div>
  <div class="pc-folder-actions"><button id="pc-newfolder" class="pc-primary">＋ ${currentFolder?'Nova subpasta':'Nova pasta'}</button><button id="pc-renamefolder" ${!f?'disabled':''}>✎ Renomear</button><button id="pc-deletefolder" ${!f?'disabled':''}>🗑 Excluir vazia</button></div>
  <div class="pc-folder-manager-grid"><nav class="pc-folder-manager-tree" aria-label="Árvore de pastas"><div class="pc-panel-heading">Estrutura de pastas</div><div id="pc-tree" class="pc-folder-list"></div></nav>
- <section class="pc-folder-manager-patients"><div class="pc-panel-heading">${f?'Pacientes em '+esc(f.name):'Todos os pacientes'} <small>Selecione uma pasta para filtrar</small></div><div id="pc-patientlist"></div></section></div>`;
+ <section class="pc-folder-manager-patients"><div class="pc-panel-heading">${f?'Pacientes em '+esc(f.name):'Todos os pacientes'} <small>Dar alta, reativar ou excluir definitivamente · Selecione uma pasta para filtrar</small></div><div id="pc-patientlist"></div></section></div>`;
  folderTree(el('pc-tree'));
  const list=currentFolder?patients.filter(p=>p.folderId===currentFolder):patients;
- el('pc-patientlist').innerHTML=list.map(p=>`<div class="pc-patient"><div class="pc-patient-person"><strong>${esc(p.name||'Sem nome')}</strong><small>${p.bed?'Leito '+esc(p.bed):'Leito não informado'}</small></div><select aria-label="Mover ${esc(p.name||'paciente')}" data-patient="${esc(p.id)}">${folderOptions(p.folderId||'')}</select><button data-open="${esc(p.id)}">Abrir</button></div>`).join('')||'<div class="pc-folder-empty">Nenhum paciente nesta pasta.</div>';
+ el('pc-patientlist').innerHTML=list.map(p=>`<div class="pc-patient"><div class="pc-patient-person"><strong>${esc(p.name||'Sem nome')}</strong><small>${p.bed?'Leito '+esc(p.bed):'Leito não informado'}</small>${p.dischargedAt?'<small class="pc-patient-discharged">✓ Alta registrada · notificações pausadas</small>':''}</div><select aria-label="Mover ${esc(p.name||'paciente')}" data-patient="${esc(p.id)}">${folderOptions(p.folderId||'')}</select><div class="pc-patient-manage-actions"><button data-open="${esc(p.id)}">Abrir</button><button class="pc-discharge-action" data-status="${esc(p.id)}">${p.dischargedAt?'↩ Reativar':'✓ Dar alta'}</button><button class="pc-permanent-delete" data-delete-permanent="${esc(p.id)}">Excluir definitivamente</button></div></div>`).join('')||'<div class="pc-folder-empty">Nenhum paciente nesta pasta.</div>';
  el('pc-patientlist').querySelectorAll('[data-patient]').forEach(n=>n.onchange=()=>movePatientToFolder(n.dataset.patient,n.value));
  el('pc-patientlist').querySelectorAll('[data-open]').forEach(n=>n.onclick=()=>{switchPatientTab(n.dataset.open);el('pc-overlay')?.remove()});
- el('pc-newfolder').onclick=()=>{let name=prompt('Nome da nova '+(currentFolder?'subpasta':'pasta')+':');if(!name?.trim())return;meta().patientFolders.push({id:'fld_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),name:name.trim(),parent:currentFolder});persist();drawFolders();if(el('archive-view')?.style.display==='block')renderArchiveTable()};
- el('pc-renamefolder').onclick=()=>{let f=meta().patientFolders.find(f=>f.id===currentFolder);if(!f)return;let name=prompt('Renomear pasta',f.name);if(name?.trim()){f.name=name.trim();persist();drawFolders();if(el('archive-view')?.style.display==='block')renderArchiveTable()}};
- el('pc-deletefolder').onclick=()=>{if(!currentFolder)return;let f=meta().patientFolders.find(f=>f.id===currentFolder);if(!f)return;if(meta().patientFolders.some(x=>x.parent===f.id)||patients.some(x=>x.folderId===f.id))return alert('Mova os pacientes e subpastas antes de excluir.');if(confirm('Excluir pasta vazia?')){meta().patientFolders=meta().patientFolders.filter(x=>x.id!==f.id);currentFolder=f.parent||'';persist();drawFolders();if(el('archive-view')?.style.display==='block')renderArchiveTable()}};
+ el('pc-patientlist').querySelectorAll('[data-status]').forEach(n=>n.onclick=()=>changeDischargeStatus(n.dataset.status,!patients.find(p=>String(p.id)===String(n.dataset.status))?.dischargedAt));
+ el('pc-patientlist').querySelectorAll('[data-delete-permanent]').forEach(n=>n.onclick=()=>deleteFromPatientManager(n.dataset.deletePermanent));
+ el('pc-newfolder').onclick=async()=>{let name=await window.PedCareDialog.prompt('Nome da nova '+(currentFolder?'subpasta':'pasta')+':');if(!name?.trim())return;meta().patientFolders.push({id:'fld_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),name:name.trim(),parent:currentFolder});persist();drawFolders();if(el('archive-view')?.style.display==='block')renderArchiveTable()};
+ el('pc-renamefolder').onclick=async()=>{let f=meta().patientFolders.find(f=>f.id===currentFolder);if(!f)return;let name=await window.PedCareDialog.prompt('Renomear pasta',f.name);if(name?.trim()){f.name=name.trim();persist();drawFolders();if(el('archive-view')?.style.display==='block')renderArchiveTable()}};
+ el('pc-deletefolder').onclick=async()=>{if(!currentFolder)return;let f=meta().patientFolders.find(f=>f.id===currentFolder);if(!f)return;if(meta().patientFolders.some(x=>x.parent===f.id)||patients.some(x=>x.folderId===f.id))return window.PedCareDialog.alert('Mova os pacientes e subpastas antes de excluir.');if(await window.PedCareDialog.confirm('Excluir pasta vazia?')){meta().patientFolders=meta().patientFolders.filter(x=>x.id!==f.id);currentFolder=f.parent||'';persist();drawFolders();if(el('archive-view')?.style.display==='block')renderArchiveTable()}};
 }
 function openFolders(){overlay('Pastas e subpastas de pacientes',()=>drawFolders(),'side')}
 const examBlocks=[
@@ -5275,7 +5586,7 @@ function seedHandoff(p){
  return {date:today(),time:new Date().toTimeString().slice(0,5),dih:'',reason:p.reason||'',comorbidities:p.comorbidities||'',clinicalHistory:p.clinicalHistory||'',impression:'',conduct:'',pending:program(p).filter(t=>!t.done).map(t=>t.text).join('\n'),devices:'',neurology:'',exam:{},notes:{},vitals:{},id:''};
 }
 function openHandoff(p=pat(),initialDraft=null){
- if(!p)return alert('Selecione um paciente.');
+ if(!p)return window.PedCareDialog.alert('Selecione um paciente.');
  let draft=initialDraft?structuredClone(initialDraft):seedHandoff(p);
  overlay('Passagem de plantão — edição independente',host=>{
   const fields=handFields.map(([k,label])=>`<label class="wide">${esc(label)}<textarea data-hfield="${k}">${esc(draft[k]||'')}</textarea></label>`).join('');
@@ -5301,8 +5612,8 @@ function openHandoff(p=pat(),initialDraft=null){
    version.savedAt=stamp();
    handoffFor(p).push(version);safeSave();return version;
   };
-  el('pc-hand-save').onclick=()=>{save();alert('Versão da passagem salva separadamente da ficha clínica.');el('pc-overlay').remove()};
-  el('pc-hand-print').onclick=()=>{const rec=save();printHandoff(p,rec);el('pc-overlay').remove()};
+  el('pc-hand-save').onclick=()=>{save();window.PedCareDialog.alert('Versão da passagem salva separadamente da ficha clínica.');host.closest('.pc-overlay')?.remove()};
+  el('pc-hand-print').onclick=()=>{const rec=save();printHandoff(p,rec);host.closest('.pc-overlay')?.remove()};
   el('pc-hand-new').onclick=()=>{clearTimeout(timer);storeDraft();const next=structuredClone(draft);next.id='';next.date=today();next.time=new Date().toTimeString().slice(0,5);openHandoff(p,next)};
   el('pc-hand-history').onchange=e=>{if(e.target.value==='')return;clearTimeout(timer);storeDraft();let i=Number(e.target.value);let rec=handoffFor(p)[i];if(rec)openHandoffVersion(p,rec)};
   // Fechar não perde o texto já digitado.
@@ -5370,11 +5681,11 @@ function printHandoff(p,h){
   .physical-observation-line{border-bottom:1px dotted #cbd5e1;height:4mm;margin-top:2px}
   @media(max-width:650px){.physical-options{grid-template-columns:repeat(2,minmax(0,1fr))}}
   footer{font-size:7.5pt;color:#64748b;margin-top:15px}
-  .button{padding:9px 13px;border:0;background:#0284c7;color:white;border-radius:6px;margin:10px}
+  .button{padding:9px 13px;border:0;background:#0284c7;color:white;border-radius:6px;margin:10px;font:700 10pt Arial,sans-serif;cursor:pointer}
   @media print{.button{display:none}h2{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
  `;
  const summary=['reason','comorbidities','clinicalHistory','conduct','pending','devices'].map(get).join('');
- const doc=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Passagem de caso — ${esc(p.name)}</title><style>${css}
+ const doc=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Passagem de caso — ${esc(p.name)}</title><style>${css}
 /* Refinamento compacto: grupos e cartões das programações */
 .pc-tasks-intro{gap:9px;padding:10px 12px;margin:0 0 10px;border-radius:12px}
 .pc-tasks-intro-icon{width:30px;height:30px;border-radius:9px;font-size:18px}
@@ -5409,7 +5720,7 @@ function printHandoff(p,h){
 @media(max-width:550px){.pc-program-group>summary{padding:9px 10px;gap:7px;min-height:46px}.pc-program-group-content{padding:6px 8px 8px}.pc-tasks-intro{padding:9px 10px}}
 
 </style></head><body><button class="button" onclick="window.print()">Imprimir / Salvar PDF</button><main class="handoff-first-page"><div class="handoff-first-top"><h1>Passagem de caso pediátrico</h1><div class="facts">${[['Paciente',p.name],['Mãe',p.mother],['Leito',p.bed],['Sexo',p.sex],['Idade',p.age],['Alergias',p.allergies],['Data/hora',[pcDateBR(h.date),h.time].filter(Boolean).join(' ')],['Data de admissão',pcDateBR(p.admissionDate)],['DIH',h.dih]].filter(([,v])=>String(v??'').trim()).map(([k,v])=>`<span><b>${esc(k)}:</b> ${esc(v)}</span>`).join('')}</div><h2>Resumo clínico</h2>${summary}${impression}</div>${vitals}</main><h1>Exame físico</h1>${physical}${get('neurology')}<footer>PedCare • Versão salva em ${esc(h.savedAt||stamp())}</footer></body></html>`;
- const w=window.open('','_blank');if(!w)return alert('Permita pop-ups para imprimir.');w.document.open();w.document.write(doc);w.document.close();w.focus();
+ const w=window.open('','_blank');if(!w)return window.PedCareDialog.alert('Permita pop-ups para imprimir.');w.document.open();w.document.write(doc);w.document.close();w.focus();
 }
 function tabs(){let container=el('tabs-bar');if(!container||typeof patients==='undefined')return;const order=meta().tabOrder;const ids=patients.map(p=>p.id);meta().tabOrder=[...order.filter(id=>ids.includes(id)),...ids.filter(id=>!order.includes(id))];const map=new Map([...container.querySelectorAll('.tab-btn')].filter(n=>n.id!=='tab-archive-btn').map(n=>[n.dataset.pcid,n]));for(const btn of [...container.querySelectorAll('.tab-btn')]){if(btn.id==='tab-archive-btn')continue;let name=btn.querySelector('span')?.textContent||'';let p=patients.find(x=>name.startsWith(x.name||'Novo Paciente'));if(p)btn.dataset.pcid=p.id;map.set(btn.dataset.pcid,btn)};
  for(const id of meta().tabOrder){let node=map.get(id);if(node)container.appendChild(node)}
@@ -5417,8 +5728,9 @@ function tabs(){let container=el('tabs-bar');if(!container||typeof patients==='u
  container.querySelectorAll('.tab-btn:not(.archive-tab)').forEach(btn=>{btn.draggable=true;btn.ondragstart=e=>{dragged=btn.dataset.pcid;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',dragged)};btn.ondragover=e=>{e.preventDefault();btn.classList.add('pc-over')};btn.ondragleave=()=>btn.classList.remove('pc-over');btn.ondrop=e=>{e.preventDefault();btn.classList.remove('pc-over');let dest=btn.dataset.pcid;if(!dragged||!dest||dragged===dest)return;let o=meta().tabOrder.filter(x=>x!==dragged);o.splice(o.indexOf(dest),0,dragged);meta().tabOrder=o;persist();tabs()};btn.ondragend=()=>{dragged=null;container.querySelectorAll('.pc-over').forEach(n=>n.classList.remove('pc-over'))}});
 }
 function launchNative(id){
- document.querySelectorAll('.floating-popup').forEach(n=>{if(n.id!==id)n.style.display='none'});
+ document.querySelectorAll('.floating-popup:not(.pc-detached)').forEach(n=>{if(n.id!==id)n.style.display='none'});
  const active=el('pc-overlay');if(active){active.dispatchEvent(new Event('pc-before-close'));active.remove()}
+ if(window.PedCareWindowLifecycle && window.PedCareWindowLifecycle.prepareNative(id)) return;
  if(typeof togglePopup==='function')togglePopup(id);
 }
 function closeLauncher(){el('pc-tools')?.classList.remove('is-expanded');el('pc-launcher')?.setAttribute('aria-expanded','false')}
@@ -5469,14 +5781,14 @@ function init(){
  }
  let lastDay=today();
  setInterval(()=>{
-   if(today()!==lastDay){lastDay=today();if(Array.isArray(patients))patients.forEach(dailyChecklist);updatePendingBadge();if(!el('pc-overlay'))showDaily()}
+   if(today()!==lastDay){lastDay=today();if(Array.isArray(patients))patients.forEach(dailyChecklist);updatePendingBadge();if(!el('pc-overlay') && !document.querySelector('.pc-overlay.pc-detached'))showDaily()}
    else updatePendingBadge();
  },60000);
  setTimeout(()=>{
    if(!Array.isArray(patients) || !patients.length)return;
    patients.forEach(dailyChecklist);
    updatePendingBadge();
-   if(!el('pc-overlay'))showDaily();
+   if(!el('pc-overlay') && !document.querySelector('.pc-overlay.pc-detached'))showDaily();
  },1600);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
@@ -5493,7 +5805,7 @@ window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,sho
   const escapeHtml = value => String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   const escapeAttr = escapeHtml;
   const state = {started:false, busy:false, lastNote:null};
-  const allowedStyles = {'tip':'💡 Dica','note':'📌 Nota','warning':'⚠️ Atenção','danger':'⛔ Importante'};
+  const allowedStyles = {'tip':'💡 Dica','note':'📌 Observação','warning':'⚠️ Aviso','danger':'⛔ Importante'};
 
   function inlineMd(raw) {
     let s = escapeHtml(raw);
@@ -5505,6 +5817,11 @@ window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,sho
     s=s.replace(/\[\[([^\]\n]+)\]\]/g,'<span class="pc-wikilink">[[$1]]</span>');
     s=s.replace(/(^|\s)#([\p{L}\d_-]+)/gu,'$1<span class="pc-tag">#$2</span>');
     return s || '<br>';
+  }
+
+  function calloutHtml(kind, content){
+    const style=Object.prototype.hasOwnProperty.call(allowedStyles,kind)?kind:'note';
+    return `<aside class="pc-callout" data-callout="${style}"><div class="pc-callout-top" contenteditable="false"><div class="pc-callout-heading">${allowedStyles[style]}</div><button type="button" class="pc-callout-remove" title="Apagar esta caixa" aria-label="Apagar caixa de ${style==='warning'?'aviso':'observação'}">×</button></div><div class="pc-callout-body">${content||'<br>'}</div></aside>`;
   }
 
   function mdToHtml(md){
@@ -5521,7 +5838,7 @@ window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,sho
         const kind=callout[1].toLowerCase();
         let text='';
         while(i+1<lines.length&&/^>\s?/.test(lines[i+1])){i++;text+=(text?'\n':'')+lines[i].replace(/^>\s?/,'');}
-        html.push(`<aside class="pc-callout" data-callout="${kind}"><div class="pc-callout-heading" contenteditable="false">${allowedStyles[kind]}</div><div class="pc-callout-body">${inlineMd(text).replace(/\n/g,'<br>')}</div></aside>`);
+        html.push(calloutHtml(kind,inlineMd(text).replace(/\n/g,'<br>')));
       } else if(heading){
         const n=heading[1].length;
         html.push(`<h${n} data-md-prefix="${'#'.repeat(n)} " >${inlineMd(heading[2])}</h${n}>`);
@@ -5558,10 +5875,22 @@ window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,sho
     if(tag==='s'||tag==='del'||tag==='strike')return `~~${child()}~~`;
     if(tag==='code'&&node.parentElement?.tagName!=='PRE')return `\`${child()}\``;
     if(tag==='input'||tag==='button')return '';
-    if(node.classList.contains('pc-bullet')||node.classList.contains('pc-callout-heading'))return '';
+    if(node.classList.contains('pc-bullet')||node.classList.contains('pc-callout-heading')||node.classList.contains('pc-callout-top'))return '';
     if(tag==='span'&&node.classList.contains('pc-tag'))return node.textContent;
     if(tag==='span'&&node.classList.contains('pc-wikilink'))return node.textContent;
     return child();
+  }
+
+  function calloutBodyMd(root){
+    const convert=node=>{
+      if(node.nodeType===Node.TEXT_NODE)return node.nodeValue.replace(/\u00a0/g,' ');
+      if(node.nodeType!==Node.ELEMENT_NODE)return '';
+      const tag=node.tagName.toLowerCase();
+      if(tag==='br')return '\n';
+      if(tag==='div'||tag==='p')return [...node.childNodes].map(convert).join('')+'\n';
+      return textToMd(node);
+    };
+    return [...root.childNodes].map(convert).join('').replace(/\n+$/,'');
   }
 
   function blockToMd(el){
@@ -5571,7 +5900,7 @@ window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,sho
     if(el.classList.contains('pc-list-item'))return `${'  '.repeat(Math.max(0,Math.min(8,Number(el.dataset.depth)||0)))}- ${textToMd(el.querySelector('.pc-list-text')||el).trim()}`;
     if(el.classList.contains('pc-callout')){
       const kind=el.dataset.callout||'note';
-      const body=textToMd(el.querySelector('.pc-callout-body')||el).split('\n').map(x=>'> '+x).join('\n');
+      const body=calloutBodyMd(el.querySelector('.pc-callout-body')||el).split('\n').map(x=>'> '+x).join('\n');
       return `> [!${kind}]\n${body}`;
     }
     if(tag==='blockquote')return '> '+textToMd(el).trim();
@@ -5649,6 +5978,22 @@ window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,sho
     if(command==='italic')document.execCommand('italic',false,null);
     if(command==='h1'||command==='h2'||command==='h3')document.execCommand('formatBlock',false,command.toUpperCase());
     if(command==='p')document.execCommand('formatBlock',false,'P');
+    if(command==='callout-warning'||command==='callout-note'){
+      const kind=command==='callout-warning'?'warning':'note';
+      const block=currentBlock();
+      if(block&&block.parentElement===editor){
+        const newCallout=document.createElement('div');
+        newCallout.innerHTML=calloutHtml(kind,'<br>');
+        const box=newCallout.firstElementChild;
+        block.after(box);
+        focusAtEnd(box.querySelector('.pc-callout-body'));
+      } else {
+        const wrap=document.createElement('div');wrap.innerHTML=calloutHtml(kind,'<br>');
+        const box=wrap.firstElementChild;editor.appendChild(box);
+        focusAtEnd(box.querySelector('.pc-callout-body'));
+      }
+      saveRich();return;
+    }
     if(command==='list'||command==='task'){
       const block=currentBlock();
       if(block){
@@ -5711,7 +6056,7 @@ window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,sho
     const navbar=popup.querySelector('#obs-workspace')?.previousElementSibling;
     if(navbar){const buttons=navbar.querySelectorAll('#btn-obs-read,#btn-obs-split,#btn-obs-edit');buttons.forEach(b=>b.style.display='none');}
     workspace.className='obsidian-workspace mode-edit';
-    const actions=[['h1','H1'],['h2','H2'],['h3','H3'],['bold','B'],['italic','I'],['list','• Lista'],['task','☑ Tarefa']];
+    const actions=[['h1','H1'],['h2','H2'],['h3','H3'],['bold','B'],['italic','I'],['list','• Lista'],['task','☑ Tarefa'],['callout-note','📌 Observação'],['callout-warning','⚠️ Aviso']];
     const toolbar=editorView.querySelector('.obsidian-toolbar');
     if(toolbar){
       toolbar.replaceChildren();
@@ -5724,7 +6069,21 @@ window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,sho
     editor.addEventListener('input',()=>{autoFormat();saveRich();refreshHeadingSyntax();});
     editor.addEventListener('change',saveRich);
     editor.addEventListener('paste',e=>{e.preventDefault();const plain=e.clipboardData.getData('text/plain');document.execCommand('insertText',false,plain);});
-    editor.addEventListener('click',e=>{
+    editor.addEventListener('click',async e=>{
+      const remove=e.target.closest('.pc-callout-remove');
+      if(remove){
+        e.preventDefault();e.stopPropagation();
+        const box=remove.closest('.pc-callout');
+        if(box&&await window.PedCareDialog.confirm('Apagar esta caixa do Caderno Clínico?')){
+          const next=box.nextElementSibling||box.previousElementSibling;
+          box.remove();
+          if(!editor.children.length)editor.innerHTML='<p><br></p>';
+          saveRich();
+          editor.focus();
+          if(next&&next.isConnected)focusAtEnd(next);
+        }
+        return;
+      }
       if(e.target.matches('.pc-task-check')){e.stopPropagation();setTimeout(()=>{e.target.closest('.pc-task')?.setAttribute('data-checked',e.target.checked?'true':'false');saveRich();},0);}
     });
     editor.addEventListener('keydown',e=>{
@@ -5805,6 +6164,17 @@ function saveConfig(){
   if(typeof saveObsidianData==='function')saveObsidianData();
  }
 }
+function categoryNumber(id){
+ const original=baseline.find(b=>b.id===id);
+ if(original)return original.index+1;
+ const index=config.customCategories.findIndex(c=>c.id===id);
+ return index<0?null:baseline.length+index+1;
+}
+function displayCategoryTitle(category){
+ const label=String(category?.title||'').trim().replace(/^\d+\s*[.)-]\s*/,'').trim();
+ const number=categoryNumber(category?.id);
+ return number==null?label:`${number}. ${label}`;
+}
 function categories(){return [...baseline.map(b=>({id:b.id,title:config.categories[b.id]?.title||b.title,original:true})),...config.customCategories.map(c=>({...c,original:false}))]}
 function items(categoryId){
  const base=baseline.find(x=>x.id===categoryId)?.rows.map(r=>({id:r.id,name:config.items[r.id]?.name??r.name,description:config.items[r.id]?.description??r.descText,doseCalc:config.items[r.id]?.doseCalc??null,original:true,hasOverride:!!config.items[r.id]}))||[];
@@ -5876,7 +6246,8 @@ function applyCatalog(){
  ROOT().querySelectorAll('.pc-master-generated').forEach(n=>n.remove());
  for(const c of config.customCategories){
   const section=document.createElement('div');section.className='category-card pc-master-generated';section.dataset.masterCat=c.id;
-  section.innerHTML='<div class="category-header"></div><table class="item-table"></table>';
+  section.innerHTML='<div class="category-header"><span class="pc-master-title"></span></div><table class="item-table"></table>';
+  section.querySelector('.pc-master-title').textContent=displayCategoryTitle(c);
   ROOT().appendChild(section);
  }
  config.customItems.forEach(it=>{
@@ -5890,7 +6261,7 @@ function applyCatalog(){
   const td3=document.createElement('td');td3.className='cell-desc';td3.textContent=it.description||'';if(doseParametersValid(it.doseCalc))paintCustomDose(td3,it.doseCalc);
   tr.append(td1,td2,td3);table.appendChild(tr);
  });
- for(const c of config.customCategories){const card=[...ROOT().querySelectorAll('.category-card')].find(el=>el.dataset.masterCat===c.id);if(card){const t=card.querySelector('.category-header .pc-master-title');if(t)t.textContent=c.title;}}
+ for(const c of config.customCategories){const card=[...ROOT().querySelectorAll('.category-card')].find(el=>el.dataset.masterCat===c.id);if(card){const t=card.querySelector('.category-header .pc-master-title');if(t)t.textContent=displayCategoryTitle(c);}}
  initializeCollapsibles();refreshCustomDoses();
  if(typeof updatePrintClasses==='function')updatePrintClasses();
  }finally{rendering=false}
@@ -5912,7 +6283,7 @@ function initializeCollapsibles(){
 function render(){
  const catlist=$('pc-master-categories');catlist.replaceChildren();
  for(const cat of categories()){
-  const b=document.createElement('button');b.type='button';b.className='pc-master-cat'+(cat.id===selectedCategory?' active':'');b.textContent=cat.title;
+  const b=document.createElement('button');b.type='button';b.className='pc-master-cat'+(cat.id===selectedCategory?' active':'');b.textContent=cat.original?cat.title:displayCategoryTitle(cat);
   const n=document.createElement('small');n.textContent=`${items(cat.id).length} itens`;b.appendChild(n);b.onclick=()=>{selectedCategory=cat.id;selectedItem='';render()};catlist.appendChild(b);
  }
  const cat=categories().find(c=>c.id===selectedCategory);
@@ -5920,8 +6291,8 @@ function render(){
  if(!cat){ce.textContent='Escolha uma classe ou crie uma nova.';return}
  ce.innerHTML=`<label class="pc-master-field">Nome da classe<input id="pc-master-cat-name" maxlength="110" value="${escape(cat.title)}"></label><div class="pc-master-actions"><button type="button" class="pc-master-btn" id="pc-master-save-cat">Salvar nome da classe</button><button type="button" class="pc-master-btn secondary" id="pc-master-add-item">+ Novo medicamento / intervenção</button></div>`;
  $('pc-master-save-cat').onclick=()=>{
- const name=$('pc-master-cat-name').value.trim();if(!name)return alert('Informe o nome da classe.');
- confirmChange('Renomear a classe “'+cat.title+'” para “'+name+'”',()=>{if(cat.original)config.categories[cat.id]={title:name};else config.customCategories.find(c=>c.id===cat.id).title=name;saveConfig();applyCatalog();render()});
+ const name=$('pc-master-cat-name').value.trim();if(!name)return window.PedCareDialog.alert('Informe o nome da classe.');
+ confirmChange('Renomear a classe “'+cat.title+'” para “'+name+'”',()=>{if(cat.original)config.categories[cat.id]={title:name};else config.customCategories.find(c=>c.id===cat.id).title=name.replace(/^\d+\s*[.)-]\s*/,'').trim()||name;saveConfig();applyCatalog();render()});
  };
  $('pc-master-add-item').onclick=()=>{selectedItem='NEW';render()};
  for(const it of items(cat.id)){
@@ -5949,7 +6320,7 @@ function render(){
  basis.addEventListener('change',refreshTimes);refreshTimes();
  $('pc-master-save-item').onclick=()=>{
  const name=$('pc-master-item-name').value.trim(),description=$('pc-master-item-desc').value.trim();
- if(!name)return alert('Informe o nome do item.');
+ if(!name)return window.PedCareDialog.alert('Informe o nome do item.');
  const enabled=$('pc-master-dose-enabled').checked;
  const doseCalc=enabled?{
   enabled:true,basis:$('pc-master-dose-basis').value,
@@ -5957,9 +6328,9 @@ function render(){
   administrations:Number($('pc-master-dose-times').value)||1
  }:null;
  if(enabled&&(!$('pc-master-dose-rate').value||!$('pc-master-dose-max').value||!doseParametersValid(doseCalc)))
-  return alert('Informe uma dose em mg/kg e um teto máximo válidos, com a mesma base (por dose ou por dia).');
+  return window.PedCareDialog.alert('Informe uma dose em mg/kg e um teto máximo válidos, com a mesma base (por dose ou por dia).');
  const count=items(cat.id).length;
- if(isNew&&count>200)return alert('Limite de itens por classe atingido.');
+ if(isNew&&count>200)return window.PedCareDialog.alert('Limite de itens por classe atingido.');
  confirmChange((isNew?'Adicionar':'Atualizar')+' “'+name+'” no catálogo mestre',()=>{
  if(isNew){const id='master_item_'+Date.now()+'_'+(++itemSequence);config.customItems.push({id,categoryId:cat.id,name,description,doseCalc});selectedItem=id}
  else if(entry.original)config.items[entry.id]={name,description,doseCalc};
@@ -5975,16 +6346,16 @@ function confirmChange(msg,callback){
  $('pc-master-confirm-input').value='';$('pc-master-confirm-apply').disabled=true;
  $('pc-master-confirm').classList.add('open');$('pc-master-confirm-input').focus();
 }
-function addCategory(){
- const name=prompt('Nome da nova classe de medicamentos ou intervenções:');if(!name?.trim())return;
- if(name.trim().length>110)return alert('Nome muito longo.');
+async function addCategory(){
+ const name=await window.PedCareDialog.prompt('Nome da nova classe de medicamentos ou intervenções:');if(!name?.trim())return;
+ if(name.trim().length>110)return window.PedCareDialog.alert('Nome muito longo.');
  confirmChange('Criar a classe “'+name.trim()+'” para todas as prescrições',()=>{
  const id='master_cat_'+Date.now()+'_'+(++catSequence);config.customCategories.push({id,title:name.trim()});selectedCategory=id;selectedItem='';saveConfig();applyCatalog();render()});
 }
 function open(){selectedCategory=categories()[0]?.id||'';selectedItem='';render();$('pc-master-overlay').classList.add('open');$('pc-master-overlay').setAttribute('aria-hidden','false')}
 function close(){$('pc-master-overlay').classList.remove('open');$('pc-master-overlay').setAttribute('aria-hidden','true')}
 function cancelConfirmation(){pending=null;$('pc-master-confirm').classList.remove('open')}
-function commitConfirmation(){if($('pc-master-confirm-input').value.trim()!=='CONFIRMAR'||!pending)return;const run=pending;cancelConfirmation();try{run()}catch(e){console.error(e);alert('Não foi possível aplicar a alteração.')}}
+function commitConfirmation(){if($('pc-master-confirm-input').value.trim()!=='CONFIRMAR'||!pending)return;const run=pending;cancelConfirmation();try{run()}catch(e){console.error(e);window.PedCareDialog.alert('Não foi possível aplicar a alteração.')}}
 function init(){if(!ROOT())return;takeBaseline();loadConfig();selectedCategory=categories()[0]?.id||'';applyCatalog();
  $('pc-master-confirm-input').addEventListener('input',()=>{$('pc-master-confirm-apply').disabled=$('pc-master-confirm-input').value.trim()!=='CONFIRMAR'});
  $('p-weight')?.addEventListener('input',refreshCustomDoses);
@@ -6006,28 +6377,1252 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 
-<!-- PedCare: campo de história clínica com rolagem interna e altura ajustável no celular -->
+<!-- PedCare: controles visíveis de altura da História Clínica -->
 <style id="pc-history-mobile-expansion">
-.pc-history-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.pc-history-size-toggle{display:none}
-@media screen and (max-width:768px){
- #subview-pront .pc-history-heading label{flex:1 1 185px;margin:0}
- #subview-pront .pc-history-size-toggle{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;border:1px solid #a9c8dc;border-radius:9px;background:#eef7fc;color:#145579;padding:8px 11px;font:600 13px/1.2 system-ui,sans-serif;cursor:pointer;min-height:36px;flex-shrink:0}
- #subview-pront #pront-history{box-sizing:border-box!important;height:52dvh!important;min-height:350px!important;max-height:690px!important;overflow-y:auto!important;resize:vertical!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;line-height:1.58!important}
- #subview-pront #pront-history.pc-history-large{height:78dvh!important;min-height:490px!important;max-height:none!important}
+#subview-pront .pc-history-heading { display:flex!important;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;margin-bottom:8px }
+#subview-pront .pc-history-heading > label { flex:1 1 190px;min-width:0;margin:0 }
+#subview-pront .pc-history-controls { display:flex!important;flex-wrap:wrap;align-items:center;gap:7px;flex:0 0 auto;visibility:visible!important;opacity:1!important }
+#subview-pront .pc-history-controls .pc-history-size-toggle {
+ display:inline-flex!important;visibility:visible!important;align-items:center;justify-content:center;
+ min-height:37px;padding:8px 12px;border:1px solid #8ac7e6;border-radius:9px;
+ background:#e0f2fe;color:#075985;font:700 13px/1.2 system-ui,sans-serif;
+ cursor:pointer;white-space:nowrap;opacity:1;box-shadow:0 2px 5px rgba(10,80,120,.07)
 }
-@media print{#subview-pront .pc-history-size-toggle{display:none!important}#subview-pront #pront-history{height:auto!important;max-height:none!important;overflow:visible!important}}
+#subview-pront .pc-history-controls .pc-history-size-toggle:disabled { opacity:.45!important;cursor:default;background:#f1f5f9;border-color:#cbd5e1;color:#64748b }
+#subview-pront #pront-history { box-sizing:border-box!important;overflow-y:auto!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;resize:vertical!important;line-height:1.58!important }
+@media screen and (max-width:900px){
+ #subview-pront #pront-history { height:52dvh!important;min-height:350px!important;max-height:none!important }
+ #subview-pront #pront-history.pc-history-large { height:80dvh!important;min-height:480px!important;max-height:none!important }
+}
+@media screen and (min-width:901px){
+ #subview-pront #pront-history {
+   height: min(54vh, 560px)!important; min-height: 390px!important; max-height: none!important;
+   font-size: 15px!important; line-height: 1.65!important;
+   padding: 16px 18px!important; border-radius: 11px!important;
+ }
+ #subview-pront #pront-history.pc-history-large {
+   height: min(82vh, 850px)!important; min-height: 530px!important; max-height: none!important;
+ }
+ #subview-pront #pront-exames {
+   height: 240px!important; min-height: 180px!important; max-height: none!important;
+   overflow-y: auto!important; resize: vertical!important;
+   padding: 14px 16px!important; line-height: 1.6!important;
+ }
+}
+@media screen and (max-width:900px){
+ #subview-pront #pront-exames { height: 230px!important; min-height: 180px!important; overflow-y:auto!important; resize:vertical!important; }
+}
+#subview-pront #pront-history { scrollbar-width: thin; scrollbar-color: #9ab9d1 #edf4fa; }
+#subview-pront #pront-history::-webkit-scrollbar { width: 9px; }
+#subview-pront #pront-history::-webkit-scrollbar-thumb { background: #9ab9d1; border-radius: 10px; border: 2px solid #edf4fa; }
+#subview-pront #pront-history::-webkit-scrollbar-track { background: #edf4fa; border-radius: 10px; }
+@media print{
+ #subview-pront .pc-history-controls{display:none!important}
+ #subview-pront #pront-history{height:auto!important;max-height:none!important;overflow:visible!important}
+}
 </style>
 <script>
-function pcToggleHistorySize(){
+function pcResetHistoryView(){
  const area=document.getElementById('pront-history');
- const button=document.getElementById('pc-history-size-toggle');
- if(!area||!button)return;
- const expanded=area.classList.toggle('pc-history-large');
- button.setAttribute('aria-expanded',String(expanded));
- button.textContent=expanded?'⤡ Reduzir':'⤢ Ampliar';
+ if(!area)return;
+ area.classList.remove('pc-history-large');
+ // Evita que o ajuste de altura realizado para impressão permaneça na edição.
+ area.style.removeProperty('height');
+ const bigger=document.getElementById('pc-history-expand');
+ const smaller=document.getElementById('pc-history-shrink');
+ if(bigger)bigger.disabled=false;
+ if(smaller)smaller.disabled=true;
+ area.scrollTop=0;
+}
+function pcSetHistorySize(expand){
+ const area=document.getElementById('pront-history');
+ const bigger=document.getElementById('pc-history-expand');
+ const smaller=document.getElementById('pc-history-shrink');
+ if(!area)return;
+ area.classList.toggle('pc-history-large',Boolean(expand));
+ if(bigger)bigger.disabled=Boolean(expand);
+ if(smaller)smaller.disabled=!expand;
 }
 </script>
+
+<style id="pc-detached-window-style">
+/* Modo janela é opt-in. Abertura padrão permanece a original. */
+.pc-window-actions{display:inline-flex;align-items:center;gap:5px;margin-left:auto;flex-shrink:0}
+.pc-window-actions button{appearance:none;border:1px solid rgba(255,255,255,.35)!important;background:rgba(255,255,255,.15)!important;color:white!important;min-width:30px;min-height:30px;padding:3px 8px!important;border-radius:8px!important;font:600 12px/1.2 system-ui,sans-serif!important;cursor:pointer}
+.pc-window-actions button:hover{background:rgba(255,255,255,.27)!important}
+.pc-dialog .pc-window-actions button{color:#164e63!important;border-color:#c7d7e9!important;background:#edf5fc!important}
+.pc-dialog .pc-window-actions button:hover{background:#dbeafe!important}
+.floating-popup .popup-header{gap:8px}
+.floating-popup .popup-close-btn{flex-shrink:0}
+.pc-overlay.pc-detached{inset:auto;top:100px;left:100px;right:auto!important;bottom:auto!important;display:block!important;background:transparent!important;backdrop-filter:none!important;padding:0!important;width:700px;height:600px;max-width:calc(100vw - 12px);max-height:calc(100dvh - 12px);pointer-events:auto;resize:both;overflow:hidden}
+.pc-overlay.pc-detached .pc-dialog{pointer-events:auto;box-sizing:border-box;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;border:1px solid #d9e4f1;border-radius:14px;display:flex;flex-direction:column;overflow:hidden;resize:none;min-width:230px;min-height:90px;padding:0!important;box-shadow:0 20px 60px rgba(15,23,42,.25)}
+.pc-overlay.pc-detached .pc-dialog>.pc-row:first-child{background:linear-gradient(110deg,#eaf2ff,#f4f7ff);padding:9px 11px;margin:0;flex:0 0 auto;cursor:grab;touch-action:none;user-select:none;flex-wrap:nowrap}
+.pc-overlay.pc-detached .pc-dialog>.pc-row:first-child:active{cursor:grabbing}
+.pc-overlay.pc-detached .pc-dialog>.pc-row:first-child h2{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.pc-overlay.pc-detached #pc-content{overflow:auto;flex:1;min-height:0;padding:12px}
+.pc-overlay.pc-detached .pc-dialog:has(#pc-content){background:white}
+.floating-popup.pc-detached{top:100px;left:100px;right:auto!important;bottom:auto!important;width:680px;height:580px;max-width:calc(100vw - 12px);max-height:calc(100dvh - 12px);z-index:8100;animation:none!important;resize:both;min-width:230px;min-height:90px;overflow:hidden;display:flex!important}
+.floating-popup.pc-detached .popup-header{cursor:grab;touch-action:none;user-select:none}
+.floating-popup.pc-detached .popup-header:active{cursor:grabbing}
+.pc-detached.pc-minimized{width:260px;height:47px;min-width:170px!important;min-height:43px!important;max-width:calc(100vw - 12px);max-height:130px;resize:both!important;overflow:hidden!important}
+.pc-overlay.pc-detached.pc-minimized .pc-dialog{resize:both!important;min-height:43px!important;min-width:170px!important;max-height:130px!important}
+.pc-overlay.pc-detached.pc-minimized #pc-content,.floating-popup.pc-detached.pc-minimized .popup-body{display:none!important}
+.pc-overlay.pc-detached.pc-minimized .pc-dialog>.pc-row:first-child{height:100%;min-height:40px;flex-wrap:nowrap!important}
+.floating-popup.pc-detached.pc-minimized .popup-header{height:100%;min-height:40px;padding:5px 8px!important}
+.pc-detached.pc-minimized .popup-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-detached.pc-minimized .popup-title span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-detached.pc-minimized .pc-window-actions button{min-width:28px;min-height:27px;padding:2px 5px!important}
+.pc-floating-hint{font:11px system-ui,sans-serif;color:#64748b;padding:4px 8px 5px}
+@media(max-width:650px){.pc-overlay.pc-detached,.floating-popup.pc-detached{max-width:calc(100vw - 12px)!important;max-height:calc(100dvh - 12px)!important}.pc-detached .pc-window-actions button{font-size:11px!important}}
+
+/* Janelas flutuantes acessíveis no telefone: dimensões, alça de redimensionar e área segura. */
+.pc-detached{box-sizing:border-box}
+.pc-detached .pc-mobile-resize{display:none}
+@media (max-width: 700px), (pointer: coarse){
+ .pc-overlay.pc-detached,.floating-popup.pc-detached{
+   resize:none!important;min-width:190px!important;min-height:128px!important;
+   max-width:calc(100vw - 12px)!important;
+   max-height:calc(100dvh - 18px)!important;
+   border-radius:14px!important;
+   overscroll-behavior:contain;
+ }
+ .pc-detached:not(.pc-minimized) .pc-mobile-resize{
+   display:flex!important;position:absolute;right:0;bottom:0;width:44px;height:44px;
+   z-index:15;align-items:flex-end;justify-content:flex-end;padding:0 8px 7px 0;
+   background:linear-gradient(135deg,transparent 45%,rgba(29,78,216,.13));
+   border:0;border-bottom-right-radius:12px;color:#325e90;
+   touch-action:none;cursor:nwse-resize;user-select:none;
+ }
+ .pc-mobile-resize::after{content:'◢';font-size:22px;line-height:20px}
+ .pc-detached .pc-window-actions{gap:4px;flex-shrink:0}
+ .pc-detached .pc-window-actions button{min-width:32px!important;min-height:34px!important;padding:5px 6px!important;font-size:11px!important}
+ .pc-overlay.pc-detached .pc-dialog>.pc-row:first-child,
+ .floating-popup.pc-detached .popup-header{touch-action:none;min-height:45px;flex-shrink:0}
+ .pc-overlay.pc-detached #pc-content,.floating-popup.pc-detached .popup-body{
+   overscroll-behavior:contain;-webkit-overflow-scrolling:touch;min-height:0;
+ }
+ .pc-detached.pc-minimized{
+   resize:none!important;min-width:170px!important;min-height:44px!important;
+   max-height:55px!important;box-shadow:0 10px 26px rgba(0,0,0,.2);
+ }
+ .pc-overlay.pc-detached.pc-minimized .pc-dialog{min-height:44px!important;max-height:55px!important;resize:none!important}
+ .pc-detached.pc-minimized .pc-mobile-resize{display:none!important}
+}
+@media print{.pc-detached{display:none!important}}
+</style>
+
+
+<style id="pc-floating-and-laboratory-fixes">
+/* Keep full-size windows readable after repeated minimize/restore and patient changes. */
+.pc-detached:not(.pc-minimized){max-height:calc(100dvh - 18px)!important;min-height:190px!important}
+.pc-overlay.pc-detached:not(.pc-minimized) .pc-dialog{min-height:0!important;max-height:none!important}
+/* Laboratory input is distinct from imaging report fields. Override its legacy rows=3 and inline style. */
+@media screen {
+ #popup-diagnostics #raw-lab-input{
+  display:block!important;box-sizing:border-box!important;width:100%!important;
+  height:250px;min-height:220px!important;max-height:none!important;
+  font-size:15px!important;line-height:1.55!important;
+  padding:12px 14px!important;border-radius:10px!important;
+  resize:vertical!important;overflow-y:auto!important;
+  overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+ }
+}
+@media screen and (max-width:768px){
+ #popup-diagnostics #raw-lab-input{height:310px;min-height:260px!important;font-size:16px!important}
+}
+@media print{#popup-diagnostics #raw-lab-input{height:auto!important}}
+</style>
+<script id="pc-detached-window-script">
+(()=>{
+'use strict';
+const nativeIds=['popup-obsidian','popup-patient-notes','popup-diagnostics'];
+const appLabels={'popup-obsidian':'Caderno clínico','popup-patient-notes':'Notas do paciente','popup-diagnostics':'Exames e imagens'};
+let counter=0, topZ=8200;
+const attached=new WeakSet();
+const icon=(name)=>name;
+function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+function focusWindow(root){root.style.zIndex=String(++topZ)}
+function mobileWindow(){return matchMedia('(max-width: 700px), (pointer: coarse)').matches}
+function confine(root){
+ if(!root.classList.contains('pc-detached'))return;
+ const rect=root.getBoundingClientRect();
+ const w=Math.min(rect.width,Math.max(Math.min(270,innerWidth-12),innerWidth-12));
+ const h=Math.min(rect.height,Math.max(44,innerHeight-18));
+ if(mobileWindow()){
+  root.style.width=w+'px';root.style.height=h+'px';
+ }
+ root.style.left=clamp(rect.left,6,Math.max(6,innerWidth-w-6))+'px';
+ root.style.top=clamp(rect.top,6,Math.max(6,innerHeight-h-6))+'px';
+}
+function installResizeHandle(root){
+ if(root.querySelector(':scope > .pc-mobile-resize'))return;
+ const grip=document.createElement('button');
+ grip.type='button';grip.className='pc-mobile-resize';
+ grip.title='Arraste para mudar largura e altura';
+ grip.setAttribute('aria-label','Redimensionar janela flutuante');
+ root.appendChild(grip);
+ grip.addEventListener('pointerdown',e=>{
+  if(!root.classList.contains('pc-detached')||root.classList.contains('pc-minimized'))return;
+  root.dataset.pcResizeActive='1';
+  root.dataset.pcIgnoreClickUntil=String(Date.now()+700);
+  e.stopPropagation();e.preventDefault();focusWindow(root);
+  const rect=root.getBoundingClientRect(),startX=e.clientX,startY=e.clientY;
+  const maxW=Math.max(Math.min(270,innerWidth-12),innerWidth-rect.left-6);
+  const maxH=Math.max(Math.min(190,innerHeight-18),innerHeight-rect.top-6);
+  const move=ev=>{
+   root.style.width=clamp(rect.width+ev.clientX-startX,Math.min(270,innerWidth-12),maxW)+'px';
+   root.style.height=clamp(rect.height+ev.clientY-startY,Math.min(190,innerHeight-18),maxH)+'px';
+  };
+  const end=()=>{root.dataset.pcResizeActive='0';root.dataset.pcIgnoreClickUntil=String(Date.now()+650);const r=root.getBoundingClientRect();if(r.width>=250)root.dataset.pcNormalW=String(r.width);if(r.height>=190)root.dataset.pcNormalH=String(r.height);document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',end);document.removeEventListener('pointercancel',end)};
+  document.addEventListener('pointermove',move);document.addEventListener('pointerup',end,{once:true});document.addEventListener('pointercancel',end,{once:true});
+ });
+}
+function drag(root,handle){
+ handle.addEventListener('pointerdown',e=>{
+  if(e.button!==0 || e.target.closest('button,input,textarea,select,a,label'))return;
+  if(!root.classList.contains('pc-detached'))return;
+  focusWindow(root);
+  let r=root.getBoundingClientRect(), x=e.clientX, y=e.clientY, left=r.left, top=r.top;
+  const move=ev=>{
+   root.style.left=clamp(left+ev.clientX-x,6,Math.max(6,innerWidth-r.width-6))+'px';
+   root.style.top=clamp(top+ev.clientY-y,6,Math.max(6,innerHeight-r.height-6))+'px';
+  };
+  const end=()=>{document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',end);document.removeEventListener('pointercancel',end)};
+  document.addEventListener('pointermove',move);document.addEventListener('pointerup',end,{once:true});document.addEventListener('pointercancel',end,{once:true});e.preventDefault();
+ });
+ root.addEventListener('pointerdown',()=>{if(root.classList.contains('pc-detached'))focusWindow(root)});
+}
+function normalWindowSize(root){
+ // The minimized 47px rectangle is never a valid full-window size.
+ const mobile=mobileWindow();
+ const defaultW=mobile?innerWidth-12:Math.min(700,innerWidth-12);
+ const defaultH=mobile?Math.min(Math.round(innerHeight*.77),innerHeight-18):Math.min(600,innerHeight-18);
+ let w=Number(root.dataset.pcNormalW),h=Number(root.dataset.pcNormalH);
+ if(!Number.isFinite(w)||w<250)w=defaultW;
+ if(!Number.isFinite(h)||h<190)h=defaultH;
+ return {w:clamp(w,Math.min(190,innerWidth-12),Math.max(190,innerWidth-12)),
+         h:clamp(h,Math.min(180,innerHeight-18),Math.max(180,innerHeight-18))};
+}
+function setMin(root,button){
+ const wasMin=root.classList.contains('pc-minimized');
+ if(!wasMin){
+  const rect=root.getBoundingClientRect();
+  // Preserve a real expanded size, including when a patient switch re-renders this panel.
+  if(rect.width>=250)root.dataset.pcNormalW=String(rect.width);
+  if(rect.height>=190)root.dataset.pcNormalH=String(rect.height);
+  root.classList.add('pc-minimized');
+  root.style.width=Math.min(286,Math.max(220,innerWidth-12))+'px';
+  root.style.height='47px';
+  root.style.maxHeight='55px';
+ }else{
+  const size=normalWindowSize(root);
+  root.classList.remove('pc-minimized');
+  // Remove stale minimized caps *before* applying full dimensions.
+  root.style.removeProperty('max-height');
+  root.style.removeProperty('min-height');
+  root.style.removeProperty('max-width');
+  root.style.width=size.w+'px';
+  root.style.height=size.h+'px';
+  root.style.maxHeight='calc(100dvh - 18px)';
+  root.style.minHeight='190px';
+ }
+ confine(root);
+ button.textContent=wasMin?'—':'▢';button.title=wasMin?'Minimizar em barrinha':'Restaurar janela';
+}
+function enableFloat(root,mode,button){
+ if(!root.classList.contains('pc-detached')){
+  // Remove a identificação exclusiva para liberar uma nova gaveta normal.
+  if(root.id==='pc-overlay')root.id='pc-floating-'+(++counter);
+  const r=root.getBoundingClientRect();
+  root.classList.add('pc-detached');
+  root.style.display=mode==='native'?'flex':'block';
+  root.style.top=(mobileWindow()?Math.max(8,Math.round(innerHeight*.07)):(mode==='overlay'?Math.max(12,Math.min(86,innerHeight-220)):clamp(r.top,10,Math.max(10,innerHeight-140))))+'px';
+  root.style.left=(mobileWindow()?6:(mode==='overlay'?Math.max(5,Math.floor((innerWidth-Math.min(740,innerWidth-16))/2)):clamp(r.left,5,Math.max(5,innerWidth-260))))+'px';
+  root.style.width=(mobileWindow()?innerWidth-12:(mode==='overlay'?Math.min(740,innerWidth-16):Math.min(Math.max(320,r.width),innerWidth-12)))+'px';
+  root.style.height=(mobileWindow()?Math.min(Math.round(innerHeight*.77),innerHeight-26):(mode==='overlay'?Math.min(650,innerHeight-24):Math.min(Math.max(260,r.height),innerHeight-12)))+'px';
+  root.style.right='auto';root.style.bottom='auto';
+  button.textContent='↩ Acoplar';button.title='Voltar ao painel normal';
+  focusWindow(root);
+  installResizeHandle(root);
+  confine(root);
+ }else{
+  if(root.classList.contains('pc-minimized')){const b=root.querySelector('.pc-window-min');if(b)setMin(root,b)}
+  root.classList.remove('pc-detached','pc-minimized');
+  for(const k of ['top','left','right','bottom','width','height','max-height','min-height','min-width','z-index','display'])root.style.removeProperty(k);
+  delete root.dataset.pcNormalW;delete root.dataset.pcNormalH;
+  const minBtn=root.querySelector('.pc-window-min');
+  if(minBtn){minBtn.hidden=false;minBtn.textContent='—';minBtn.title='Ocultar painel'}
+  if(mode==='overlay'){
+   const other=document.getElementById('pc-overlay');
+   if(other&&other!==root){other.dispatchEvent(new Event('pc-before-close'));other.remove()}
+   root.id='pc-overlay';
+  }else{
+   root.style.display='flex';
+  }
+  button.textContent='↗ Soltar';button.title='Transformar em janela flutuante';
+ }
+}
+function restoreWindowState(root,mode){
+ if(!root)return;
+ const mini=root.querySelector('.pc-window-min');
+ const float=root.querySelector('.pc-window-actions button:first-child');
+ root.classList.remove('pc-detached','pc-minimized');
+ // IMPORTANT: removeProperty exige nomes CSS com hífen (max-height, z-index).
+ // Os nomes camelCase antigos deixavam max-height:55px após fechar,
+ // fazendo o Caderno Clínico reabrir como uma barra no rodapé.
+ if(mode==='native'){
+  // Popups nativos não têm estilos inline de layout: limpar todos os
+  // valores deixados pelo modo flutuante é seguro e evita resíduos.
+  root.removeAttribute('style');
+  root.style.display='none';
+ }else{
+  for(const k of ['top','left','right','bottom','width','height','max-height','max-width',
+   'min-height','min-width','z-index','display','transform','position','resize','overflow','inset'])
+   root.style.removeProperty(k);
+ }
+ delete root.dataset.pcNormalW;
+ delete root.dataset.pcNormalH;
+ if(mini){mini.hidden=false;mini.textContent='—';mini.title='Ocultar painel'}
+ if(float){float.textContent='↗ Soltar';float.title='Abrir como janela movível (opcional)'}
+}
+window.PedCareWindowLifecycle={
+ prepareNative(id){
+  const root=document.getElementById(id);
+  if(!root)return false;
+  if(root.classList.contains('pc-detached')){
+   // A floating window still open should be restored / focused, not toggled off.
+   if(getComputedStyle(root).display!=='none' && root.style.display!=='none'){
+    if(root.classList.contains('pc-minimized')){
+     const mini=root.querySelector('.pc-window-min');
+     if(mini)setMin(root,mini);
+    }
+    focusWindow(root);confine(root);
+    return true;
+   }
+   restoreWindowState(root,'native');
+  }
+  if(root.classList.contains('pc-minimized') || root.style.left || root.style.height || root.style.maxHeight || root.style.zIndex){
+   restoreWindowState(root,'native');
+  }
+  return false;
+ },
+ reset:restoreWindowState,
+ decorate:scan,
+ detach(root){
+  if(!root)return false;
+  scan();
+  const button=root.querySelector('.pc-window-actions button:first-child');
+  if(!button)return false;
+  if(!root.classList.contains('pc-detached'))enableFloat(root,root.classList.contains('floating-popup')?'native':'overlay',button);
+  const minimize=root.querySelector('.pc-window-min');
+  if(minimize)minimize.hidden=false;
+  return true;
+ },
+ minimize(root){
+  const button=root?.querySelector('.pc-window-min');
+  if(button&&!root.classList.contains('pc-minimized'))setMin(root,button);
+ }
+};
+function addControls(root,mode){
+ if(attached.has(root))return;
+ const heading=mode==='native'?root.querySelector('.popup-header'):root.querySelector('.pc-dialog>.pc-row:first-child');
+ if(!heading)return;
+ if(mode==='overlay'){
+  const kind=root.dataset.pcWindowKind;
+  if(kind)root.classList.add('pc-kind-'+kind);
+ }
+
+ attached.add(root);
+ // O clique gerado ao soltar a alça não pode acionar o fechamento do overlay.
+ root.addEventListener('pointerdown', ev=>{
+  if(!root.classList.contains('pc-detached') || root.classList.contains('pc-minimized'))return;
+  const grip=ev.target.closest?.('.pc-mobile-resize');
+  const box=root.getBoundingClientRect();
+  // Suporte à alça nativa CSS resize: no desktop ela pertence ao próprio canto.
+  const nativeCorner=ev.clientX>=box.right-28 && ev.clientY>=box.bottom-28;
+  if(grip || nativeCorner){root.dataset.pcResizeActive='1';root.dataset.pcIgnoreClickUntil=String(Date.now()+800)}
+ },true);
+ root.addEventListener('pointerup',()=>{
+  if(root.dataset.pcResizeActive==='1'){
+   root.dataset.pcResizeActive='0';root.dataset.pcIgnoreClickUntil=String(Date.now()+650);
+   const r=root.getBoundingClientRect();
+   if(r.width>=250)root.dataset.pcNormalW=String(r.width);
+   if(r.height>=190)root.dataset.pcNormalH=String(r.height);
+  }
+ },true);
+ root.addEventListener('click',ev=>{
+  if(root.classList.contains('pc-detached') && Date.now() < Number(root.dataset.pcIgnoreClickUntil||0)){
+   ev.preventDefault();ev.stopImmediatePropagation();
+  }
+ },true);
+ const group=document.createElement('span');group.className='pc-window-actions';
+ const float=document.createElement('button');float.type='button';float.textContent='↗ Soltar';float.title='Abrir como janela movível (opcional)';float.setAttribute('aria-label','Soltar painel');
+ const mini=document.createElement('button');mini.type='button';mini.className='pc-window-min';mini.textContent='—';mini.title='Ocultar painel';mini.setAttribute('aria-label','Minimizar painel');mini.hidden=false;
+ group.append(float,mini);
+ const close=heading.querySelector('.popup-close-btn,#pc-close');
+ if(close)heading.insertBefore(group,close);else heading.append(group);
+ float.addEventListener('click',e=>{e.stopPropagation();enableFloat(root,mode,float);mini.hidden=false});
+ mini.addEventListener('click',e=>{
+  e.stopPropagation();e.preventDefault();
+  // Acoplado: recolher e fechar somente o painel. Nenhuma barrinha flutuante.
+  if(!root.classList.contains('pc-detached')){
+   if(mode==='overlay'){
+    root.dispatchEvent(new Event('pc-before-close'));
+    root.remove();
+   }else{
+    restoreWindowState(root,'native');
+    root.style.display='none';
+   }
+   return;
+  }
+  // Solto: minimizar ou restaurar a barrinha móvel.
+  setMin(root,mini);
+ });
+ drag(root,heading);
+ // A barra do painel, ao ser clicada, restaura rapidamente a janela minimizada.
+ heading.addEventListener('dblclick',e=>{if(e.target.closest('button'))return;if(root.classList.contains('pc-detached')&&root.classList.contains('pc-minimized'))setMin(root,mini)});
+ if(mode==='native'){
+  const closeBtn=heading.querySelector('.popup-close-btn');
+  closeBtn?.addEventListener('click',e=>{
+   if(root.classList.contains('pc-detached') || root.classList.contains('pc-minimized')){
+    e.stopImmediatePropagation();e.preventDefault();
+    restoreWindowState(root,'native');
+   }
+  },true);
+ }
+ if(mode==='overlay'){
+  const closeBtn=heading.querySelector('#pc-close');
+  if(closeBtn){closeBtn.addEventListener('click',e=>{if(root.classList.contains('pc-detached')){e.stopImmediatePropagation();e.preventDefault();root.dispatchEvent(new Event('pc-before-close'));restoreWindowState(root,'overlay');root.remove()}},true)}
+ }
+}
+function scan(){
+ nativeIds.forEach(id=>{const root=document.getElementById(id);if(root)addControls(root,'native')});
+ const root=document.getElementById('pc-overlay');if(root)addControls(root,'overlay');
+}
+function onNewPanel(){scan()}
+const observer=new MutationObserver(()=>{scan()});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{scan();observer.observe(document.body,{childList:true})});
+else{scan();observer.observe(document.body,{childList:true})}
+// O Caderno Clínico deve SEMPRE reabrir inteiro a partir do menu, mesmo
+// se uma versão anterior foi fechada enquanto estava minimizada.
+// Captura o clique antes de manipuladores legados que poderiam alternar
+// display em vez de restaurar a janela.
+document.addEventListener('click',e=>{
+ const trigger=e.target.closest?.('#pc-open-obsidian');
+ if(!trigger)return;
+ const root=document.getElementById('popup-obsidian');
+ if(!root)return;
+ e.preventDefault();e.stopImmediatePropagation();
+ if(root.classList.contains('pc-detached') && getComputedStyle(root).display!=='none'){
+  if(root.classList.contains('pc-minimized')){
+   const min=root.querySelector('.pc-window-min');if(min)setMin(root,min);
+  }
+  root.style.display='flex';focusWindow(root);confine(root);return;
+ }
+ restoreWindowState(root,'native');
+ document.querySelectorAll('.floating-popup:not(.pc-detached)').forEach(p=>{if(p!==root)p.style.display='none'});
+ const side=document.getElementById('pc-overlay');
+ if(side){side.dispatchEvent(new Event('pc-before-close'));side.remove()}
+ root.style.display='flex';
+ try{if(typeof renderObsidianUI==='function')renderObsidianUI()}catch(err){console.warn('PedCare: não foi possível atualizar a visualização do caderno',err)}
+},true);
+window.addEventListener('resize',()=>document.querySelectorAll('.pc-detached').forEach(confine));
+})();
+</script>
+<script id="pc-patient-window-binding">/* Estado das janelas por paciente: uma única identidade, sem títulos como chave.
+   Salva rascunhos do paciente anterior antes de criar as janelas do novo. */
+(()=>{
+'use strict';
+const workflows={
+  checklist:(p)=>window.PedCareWorkflow?.openDailyChecklist?.(p),
+  programs:(p)=>window.PedCareWorkflow?.openTasks?.(p),
+  handoff:(p)=>window.PedCareWorkflow?.openHandoff?.(p)
+};
+let switching=false, transitionPending=false;
+function selectedPatient(){
+ try{return typeof patients!=='undefined'&&typeof currentPatientId!=='undefined'
+  ? patients.find(p=>String(p.id)===String(currentPatientId)):null}catch{return null}
+}
+function patientPanelKind(root){
+ const key=root?.dataset?.pcWindowKind;
+ return Object.prototype.hasOwnProperty.call(workflows,key)?key:null;
+}
+function openPatientPanels(){
+ return [...document.querySelectorAll('.pc-overlay[data-pc-window-kind]')].filter(r=>patientPanelKind(r));
+}
+function checkpoint(root){if(root?.isConnected)root.dispatchEvent(new Event('pc-before-close'))}
+function beforeSwitch(){
+ if(switching)return;
+ transitionPending=true;
+ // Save before the original switch changes currentPatientId.
+ openPatientPanels().forEach(checkpoint);
+ const focus=document.activeElement;
+ if(focus?.closest?.('.floating-popup'))focus.blur();
+}
+function onNoPatient(){
+ transitionPending=false;
+ for(const root of openPatientPanels()){checkpoint(root);root.remove()}
+ const notes=document.getElementById('patient-general-notes');if(notes){notes.value='';delete notes.dataset.pcPatientId}
+ for(const id of ['lab-table-container','image-grid-container']){
+  const field=document.getElementById(id);if(field)field.textContent='Selecione um paciente para consultar estes dados.';
+ }
+}
+function afterSwitch(id){
+ if(!transitionPending||switching)return; // Clicking the same tab doesn't reset floating windows.
+ transitionPending=false;
+ const patient=selectedPatient();if(!patient||String(patient.id)!==String(id))return;
+ switching=true;
+ try{
+  const entries=openPatientPanels().map(root=>{
+   const rect=root.getBoundingClientRect();
+   const minimized=root.classList.contains('pc-minimized');
+   return {root,kind:patientPanelKind(root),floating:root.classList.contains('pc-detached'),minimized,
+    x:rect.left,y:rect.top,z:root.style.zIndex,
+    width:minimized?Number(root.dataset.pcNormalW):rect.width,
+    height:minimized?Number(root.dataset.pcNormalH):rect.height};
+  });
+  // Never leave any stale patient-specific detached windows alive.
+  for(const entry of entries){checkpoint(entry.root);entry.root.remove()}
+  for(const entry of entries){
+   workflows[entry.kind]?.(patient);
+   const next=document.getElementById('pc-overlay');if(!next)continue;
+   next.dataset.pcPatientId=String(patient.id);
+   if(!entry.floating)continue;
+   const api=window.PedCareWindowLifecycle;
+   api?.decorate?.();
+   if(!api?.detach?.(next))continue;
+   const maxW=Math.max(190,innerWidth-12),maxH=Math.max(180,innerHeight-18);
+   const fallbackW=innerWidth<=700?maxW:Math.min(700,maxW);
+   const fallbackH=innerWidth<=700?Math.min(Math.round(innerHeight*.77),maxH):Math.min(600,maxH);
+   const width=Math.max(Math.min(190,maxW),Math.min(maxW,Number.isFinite(entry.width)&&entry.width>=250?entry.width:fallbackW));
+   const height=Math.max(Math.min(180,maxH),Math.min(maxH,Number.isFinite(entry.height)&&entry.height>=190?entry.height:fallbackH));
+   next.style.removeProperty('max-height');
+   next.style.width=width+'px';next.style.height=height+'px';
+   next.style.left=Math.max(6,Math.min(entry.x,innerWidth-width-6))+'px';
+   next.style.top=Math.max(6,Math.min(entry.y,innerHeight-height-6))+'px';
+   next.dataset.pcNormalW=String(width);next.dataset.pcNormalH=String(height);
+   if(entry.minimized)api.minimize(next);
+  }
+  const notes=document.getElementById('patient-general-notes');
+  if(notes)notes.dataset.pcPatientId=String(patient.id);
+  if(document.getElementById('popup-diagnostics')?.classList.contains('pc-detached')){
+   try{
+    if(typeof currentDiagTab!=='undefined'&&currentDiagTab==='img')renderImageGrid();
+    else renderLabTable();
+   }catch(e){console.error('PedCare: falha ao atualizar exames do paciente ativo',e)}
+  }
+ }finally{switching=false}
+}
+window.PedCarePatientWindows={beforeSwitch,afterSwitch,onNoPatient,patientPanelKind};
+})();</script>
+
+
+<style id="pc-window-polish-v2">
+/* Cores das bandejas: identidade visual por ferramenta, sem modificar a impressão. */
+.pc-overlay.pc-detached{min-width:min(270px,calc(100vw - 12px))!important;min-height:190px!important;}
+.floating-popup.pc-detached{min-width:min(270px,calc(100vw - 12px))!important;min-height:190px!important;}
+.pc-overlay.pc-detached.pc-minimized,.floating-popup.pc-detached.pc-minimized{
+ min-width:min(245px,calc(100vw - 12px))!important;min-height:44px!important;
+}
+.pc-overlay.pc-detached .pc-dialog>.pc-row:first-child{
+ display:flex;gap:7px;align-items:center;min-width:0;border-bottom:1px solid rgba(255,255,255,.20);
+ background:linear-gradient(110deg,#0d7491,#0891b2)!important;color:#fff!important;
+}
+.pc-overlay.pc-detached .pc-dialog>.pc-row:first-child h2{
+ color:#fff!important;min-width:0;flex:1 1 auto;font-size:14px!important;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0!important;
+}
+.pc-overlay.pc-detached.pc-kind-checklist .pc-dialog>.pc-row:first-child{background:linear-gradient(110deg,#176b56,#16a085)!important}
+.pc-overlay.pc-detached.pc-kind-programs .pc-dialog>.pc-row:first-child{background:linear-gradient(110deg,#985e15,#d58b26)!important}
+.pc-overlay.pc-detached.pc-kind-handoff .pc-dialog>.pc-row:first-child{background:linear-gradient(110deg,#2755a5,#527dd2)!important}
+.pc-overlay.pc-detached.pc-kind-reminders .pc-dialog>.pc-row:first-child{background:linear-gradient(110deg,#6847ac,#9070ca)!important}
+.pc-overlay.pc-detached .pc-window-actions{flex-shrink:0;gap:5px;margin-left:auto}
+.pc-overlay.pc-detached .pc-window-actions button,
+.pc-overlay.pc-detached #pc-close,
+.floating-popup.pc-detached .pc-window-actions button,
+.floating-popup.pc-detached .popup-close-btn{
+ display:inline-flex!important;align-items:center;justify-content:center;
+ box-sizing:border-box;flex:0 0 auto;min-width:30px!important;height:31px!important;
+ padding:4px 8px!important;border:1px solid rgba(255,255,255,.32)!important;
+ border-radius:9px!important;background:rgba(255,255,255,.17)!important;
+ color:#fff!important;font:700 12px/1 system-ui,sans-serif!important;
+ box-shadow:none!important;transition:background .14s ease,transform .14s ease;
+}
+.pc-overlay.pc-detached .pc-window-actions button:hover,
+.pc-overlay.pc-detached #pc-close:hover,
+.floating-popup.pc-detached .pc-window-actions button:hover{
+ background:rgba(255,255,255,.32)!important;transform:translateY(-1px);
+}
+.pc-overlay.pc-detached #pc-close{
+ font-size:0!important;width:34px!important;padding:4px!important;
+}
+.pc-overlay.pc-detached #pc-close::before{content:'×';font-size:22px;line-height:1}
+.pc-overlay.pc-detached .pc-window-min{font-size:19px!important;line-height:1!important}
+.pc-overlay.pc-detached.pc-minimized .pc-dialog>.pc-row:first-child{padding:7px 9px!important;height:100%;}
+.pc-overlay.pc-detached.pc-minimized .pc-dialog>.pc-row:first-child h2{font-size:12px!important;}
+.pc-detached .pc-mobile-resize{z-index:100!important}
+@media (max-width:700px),(pointer:coarse){
+ .pc-overlay.pc-detached:not(.pc-minimized),.floating-popup.pc-detached:not(.pc-minimized){min-height:190px!important;min-width:min(270px,calc(100vw - 12px))!important}
+ .pc-overlay.pc-detached.pc-minimized,.floating-popup.pc-detached.pc-minimized{min-height:44px!important;min-width:min(245px,calc(100vw - 12px))!important}
+ .pc-overlay.pc-detached .pc-dialog>.pc-row:first-child{gap:4px!important;padding:8px!important}
+ .pc-overlay.pc-detached .pc-window-actions button,.pc-overlay.pc-detached #pc-close{min-width:30px!important;padding:4px 5px!important}
+}
+@media print{.pc-overlay.pc-detached,.floating-popup.pc-detached{display:none!important}}
+</style>
+
+
+<style id="pc-design-system-unified">
+/* PedCare: linguagem visual única para janelas clássicas e gavetas novas. */
+#popup-obsidian,.floating-popup,#pc-overlay .pc-dialog{--pc-accent:#0f789a;--pc-accent2:#159ab6;--pc-tint:#eff8fc;--pc-line:#dbe6ef;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+#popup-obsidian{--pc-accent:#6345ac;--pc-accent2:#8866d8;--pc-tint:#f6f3ff}
+#popup-patient-notes{--pc-accent:#176b9e;--pc-accent2:#2996c6;--pc-tint:#f0f8ff}
+#popup-diagnostics{--pc-accent:#13786f;--pc-accent2:#229e92;--pc-tint:#effaf7}
+.pc-overlay.pc-kind-checklist .pc-dialog{--pc-accent:#176b56;--pc-accent2:#16a085;--pc-tint:#effbf6}
+.pc-overlay.pc-kind-programs .pc-dialog{--pc-accent:#985e15;--pc-accent2:#d58b26;--pc-tint:#fff9ed}
+.pc-overlay.pc-kind-handoff .pc-dialog{--pc-accent:#2755a5;--pc-accent2:#527dd2;--pc-tint:#f1f6ff}
+.pc-overlay.pc-kind-reminders .pc-dialog{--pc-accent:#6847ac;--pc-accent2:#9070ca;--pc-tint:#f6f2fe}
+.pc-overlay.pc-kind-folders .pc-dialog{--pc-accent:#187589;--pc-accent2:#28a0ad;--pc-tint:#f0fafb}
+/* Cada cabeçalho tem o mesmo ritmo tipográfico, alinhamento e gradiente. */
+.floating-popup .popup-header,
+.pc-overlay .pc-dialog>.pc-row:first-child{
+  display:flex!important;align-items:center!important;gap:8px!important;
+  flex-wrap:nowrap!important;padding:10px 13px!important;margin:0!important;
+  min-height:51px;box-sizing:border-box;
+  background:linear-gradient(112deg,var(--pc-accent),var(--pc-accent2))!important;
+  color:#fff!important;border-bottom:1px solid rgba(255,255,255,.22)!important;
+}
+.pc-overlay .pc-dialog>.pc-row:first-child{position:relative;top:auto;z-index:2}
+.pc-side-overlay:not(.pc-detached) .pc-dialog>.pc-row:first-child{position:sticky;top:0}
+.floating-popup .popup-header .popup-title,
+.pc-overlay .pc-dialog>.pc-row:first-child h2{
+  flex:1 1 auto;min-width:0!important;margin:0!important;color:#fff!important;
+  font:750 14px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+  letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.floating-popup .popup-header .popup-title span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.floating-popup .popup-header .pc-window-actions,
+.pc-overlay .pc-dialog>.pc-row:first-child .pc-window-actions{order:2;margin-left:auto;flex-shrink:0;gap:6px}
+.floating-popup .popup-header .popup-close-btn,
+.pc-overlay .pc-dialog>.pc-row:first-child #pc-close{order:3;flex-shrink:0}
+/* Mesmo formato do botão × nas Notas, Caderno, Exames e gavetas. */
+.floating-popup .popup-header .popup-close-btn,
+.pc-overlay .pc-dialog>.pc-row:first-child #pc-close,
+.floating-popup .popup-header .pc-window-actions button,
+.pc-overlay .pc-dialog>.pc-row:first-child .pc-window-actions button{
+  appearance:none!important;display:inline-flex!important;align-items:center!important;
+  justify-content:center!important;flex:0 0 auto;box-sizing:border-box;
+  width:auto!important;min-width:34px!important;height:34px!important;min-height:34px!important;
+  padding:4px 8px!important;margin:0!important;
+  border:1px solid rgba(255,255,255,.35)!important;border-radius:10px!important;
+  background:rgba(255,255,255,.15)!important;color:#fff!important;
+  box-shadow:none!important;font:700 12px/1 system-ui,sans-serif!important;
+  cursor:pointer;transition:background .17s ease,transform .17s ease;
+}
+.floating-popup .popup-header .popup-close-btn,
+.pc-overlay .pc-dialog>.pc-row:first-child #pc-close{
+  width:34px!important;min-width:34px!important;padding:0!important;
+  font-size:0!important;line-height:0!important;
+}
+.floating-popup .popup-header .popup-close-btn::after,
+.pc-overlay .pc-dialog>.pc-row:first-child #pc-close::after{
+  content:'×';font:500 25px/1 system-ui,sans-serif!important;
+}
+/* Impede um segundo × vindo do estilo de janela flutuante antigo. */
+.pc-overlay .pc-dialog>.pc-row:first-child #pc-close::before{content:none!important}
+.floating-popup .popup-header .pc-window-min,
+.pc-overlay .pc-dialog>.pc-row:first-child .pc-window-min{font-size:21px!important;font-weight:500!important;padding:0!important;width:34px!important;min-width:34px!important}
+.floating-popup .popup-header button:hover,
+.pc-overlay .pc-dialog>.pc-row:first-child button:hover{
+ background:rgba(255,255,255,.28)!important;transform:translateY(-1px)
+}
+.floating-popup .popup-header button:focus-visible,
+.pc-overlay .pc-dialog>.pc-row:first-child button:focus-visible{
+ outline:2px solid #fff!important;outline-offset:2px!important;
+}
+/* Caixas e controles internos com espaçamento, bordas e estados coerentes. */
+.floating-popup .popup-body,.pc-overlay .pc-dialog #pc-content{background:#fff;color:#213247}
+.floating-popup .popup-body{padding:14px;gap:11px}
+.pc-overlay .pc-dialog{border:1px solid #dce6f0;overflow:hidden}
+.pc-overlay .pc-dialog #pc-content{padding:14px;overflow:auto;min-height:0}
+.floating-popup .popup-body :is(input:not([type=checkbox]):not([type=radio]),select,textarea),
+.pc-overlay .pc-dialog #pc-content :is(input:not([type=checkbox]):not([type=radio]),select,textarea){
+ border:1px solid #cfdae6;border-radius:9px;background:#fff;color:#172b43;
+ box-sizing:border-box;max-width:100%;
+}
+.floating-popup .popup-body :is(input,select,textarea):focus-visible,
+.pc-overlay .pc-dialog #pc-content :is(input,select,textarea):focus-visible{
+ outline:2px solid var(--pc-accent,#1686a6);outline-offset:1px;
+}
+.floating-popup .popup-body button,.pc-overlay .pc-dialog #pc-content button{border-radius:9px}
+/* Evita sobreposição em larguras pequenas sem mudar a mecânica de redimensionar. */
+.pc-detached.pc-minimized :is(.popup-title,.pc-dialog>.pc-row:first-child h2){min-width:0!important}
+.pc-detached.pc-minimized .pc-window-actions{gap:4px!important}
+@media(max-width:650px){
+ .floating-popup .popup-header,.pc-overlay .pc-dialog>.pc-row:first-child{padding:8px 9px!important;gap:5px!important;min-height:48px}
+ .floating-popup .popup-header .popup-title,.pc-overlay .pc-dialog>.pc-row:first-child h2{font-size:12.5px!important}
+ .floating-popup .popup-header .pc-window-actions,.pc-overlay .pc-dialog>.pc-row:first-child .pc-window-actions{gap:3px!important}
+ .floating-popup .popup-header .popup-close-btn,.pc-overlay .pc-dialog>.pc-row:first-child #pc-close,
+ .floating-popup .popup-header .pc-window-actions button,.pc-overlay .pc-dialog>.pc-row:first-child .pc-window-actions button{
+   min-width:30px!important;height:32px!important;min-height:32px!important;border-radius:8px!important;padding:3px 5px!important
+ }
+ .floating-popup .popup-header .popup-close-btn,.pc-overlay .pc-dialog>.pc-row:first-child #pc-close{width:30px!important}
+ .floating-popup .popup-body,.pc-overlay .pc-dialog #pc-content{padding:10px}
+}
+@media print{.pc-window-actions{display:none!important}}
+</style>
+
+<script id="pc-unified-window-themes">
+(()=>{
+ 'use strict';
+ const classify=(root)=>{
+  if(!root||root.id!=='pc-overlay')return;
+  const title=(root.querySelector('.pc-dialog>.pc-row:first-child h2')?.textContent||'').toLocaleLowerCase('pt-BR');
+  root.classList.remove('pc-kind-checklist','pc-kind-programs','pc-kind-handoff','pc-kind-reminders','pc-kind-folders');
+  let kind='';
+  if(title.includes('checklist')||title.includes('revisão diária'))kind='checklist';
+  else if(title.includes('programaç'))kind='programs';
+  else if(title.includes('passagem'))kind='handoff';
+  else if(title.includes('lembret')||title.includes('conferência geral'))kind='reminders';
+  else if(title.includes('pasta')||title.includes('pacientes'))kind='folders';
+  if(kind)root.classList.add('pc-kind-'+kind);
+ };
+ const refresh=()=>{document.querySelectorAll('#pc-overlay,.pc-overlay.pc-detached').forEach(classify)};
+ const start=()=>{
+  refresh();
+  new MutationObserver(records=>{
+   if(records.some(r=>[...r.addedNodes].some(n=>n.nodeType===1&&(n.id==='pc-overlay'||n.matches?.('.pc-overlay')||n.querySelector?.('.pc-overlay')))))refresh();
+  }).observe(document.body,{childList:true,subtree:true});
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+</script>
+
+<style id="pc-popup-entrance-unified-2026">
+/* Checklist, Programações, Passagem e Lembretes usam a apresentação das janelas
+   tradicionais do PedCare, sem alterar o modo "Soltar" nem os modais de saída. */
+@keyframes pcWindowRiseUnified {
+ from {opacity:0;transform:translateY(16px)}
+ to {opacity:1;transform:translateY(0)}
+}
+/* O seletor com ID precisa prevalecer sobre o tema genérico antigo. */
+#pc-overlay.pc-kind-checklist>.pc-dialog{--pc-accent:#176b56;--pc-accent2:#16a085;--pc-tint:#effbf6}
+#pc-overlay.pc-kind-programs>.pc-dialog{--pc-accent:#985e15;--pc-accent2:#d58b26;--pc-tint:#fff9ed}
+#pc-overlay.pc-kind-handoff>.pc-dialog{--pc-accent:#2755a5;--pc-accent2:#527dd2;--pc-tint:#f1f6ff}
+#pc-overlay.pc-kind-reminders>.pc-dialog{--pc-accent:#6847ac;--pc-accent2:#9070ca;--pc-tint:#f6f2fe}
+#pc-overlay.pc-kind-folders>.pc-dialog{--pc-accent:#187589;--pc-accent2:#28a0ad;--pc-tint:#f0fafb}
+/* O overlay deixa de ser uma gaveta escura em tela inteira. */
+.pc-overlay.pc-side-overlay:is(.pc-kind-checklist,.pc-kind-programs,.pc-kind-handoff,.pc-kind-reminders,.pc-kind-folders):not(.pc-detached){
+ inset:auto!important;
+ position:fixed!important;
+ bottom:80px!important;
+ right:18px!important;
+ left:auto!important;
+ top:auto!important;
+ display:flex!important;
+ padding:0!important;
+ width:min(640px,calc(100vw - 28px))!important;
+ height:min(680px,calc(100dvh - 100px))!important;
+ min-width:0!important;
+ max-width:calc(100vw - 16px)!important;
+ max-height:calc(100dvh - 20px)!important;
+ background:transparent!important;
+ backdrop-filter:none!important;
+ border:0!important;
+ border-radius:14px!important;
+ box-shadow:0 12px 35px rgba(15,23,42,.28)!important;
+ overflow:hidden!important;
+ align-items:stretch!important;
+ justify-content:stretch!important;
+ animation:pcWindowRiseUnified .2s ease-out both!important;
+ z-index:4500!important;
+}
+/* Todas as janelas seguem o mesmo cartão e a mesma divisão cabeçalho/conteúdo. */
+.pc-overlay.pc-side-overlay:is(.pc-kind-checklist,.pc-kind-programs,.pc-kind-handoff,.pc-kind-reminders,.pc-kind-folders):not(.pc-detached)>.pc-dialog{
+ position:relative!important;
+ display:flex!important;
+ flex-direction:column!important;
+ width:100%!important;
+ height:100%!important;
+ min-width:0!important;
+ max-height:none!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ border-radius:14px!important;
+ overflow:hidden!important;
+ background:#fff!important;
+ box-shadow:none!important;
+ animation:none!important;
+ resize:none!important;
+}
+.pc-overlay.pc-side-overlay:is(.pc-kind-checklist,.pc-kind-programs,.pc-kind-handoff,.pc-kind-reminders,.pc-kind-folders):not(.pc-detached)>.pc-dialog>.pc-row:first-child{
+ position:relative!important;
+ inset:auto!important;
+ flex:0 0 auto!important;
+ width:100%!important;
+ min-height:51px!important;
+ margin:0!important;
+ padding:10px 13px!important;
+ border:0!important;
+ border-bottom:1px solid rgba(255,255,255,.18)!important;
+ border-radius:0!important;
+ background:linear-gradient(112deg,var(--pc-accent),var(--pc-accent2))!important;
+ box-shadow:none!important;
+}
+.pc-overlay.pc-side-overlay:is(.pc-kind-checklist,.pc-kind-programs,.pc-kind-handoff,.pc-kind-reminders,.pc-kind-folders):not(.pc-detached)>.pc-dialog>#pc-content{
+ flex:1 1 auto!important;
+ min-height:0!important;
+ margin:0!important;
+ padding:14px!important;
+ overflow:auto!important;
+ background:#fff!important;
+ overscroll-behavior:contain;
+}
+@media(max-width:650px){
+ .pc-overlay.pc-side-overlay:is(.pc-kind-checklist,.pc-kind-programs,.pc-kind-handoff,.pc-kind-reminders,.pc-kind-folders):not(.pc-detached){
+   left:8px!important;right:8px!important;bottom:12px!important;
+   width:calc(100vw - 16px)!important;
+   height:calc(100dvh - 80px)!important;
+   max-height:calc(100dvh - 24px)!important;
+   border-radius:14px!important;
+ }
+ .pc-overlay.pc-side-overlay:is(.pc-kind-checklist,.pc-kind-programs,.pc-kind-handoff,.pc-kind-reminders,.pc-kind-folders):not(.pc-detached)>.pc-dialog>.pc-row:first-child{
+  min-height:48px!important;padding:8px 9px!important;
+ }
+ .pc-overlay.pc-side-overlay:is(.pc-kind-checklist,.pc-kind-programs,.pc-kind-handoff,.pc-kind-reminders,.pc-kind-folders):not(.pc-detached)>.pc-dialog>#pc-content{padding:10px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .pc-overlay.pc-side-overlay:is(.pc-kind-checklist,.pc-kind-programs,.pc-kind-handoff,.pc-kind-reminders,.pc-kind-folders):not(.pc-detached){animation:none!important}
+}
+</style>
+
+
+<style id="pc-folders-matching-window-2026">
+/* A janela de Pastas segue a mesma apresentação das demais ferramentas.
+   Mantém a árvore e o gerenciamento sem interferir no drag-and-drop dos pacientes. */
+#pc-overlay.pc-kind-folders:not(.pc-detached) .pc-dialog>.pc-row:first-child{
+ background:linear-gradient(112deg,#187589,#28a0ad)!important;
+ border:0!important;border-bottom:1px solid rgba(255,255,255,.18)!important;
+}
+#pc-overlay.pc-kind-folders:not(.pc-detached) .pc-dialog>.pc-row:first-child h2{
+ color:#fff!important;
+}
+#pc-overlay.pc-kind-folders:not(.pc-detached) .pc-folders-hero{
+ background:linear-gradient(110deg,#f0fafb,#e6f5f7)!important;
+ border:1px solid #cce8ea!important;
+ border-radius:12px!important;
+}
+#pc-overlay.pc-kind-folders .pc-folder-actions{
+ display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 12px;
+}
+#pc-overlay.pc-kind-folders .pc-folder-actions button{
+ border-radius:9px!important;min-height:35px;
+}
+#pc-overlay.pc-kind-folders .pc-folder-manager-grid{
+ grid-template-columns:minmax(180px,1fr) minmax(240px,1.4fr);
+ gap:10px;
+}
+#pc-overlay.pc-kind-folders .pc-folder-manager-tree,
+#pc-overlay.pc-kind-folders .pc-folder-manager-patients{
+ min-width:0;border-color:#d9e9ed;border-radius:11px;
+}
+@media(max-width:650px){
+ #pc-overlay.pc-kind-folders .pc-folder-manager-grid{
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+ #pc-overlay.pc-kind-folders .pc-folder-manager-tree{
+  max-height:min(34dvh,280px);overflow:auto;
+ }
+ #pc-overlay.pc-kind-folders .pc-folder-manager-patients{
+  max-height:none;overflow:visible;
+ }
+}
+</style>
+
+
+<style id="pc-docked-single-close-control">
+/* Acoplado: somente X fecha painel; minimizar exclusivo do modo flutuante. */
+.floating-popup:not(.pc-detached) .popup-header .pc-window-min,
+.pc-overlay:not(.pc-detached) .pc-dialog > .pc-row:first-child .pc-window-min { display:none!important; }
+.floating-popup:not(.pc-detached) .popup-header .pc-window-actions,
+.pc-overlay:not(.pc-detached) .pc-dialog > .pc-row:first-child .pc-window-actions { align-items:center; }
+</style>
+
+<style id="pc-unified-launcher-rail-2026">
+/* O rol é sempre a camada superior das janelas de ferramentas, mas abaixo de diálogos críticos. */
+#pc-tools.pc-tools{z-index:9100!important;isolation:isolate;}
+#pc-tools .pc-launcher-anchor{z-index:2;}
+#pc-tools .pc-fab-list{z-index:1;}
+/* Com uma ferramenta aberta, o rol muda para ícones; o botão principal segue visível. */
+#pc-tools.pc-panel-open.is-expanded .pc-fab-list{gap:8px;align-items:flex-end;}
+#pc-tools.pc-panel-open.is-expanded .pc-fab-list>button{
+ box-sizing:border-box!important;
+ position:relative!important;
+ width:46px!important;min-width:46px!important;max-width:46px!important;
+ height:46px!important;min-height:46px!important;
+ padding:0!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ border-radius:14px!important;
+ font-size:0!important;line-height:0!important;
+ overflow:visible!important;
+ color:transparent!important;
+ transition:background .16s ease,box-shadow .16s ease,transform .16s ease;
+}
+#pc-tools.pc-panel-open.is-expanded .pc-fab-list>button::before{
+ content:"•";display:block!important;font:normal 23px/1 system-ui,sans-serif!important;
+ color:#164e63!important;line-height:1!important;
+}
+#pc-tools.pc-panel-open #pc-open-daily::before{content:"✅"!important}
+#pc-tools.pc-panel-open #pc-open-tasks::before{content:"☑️"!important}
+#pc-tools.pc-panel-open #pc-open-handoff::before{content:"📋"!important}
+#pc-tools.pc-panel-open #pc-open-pending::before{content:"🔔"!important}
+#pc-tools.pc-panel-open #pc-open-folders::before{content:"📁"!important}
+#pc-tools.pc-panel-open #pc-open-diagnostics::before{content:"🔬"!important}
+#pc-tools.pc-panel-open #pc-open-notes::before{content:"📌"!important}
+#pc-tools.pc-panel-open #pc-open-obsidian::before{content:"🟣"!important}
+/* As contagens individuais mantêm-se acessíveis, sem sobrepor os ícones. */
+#pc-tools.pc-panel-open.is-expanded .pc-fab-list .pc-menu-counter{
+ position:absolute!important;top:-5px;right:-7px;left:auto;
+ min-width:18px!important;height:18px!important;padding:0 4px!important;
+ font:700 10px/1 system-ui,sans-serif!important;
+ border:1px solid white;
+}
+#pc-tools.pc-panel-open.is-expanded .pc-fab-list>button:hover{transform:translateX(-3px) scale(1.03)}
+#pc-tools.pc-panel-open:not(.is-expanded) .pc-fab-list{
+ opacity:0!important;visibility:hidden!important;pointer-events:none!important;
+ transform:translateY(10px) scale(.96)!important;
+}
+/* Não exibir os controles no papel nem sobre a confirmação independente de saída. */
+body:has(.pc-exit-content) #pc-tools{z-index:3500!important;}
+@media(max-width:650px){
+ #pc-tools.pc-panel-open.is-expanded .pc-fab-list>button{width:43px!important;min-width:43px!important;max-width:43px!important;height:43px!important;min-height:43px!important;}
+ #pc-tools.pc-panel-open.is-expanded .pc-fab-list>button::before{font-size:21px!important}
+ #pc-tools.pc-panel-open .pc-fab-list{max-height:calc(100dvh - 115px)!important;}
+}
+@media print{#pc-tools{display:none!important}}
+</style>
+<script id="pc-unified-launcher-rail-script-2026">
+/* Estado único do menu: a abertura de qualquer ferramenta ativa imediatamente o modo compacto. */
+(()=>{
+'use strict';
+let pendingFrame=0, settling=0, compactUntil=0;
+const q=id=>document.getElementById(id);
+const bar=()=>q('pc-tools');
+const isVisible=el=>{
+ if(!el?.isConnected)return false;
+ const style=getComputedStyle(el);
+ return style.display!=='none' && style.visibility!=='hidden' && el.getClientRects().length>0;
+};
+const anyPanelOpen=()=>{
+ const overlay=q('pc-overlay');
+ if(overlay && isVisible(overlay) && !overlay.querySelector('.pc-exit-content'))return true;
+ return [...document.querySelectorAll('.floating-popup,.pc-overlay.pc-detached')].some(el=>isVisible(el) && !el.querySelector('.pc-exit-content'));
+};
+function compactNow(){
+ const el=bar();if(!el)return;
+ el.dataset.pcMenuMode='compact';
+ el.classList.add('pc-panel-open');
+ compactUntil=performance.now()+160;
+}
+function sync(){
+ pendingFrame=0;
+ const el=bar();if(!el)return;
+ if(anyPanelOpen()){
+  compactNow();
+  if(settling){clearTimeout(settling);settling=0;}
+  return;
+ }
+ const left=compactUntil-performance.now();
+ if(left>0){
+  if(settling)clearTimeout(settling);
+  settling=setTimeout(()=>{settling=0;requestSync();},Math.ceil(left)+10);
+  return;
+ }
+ el.classList.remove('pc-panel-open');
+ delete el.dataset.pcMenuMode;
+}
+function requestSync(){if(!pendingFrame)pendingFrame=requestAnimationFrame(sync)}
+function start(){
+ const el=bar(),launcher=q('pc-launcher');if(!el||!launcher)return;
+ // Precede o onclick que alterna entre as ferramentas: nunca exibir os nomes na troca.
+ el.addEventListener('click',ev=>{
+  if(ev.target.closest('#pc-fab-list > button'))compactNow();
+ },true);
+ // Quando recolher o menu completo, manter o mesmo formato até desaparecer.
+ launcher.addEventListener('click',()=>requestSync());
+ document.addEventListener('click',ev=>{
+  if(ev.target.closest('#pc-overlay,.floating-popup,#pc-tools'))requestSync();
+ },true);
+ const observed=new WeakSet();
+ const attrWatch=new MutationObserver(requestSync);
+ function attach(){
+  document.querySelectorAll('#pc-overlay,.floating-popup').forEach(el=>{
+   if(observed.has(el))return;
+   observed.add(el);
+   attrWatch.observe(el,{attributes:true,attributeFilter:['style','class','hidden']});
+  });
+ }
+ const elementsWatch=new MutationObserver(records=>{
+  if(!records.some(r=>[...r.addedNodes,...r.removedNodes].some(n=>n.nodeType===1 && (n.matches?.('#pc-overlay,.floating-popup') || n.querySelector?.('#pc-overlay,.floating-popup')))))return;
+  attach();requestSync();
+ });
+ elementsWatch.observe(document.body,{childList:true,subtree:true});
+ attach();requestSync();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();</script>
+
+
+
+<style id="pc-rail-symmetric-animation">
+/* Todos os botoes usam o mesmo elemento de icone no modo completo e compacto. */
+#pc-tools .pc-fab-list > button {
+  display:flex!important;align-items:center!important;justify-content:flex-start;
+  gap:9px!important;transform-origin:right center;
+  transition:transform .22s ease,background .18s ease,box-shadow .18s ease!important;
+}
+#pc-tools .pc-fab-list .pc-tool-icon{
+  display:inline-flex!important;align-items:center;justify-content:center;
+  flex:0 0 23px;width:23px;height:23px;
+  font:normal 21px/1 system-ui,"Apple Color Emoji","Segoe UI Emoji",sans-serif!important;
+  color:initial!important;letter-spacing:0!important;white-space:nowrap;
+}
+#pc-tools .pc-fab-list .pc-tool-label{display:inline!important;font:inherit!important;color:inherit!important;white-space:nowrap;}
+#pc-tools.pc-panel-open .pc-fab-list > button::before{content:none!important;display:none!important;}
+#pc-tools.pc-panel-open .pc-fab-list > button .pc-tool-label{display:none!important;}
+#pc-tools[data-pc-menu-mode="compact"] .pc-fab-list > button .pc-tool-label{display:none!important;}
+#pc-tools.pc-panel-open .pc-fab-list > button .pc-tool-icon{flex:0 0 23px!important;}
+#pc-tools.pc-panel-open .pc-fab-list > button{
+  color:#164e63!important;font-size:12px!important;line-height:1!important;
+  gap:0!important;
+}
+/* Enquanto recolhe, manter o formato compacto ate o fim da animacao. */
+#pc-tools[data-pc-menu-mode="compact"][data-pc-rail-closing="1"] .pc-fab-list > button::before{content:none!important;display:none!important;}
+#pc-tools[data-pc-menu-mode="compact"][data-pc-rail-closing="1"] .pc-fab-list > button .pc-tool-label{display:none!important;}
+#pc-tools[data-pc-menu-mode="compact"][data-pc-rail-closing="1"] .pc-fab-list > button{
+  box-sizing:border-box!important;position:relative!important;
+  width:46px!important;min-width:46px!important;max-width:46px!important;
+  height:46px!important;min-height:46px!important;padding:0!important;
+  justify-content:center!important;border-radius:14px!important;
+}
+/* Entrada e saida com movimento inverso, sem trocar para texto durante a transicao. */
+#pc-tools .pc-fab-list{
+  transition:opacity .26s cubic-bezier(.2,.8,.2,1),
+    transform .26s cubic-bezier(.2,.8,.2,1),
+    visibility 0s linear .26s!important;
+  transform-origin:bottom right!important;
+}
+#pc-tools.is-expanded .pc-fab-list{
+  opacity:1!important;transform:translateY(0) scale(1)!important;
+  visibility:visible!important;pointer-events:auto!important;
+  transition:opacity .26s cubic-bezier(.2,.8,.2,1),
+    transform .26s cubic-bezier(.2,.8,.2,1),
+    visibility 0s linear 0s!important;
+}
+#pc-tools:not(.is-expanded) .pc-fab-list,
+#pc-tools.pc-panel-open:not(.is-expanded) .pc-fab-list,
+#pc-tools[data-pc-menu-mode="compact"][data-pc-rail-closing="1"]:not(.is-expanded) .pc-fab-list{
+  opacity:0!important;
+  transform:translateY(16px) scale(.92)!important;
+  visibility:hidden!important;pointer-events:none!important;
+  transition:opacity .26s cubic-bezier(.2,.8,.2,1),
+    transform .26s cubic-bezier(.2,.8,.2,1),
+    visibility 0s linear .26s!important;
+}
+@media(max-width:650px){
+ #pc-tools[data-pc-menu-mode="compact"][data-pc-rail-closing="1"] .pc-fab-list > button{
+   width:43px!important;min-width:43px!important;max-width:43px!important;
+   height:43px!important;min-height:43px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #pc-tools .pc-fab-list{transition:none!important;}
+}
+</style>
+<script id="pc-rail-symmetric-animation-script">
+(()=>{
+ 'use strict';
+ const TOOL_ITEMS={
+  'pc-open-daily':['✅','Checklist diário'],
+  'pc-open-tasks':['☑️','Programações'],
+  'pc-open-handoff':['📋','Passagem de plantão'],
+  'pc-open-pending':['🔔','Ver todos os lembretes'],
+  'pc-open-folders':['📁','Pastas de pacientes'],
+  'pc-open-diagnostics':['🔬','Exames e imagens'],
+  'pc-open-notes':['📌','Notas do paciente'],
+  'pc-open-obsidian':['🟣','Caderno clínico']
+ };
+ function normalizeButton(id,icon,label){
+  const btn=document.getElementById(id);
+  if(!btn||btn.querySelector(':scope > .pc-tool-icon'))return;
+  // Preservar contadores gerados por updatePendingBadge().
+  const counters=[...btn.querySelectorAll(':scope > .pc-menu-counter')];
+  for(const child of [...btn.childNodes])if(!counters.includes(child))child.remove();
+  const ico=document.createElement('span');ico.className='pc-tool-icon';ico.textContent=icon;ico.setAttribute('aria-hidden','true');
+  const title=document.createElement('span');title.className='pc-tool-label';title.textContent=label;
+  btn.prepend(title);btn.prepend(ico);
+  btn.setAttribute('aria-label',label);btn.title=label;
+ }
+ function setup(){
+  const menu=document.getElementById('pc-tools');
+  const launcher=document.getElementById('pc-launcher');
+  if(!menu||!launcher)return;
+  for(const [id,[icon,label]] of Object.entries(TOOL_ITEMS))normalizeButton(id,icon,label);
+  const pending=document.getElementById('pc-open-pending');
+  // A atualizacao dos lembretes altera textContent do botao. Substituir apenas
+  // a parte escrita, mantendo os mesmos elementos de icone nos dois modos.
+  if(pending){
+   const observer=new MutationObserver(()=>{
+    if(!pending.querySelector(':scope > .pc-tool-icon')){
+      observer.disconnect();
+      normalizeButton('pc-open-pending',...TOOL_ITEMS['pc-open-pending']);
+      observer.observe(pending,{childList:true});
+    }
+   });
+   observer.observe(pending,{childList:true});
+  }
+  let timer=null;
+  // Captura antes do onclick do menu, que retira is-expanded.
+  launcher.addEventListener('click',()=>{
+    if(timer){clearTimeout(timer);timer=null;}
+    if(menu.classList.contains('is-expanded') && menu.dataset.pcMenuMode==='compact'){
+      menu.dataset.pcRailClosing='1';
+      timer=setTimeout(()=>{delete menu.dataset.pcRailClosing;timer=null;},310);
+    }else{
+      delete menu.dataset.pcRailClosing;
+    }
+  },true);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});
+ else setup();
+})();
+</script>
+
+
+<style id="pc-single-icon-rail-fix">
+/* Cada atalho tem somente o icone real .pc-tool-icon.
+   Anula os emojis gerados por pseudo-elementos antigos, inclusive os
+   seletores especificos por id que tinham precedencia sobre a regra geral. */
+#pc-tools.pc-panel-open #pc-fab-list > button::before,
+#pc-tools.pc-panel-open #pc-fab-list > button::after,
+#pc-tools[data-pc-menu-mode="compact"][data-pc-rail-closing="1"] #pc-fab-list > button::before,
+#pc-tools[data-pc-menu-mode="compact"][data-pc-rail-closing="1"] #pc-fab-list > button::after {
+  content:none!important;display:none!important;
+}
+#pc-tools.pc-panel-open #pc-fab-list > button .pc-tool-icon {
+  display:inline-flex!important;visibility:visible!important;
+  width:23px!important;min-width:23px!important;max-width:23px!important;
+  flex:0 0 23px!important;align-items:center!important;justify-content:center!important;
+}
+</style>
+
+
+<style id="pc-lab-compact-and-local-textarea-size">
+/* Datas compactas e tabela limitada ao espaço do painel. */
+#lab-table-container{overflow:visible!important;border:0!important;background:transparent!important;min-width:0!important}
+#diag-view-lab{min-width:0!important}
+.pc-lab-date-heading{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;font-size:13px;color:#144b66;margin:10px 0 7px}
+.pc-lab-date-heading span{font-size:11px;color:#6b7e90}
+.pc-lab-date-rail{display:flex;gap:9px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;padding:4px 3px 12px;min-width:0;max-width:100%;scrollbar-width:thin;scrollbar-color:#94bdcd #edf5f7}
+.pc-lab-date-card{flex:0 0 154px;min-width:154px;max-width:154px;display:flex;flex-direction:column;gap:6px;padding:10px 11px;border:1px solid #cddde6;border-radius:12px;background:#f8fbfd;color:#26465b;cursor:pointer;text-align:left;scroll-snap-align:start;transition:background .16s,border-color .16s,box-shadow .16s}
+.pc-lab-date-card.selected{background:#e6f7f4;border-color:#0d9488;box-shadow:inset 0 0 0 1px #0d9488}
+.pc-lab-date-top{display:flex;justify-content:space-between;font-weight:800;font-size:13px}
+.pc-lab-date-preview{display:flex;flex-direction:column;gap:2px;white-space:nowrap;overflow:hidden;font-size:10px;color:#537083}
+.pc-lab-mini{overflow:hidden;text-overflow:ellipsis}
+.pc-lab-count{font-size:11px;color:#537083;margin:0 0 8px}
+.pc-lab-table-scroll{overflow-x:auto;max-width:100%;border:1px solid #dce6ee;border-radius:10px;scrollbar-width:thin}
+.pc-lab-compare{width:100%;min-width:0;table-layout:fixed;font-size:12px}
+.pc-lab-compare th:first-child{width:30%;min-width:100px!important}
+.pc-lab-compare th:not(:first-child){min-width:100px}
+.pc-lab-compare td{overflow-wrap:anywhere;word-break:normal}
+.pc-lab-result{white-space:pre-wrap;overflow-wrap:anywhere}
+.pc-lab-trend{font-weight:900;padding-left:5px;font-size:13px}
+.pc-lab-trend.pc-up{color:#bb4b37}.pc-lab-trend.pc-down{color:#287ca8}.pc-lab-trend.pc-flat{color:#6d7a87}
+.pc-lab-empty{text-align:center;padding:15px;color:#64748b;font-size:12px}
+/* A altura dos campos é redimensionável. A preferência é local a este navegador/dispositivo. */
+@media screen {
+ #raw-lab-input,#pront-history,#pront-exames,#popup-diagnostics .image-comment-box,#patient-general-notes{
+   resize:vertical!important;overflow-y:auto!important;min-height:100px!important;
+ }
+ #raw-lab-input{height:250px;min-height:145px!important;font-size:14px!important;line-height:1.5!important}
+}
+@media(max-width:720px){.pc-lab-date-card{flex-basis:137px;min-width:137px;max-width:137px}.pc-lab-compare{font-size:11px}.pc-lab-compare th:first-child{width:34%}}
+</style>
+<script id="pc-local-textarea-sizes">
+(()=>{'use strict';
+ const PREFIX='pedcare_ui_textarea_height_v1:';
+ const selectors=['#raw-lab-input','#pront-history','#pront-exames','#patient-general-notes','#popup-diagnostics .image-comment-box'];
+ const sizes=new WeakMap();
+ const idFor=(el)=>el.id||('image-comment:'+(el.dataset.imgId||el.closest('[data-img-id]')?.dataset.imgId||'default'));
+ const heights=new Map();
+ function saved(key){if(heights.has(key))return heights.get(key);try{const n=Number(localStorage.getItem(PREFIX+key));if(n>=100&&n<=2000){heights.set(key,n);return n;}}catch{}return null;}
+ function attach(el){if(!el||sizes.has(el))return;
+   const key=idFor(el);sizes.set(el,key);
+   const height=saved(key);if(height)el.style.setProperty('height',height+'px','important');
+   else if(el.id==='raw-lab-input')el.style.setProperty('height','250px','important');
+   const ro=new ResizeObserver(entries=>{
+     if(!el.isConnected||el.offsetParent===null)return;
+     const actual=Math.round(entries[0].contentRect.height);
+     const styleHeight=el.style.height;
+     const rendered=el.getBoundingClientRect().height;
+     // Persist only sizes explicitly changed by the user (mouseup/touchend/keyboard).
+     el.dataset.pcCurrentHeight=String(Math.round(rendered));
+   });
+   ro.observe(el);
+ }
+ function scan(){for(const sel of selectors)document.querySelectorAll(sel).forEach(attach);}
+ function commit(ev){const el=ev.target;if(!(el instanceof HTMLElement))return;
+   const field=el.matches(selectors.join(','))?el:el.closest?.(selectors.join(','));
+   if(!field||!sizes.has(field))return;
+   requestAnimationFrame(()=>{
+     const n=Math.round(field.getBoundingClientRect().height);
+     if(n<100||n>2000)return;
+     const key=sizes.get(field);heights.set(key,n);
+     try{localStorage.setItem(PREFIX+key,String(n));}catch{}
+   });
+ }
+ // These preferences never enter patient records or cloud sync.
+ document.addEventListener('pointerup',commit,true);
+ document.addEventListener('touchend',commit,true);
+ document.addEventListener('keyup',commit,true);
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan,{once:true});else scan();
+ new MutationObserver(()=>scan()).observe(document.documentElement,{childList:true,subtree:true});
+ // Scroll vertically over the date strip to navigate dates without Shift.
+ document.addEventListener('wheel',ev=>{
+   const rail=ev.target.closest?.('.pc-lab-date-rail');
+   if(!rail||rail.scrollWidth<=rail.clientWidth)return;
+   if(Math.abs(ev.deltaY)>Math.abs(ev.deltaX)){
+     rail.scrollLeft+=ev.deltaY;
+     ev.preventDefault();
+   }
+ },{passive:false});
+})();
+</script>
+
+
+<style id="pc-menu-fast-and-badges-outside">
+/* Ferramentas responsivas: sem animar largura dos atalhos durante o recolhimento. */
+#pc-tools .pc-fab-list{padding-right:17px!important;overflow-x:hidden!important;}
+#pc-tools .pc-fab-list > button{position:relative!important;flex-shrink:0!important;}
+#pc-tools .pc-fab-list > button .pc-menu-counter{
+ position:absolute!important;
+ top:-3px!important;right:-9px!important;left:auto!important;bottom:auto!important;
+ margin:0!important;z-index:5!important;
+ min-width:19px!important;height:19px!important;padding:0 4px!important;
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ border:2px solid #fff!important;border-radius:999px!important;
+ line-height:1!important;transform:none!important;
+ box-shadow:0 2px 5px rgba(15,23,42,.2)!important;
+ pointer-events:none!important;
+}
+/* Ao fechar o rol, mantê-lo compacto até a animação terminar. */
+#pc-tools[data-pc-menu-mode="compact"][data-pc-rail-closing="1"] .pc-fab-list > button .pc-menu-counter{
+ top:-3px!important;right:-9px!important;
+}
+#pc-tools.pc-panel-open .pc-fab-list > button .pc-menu-counter{
+ top:-3px!important;right:-9px!important;
+}
+</style>
 </body>
 </html>
 
