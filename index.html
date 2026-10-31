@@ -2001,7 +2001,7 @@
           🔄 Forçar Sincronização Agora
         </button>
         <button class="btn-sm btn-danger" onclick="disconnectGitHub()" style="width:100%;">
-          Desconectar este aparelho do GitHub
+          Sair da sessão e apagar dados deste aparelho
         </button>
       </div>
 
@@ -2035,6 +2035,8 @@
     const OBSIDIAN_STORAGE_KEY = 'pedcare_obsidian_notes_v1';
     const GH_TOKEN_KEY = 'pedcare_gh_token';
     const GH_GIST_KEY = 'pedcare_gh_gist_id';
+    const PEDCARE_SIGNED_OUT_KEY = 'pedcare_signed_out';
+    const isPedCareSignedOut = () => localStorage.getItem(PEDCARE_SIGNED_OUT_KEY) === '1';
 
     let patients = [];
     let currentPatientId = null;
@@ -2239,6 +2241,7 @@
     };
 
     window.onload = function() {
+      if (isPedCareSignedOut()) { showPedCareSignedOutScreen(); return; }
       loadObsidianData();
       loadAllPatients();
 
@@ -2252,6 +2255,24 @@
       renderObsidianUI();
       setupPasteListener();
     };
+
+    function showPedCareSignedOutScreen() {
+      document.querySelectorAll('.floating-popup, #pc-overlay, #pc-tools, .modal-overlay').forEach(n => n.remove());
+      const previous = document.getElementById('pedcare-signed-out-screen');
+      if (previous) previous.remove();
+      const screen = document.createElement('main');
+      screen.id = 'pedcare-signed-out-screen';
+      screen.setAttribute('role','main');
+      screen.style.cssText = 'position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:linear-gradient(145deg,#eaf3fb,#f8fafc);padding:22px;font-family:system-ui,Arial,sans-serif;color:#17324c';
+      const content=document.createElement('div');
+      content.style.cssText='max-width:520px;width:100%;padding:36px 30px;background:#fff;border:1px solid #d7e6f2;border-radius:22px;box-shadow:0 20px 65px #1c406326;text-align:center';
+      const icon=document.createElement('div');icon.textContent='✓';icon.style.cssText='background:#dcfce7;color:#166534;border-radius:50%;width:58px;height:58px;display:grid;place-items:center;margin:0 auto 15px;font-size:28px;font-weight:800';
+      const heading=document.createElement('h1');heading.textContent='Sessão encerrada';heading.style.cssText='font-size:24px;margin:0 0 10px';
+      const desc=document.createElement('p');desc.textContent='Os dados locais do PedCare e as credenciais de acesso deste navegador foram apagados. Os registros já salvos no GitHub não foram excluídos.';desc.style.cssText='color:#476174;font-size:14px;line-height:1.6;margin:0 0 22px';
+      const btn=document.createElement('button');btn.type='button';btn.textContent='Iniciar nova sessão';btn.style.cssText='background:#0369a1;color:white;border:none;padding:12px 22px;border-radius:11px;font-weight:750;cursor:pointer;font-size:14px';
+      btn.onclick=()=>{localStorage.removeItem(PEDCARE_SIGNED_OUT_KEY);location.reload()};
+      content.append(icon,heading,desc,btn);screen.appendChild(content);document.body.appendChild(screen);
+    }
 
     /* ============================================================== */
     /* CLASSIFICADOR AUTOMÁTICO DE EXAMES                             */
@@ -2747,6 +2768,7 @@
     }
 
     function saveObsidianData() {
+      if (isPedCareSignedOut()) return;
       localStorage.setItem(OBSIDIAN_STORAGE_KEY, JSON.stringify(obsidianData));
       triggerCloudSync();
     }
@@ -3155,6 +3177,7 @@
     }
 
     async function initGitHubConnection() {
+      if (isPedCareSignedOut()) return;
       const token = localStorage.getItem(GH_TOKEN_KEY);
       const gistId = localStorage.getItem(GH_GIST_KEY);
 
@@ -3229,6 +3252,7 @@
     }
 
     async function pullFromGitHub(token, gistId) {
+      if (isPedCareSignedOut()) return;
       try {
         updateCloudStatus('syncing', 'Baixando da Nuvem...');
         const res = await fetch(`https://api.github.com/gists/${gistId}`, {
@@ -3237,6 +3261,7 @@
 
         if (!res.ok) throw new Error('Erro ao baixar banco.');
         const data = await res.json();
+        if (isPedCareSignedOut() || localStorage.getItem(GH_TOKEN_KEY) !== token || localStorage.getItem(GH_GIST_KEY) !== gistId) return;
 
         if (data.files && data.files['pedcare_database.json']) {
           const content = JSON.parse(data.files['pedcare_database.json'].content);
@@ -3258,6 +3283,7 @@
     }
 
     async function pushToGitHub() {
+      if (isPedCareSignedOut()) return;
       const token = localStorage.getItem(GH_TOKEN_KEY);
       const gistId = localStorage.getItem(GH_GIST_KEY);
       if (!token || !gistId) return;
@@ -3295,6 +3321,7 @@
     }
 
     function triggerCloudSync() {
+      if (isPedCareSignedOut()) return;
       clearTimeout(syncTimeout);
       syncTimeout = setTimeout(() => { pushToGitHub(); }, 2500);
     }
@@ -3307,12 +3334,8 @@
     }
 
     function disconnectGitHub() {
-      if (confirm('Deseja desconectar a sincronização do GitHub deste aparelho? Os dados continuarão salvos no navegador.')) {
-        localStorage.removeItem(GH_TOKEN_KEY);
-        localStorage.removeItem(GH_GIST_KEY);
-        closeModal('modal-github');
-        initGitHubConnection();
-      }
+      if(window.PedCareWorkflow?.beforeLogout) return window.PedCareWorkflow.beforeLogout();
+      alert('Não foi possível abrir a conferência de saída. Recarregue o PedCare e tente novamente.');
     }
 
     function updateCloudStatus(type, text) {
@@ -3334,6 +3357,7 @@
     }
 
     function saveAllPatients() {
+      if (isPedCareSignedOut()) return;
       localStorage.setItem(PATIENTS_STORAGE_KEY, JSON.stringify(patients));
       flashSaveIndicator();
       triggerCloudSync();
@@ -4701,6 +4725,35 @@ function style(){if(el('pc-workstyle'))return;const st=document.createElement('s
 .pc-fab-list button .pc-menu-counter{display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;margin-left:auto;padding:0 6px;border-radius:999px;font:700 11px/1 system-ui,sans-serif;color:white;flex-shrink:0}
 .pc-fab-list button .pc-menu-counter-daily{background:#e11d48}
 .pc-fab-list button .pc-menu-counter-program{background:#d97706}
+
+/* Janela de saída independente das gavetas */
+.pc-overlay:has(.pc-exit-content){z-index:12000;background:rgba(10,24,45,.72)}
+.pc-overlay:has(.pc-exit-content) .pc-dialog{width:min(760px,96vw);max-height:min(92vh,940px);border-radius:18px;padding:20px 22px;background:#f9fbfe}
+.pc-exit-content{display:flex;flex-direction:column;gap:13px}
+.pc-exit-lead{display:flex;gap:13px;align-items:flex-start;background:#e9f4fc;border:1px solid #c8e0f1;border-radius:12px;padding:14px;color:#164361}
+.pc-exit-lead strong{font-size:15px}.pc-exit-lead p{font-size:12.5px;line-height:1.55;margin:5px 0 0;color:#476276}
+.pc-exit-symbol{display:grid;place-items:center;flex:none;width:38px;height:38px;font-size:20px;border-radius:11px;background:white}
+.pc-exit-status{font-weight:700;color:#35536b;font-size:12px}
+.pc-exit-patients{display:grid;gap:9px;overflow-y:auto;max-height:47vh;min-height:0;padding-right:3px}
+.pc-exit-patient{border:1px solid #d6e3ef;border-radius:11px;background:#fff;overflow:hidden}
+.pc-exit-patient summary{padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;list-style:none;font-size:13px;font-weight:700;color:#193c58}
+.pc-exit-patient summary::-webkit-details-marker{display:none}
+.pc-exit-patient summary:before{content:'›';font-size:23px;line-height:12px;color:#5586a6;transform:rotate(0deg);transition:transform .2s}
+.pc-exit-patient[open] summary:before{transform:rotate(90deg)}
+.pc-exit-patient-title{flex:1}
+.pc-exit-pill{white-space:nowrap;font-size:11px;font-weight:700;border-radius:999px;padding:4px 8px;background:#e7f8ed;color:#166534}
+.pc-exit-pill.pc-exit-needs{background:#fff2dc;color:#92400e}
+.pc-exit-section{border-top:1px solid #e6edf4;padding:9px 15px 13px}
+.pc-exit-section h4{font-size:12px;margin:9px 0 5px;color:#365972}
+.pc-exit-section ul{margin:0 0 9px 18px;padding:0;color:#334155;font-size:12px;line-height:1.65}
+.pc-exit-clear{font-size:12px;color:#15803d;margin:3px 0}
+.pc-exit-sub{font-size:11px;color:#64748b;font-weight:400}
+.pc-exit-due{font-size:11px;color:#b45309;font-weight:600}
+.pc-exit-caution{background:#fff8ec;border:1px solid #f6dfb5;color:#78501f;border-radius:9px;padding:11px;font-size:12px;line-height:1.5}
+.pc-exit-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.pc-exit-actions button{border-radius:10px!important;padding:11px 15px!important;font-weight:700!important}
+#pc-exit-anyway{background:#b91c1c!important;color:white!important;border-color:#991b1b!important}
+@media(max-width:600px){.pc-overlay:has(.pc-exit-content) .pc-dialog{padding:13px}.pc-exit-actions button{width:100%}.pc-exit-patients{max-height:42vh}}
 `;document.head.appendChild(st)}
 function overlay(title,render,mode="modal"){document.querySelectorAll('.floating-popup').forEach(n=>{n.style.display='none'});const old=el('pc-overlay');if(old){old.dispatchEvent(new Event('pc-before-close'));old.remove()}const root=document.createElement('div');root.id='pc-overlay';root.className='pc-overlay'+(mode==='side'?' pc-side-overlay':'')+(title.startsWith('Passagem de plantão')?' pc-handoff-overlay':'');root.innerHTML=`<div class="pc-dialog" role="dialog" aria-modal="true"><div class="pc-row" style="justify-content:space-between"><h2>${esc(title)}</h2><button id="pc-close">Fechar ✕</button></div><div id="pc-content"></div></div>`;document.body.appendChild(root);el('pc-close').onclick=()=>root.remove();root.addEventListener('click',e=>{if(e.target===root)root.remove()});render(el('pc-content'));return root}
 function program(p){p.programs??=[];return p.programs}
@@ -4993,7 +5046,56 @@ function showDaily(force=false){
  },'side');
  return true;
 }
-function beforeLogout(){if(!Array.isArray(patients)||!patients.length)return true;const q=confirm('Antes de encerrar: deseja revisar ou adicionar programações para os pacientes?\n\nOK = abrir programações, Cancelar = continuar logout.');if(q){openTasks(pat());return false}return true}
+function performPedCareExit(){
+ // Encerramento explícito: as informações permanecem na nuvem, mas saem deste navegador.
+ // Marcar a sessão antes de apagar impede que salvamentos pendentes recriem prontuários locais.
+ try{clearTimeout(typeof syncTimeout!=='undefined'?syncTimeout:null)}catch(e){}
+ for(const store of [localStorage,sessionStorage]){
+   try{
+     for(let i=store.length-1;i>=0;i--){const key=store.key(i);if(key&&(key.startsWith('pedcare_')||key.startsWith('pedcare-')))store.removeItem(key)}
+   }catch(e){console.warn('Falha ao limpar um armazenamento',e)}
+ }
+ try{localStorage.setItem('pedcare_signed_out','1')}catch(e){}
+ try{patients=[];currentPatientId=null;obsidianData={folders:[],notes:[],patientFolders:[],tabOrder:[]}}catch(e){}
+ // O reload impede que um painel já aberto escreva novos dados após a confirmação.
+ location.reload();
+}
+function beforeLogout(){
+ // Janela central independente, NUNCA usa a gaveta lateral de revisões.
+ document.querySelectorAll('.floating-popup').forEach(n=>n.style.display='none');
+ const ps=Array.isArray(patients)?patients.filter(p=>p&&!p.archived&&!p.isArchived):[];
+ const questions=allDailyQuestions();
+ overlay('Conferência antes de encerrar a sessão',host=>{
+   host.classList.add('pc-exit-content');
+   let pendingCount=0;
+   const cards=ps.map(p=>{
+     const check=dailyChecklist(p);
+     const unchecked=questions.filter(([key])=>!check[key]);
+     const tasks=program(p).filter(t=>!t.done);
+     const mustCheck=tasks.filter(reminderDue);
+     pendingCount+=unchecked.length+mustCheck.length;
+     const dailyHTML=unchecked.length
+       ? `<ul>${unchecked.map(([,q])=>`<li>${esc(q)}</li>`).join('')}</ul>`
+       : '<p class="pc-exit-clear">Todas as revisões diárias foram marcadas.</p>';
+     const taskHTML=tasks.length
+       ? `<ul>${tasks.map(t=>`<li><strong>${esc(t.text||'Programação')}</strong>${t.checkedOn===today()?'<span class="pc-exit-sub"> · Conferida hoje, acompanhamento ativo</span>':reminderDue(t)?'<span class="pc-exit-due"> · Aguardando conferência</span>':'<span class="pc-exit-sub"> · Em acompanhamento</span>'}</li>`).join('')}</ul>`
+       : '<p class="pc-exit-clear">Nenhuma programação em andamento.</p>';
+     return `<details class="pc-exit-patient" ${unchecked.length||mustCheck.length?'open':''}>
+       <summary><span class="pc-exit-patient-title">${esc(p.name||'Paciente')}${p.bed?' · Leito '+esc(p.bed):''}</span><span class="pc-exit-pill ${unchecked.length||mustCheck.length?'pc-exit-needs':''}">${unchecked.length+mustCheck.length} para conferir</span></summary>
+       <div class="pc-exit-section"><h4>Revisões diárias não marcadas</h4>${dailyHTML}<h4>Programações em andamento</h4>${taskHTML}</div>
+       </details>`;
+   }).join('');
+   host.innerHTML=`<div class="pc-exit-lead"><div class="pc-exit-symbol">↪</div><div><strong>Antes de sair, confira as pendências dos pacientes</strong><p>Você pode voltar para revisar ou sair mesmo com itens não marcados. Não é necessário concluir todas as tarefas para encerrar a sessão.</p></div></div>
+     <div class="pc-exit-status">${ps.length} paciente(s) ativo(s) · ${pendingCount} item(ns) aguardando conferência</div>
+     <div class="pc-exit-patients">${cards||'<p>Nenhum paciente ativo cadastrado.</p>'}</div>
+     <div class="pc-exit-caution">Ao sair, os dados locais e as credenciais de sincronização serão apagados <strong>deste navegador</strong>. Os registros armazenados no GitHub não serão excluídos.</div>
+     <div class="pc-exit-actions"><button type="button" id="pc-exit-back">Voltar e revisar</button><button type="button" id="pc-exit-anyway">Sair mesmo e apagar dados deste aparelho</button></div>`;
+   el('pc-exit-back').onclick=()=>el('pc-overlay')?.remove();
+   el('pc-exit-anyway').onclick=performPedCareExit;
+ },'modal');
+ return false;
+}
+
 /* Pastas de pacientes: mesma organização na tela Todos e na gaveta lateral. */
 const folderExpanded = new Set();
 let archiveHasRendered = false;
@@ -5283,6 +5385,7 @@ function mount(){
  tabs();updatePendingBadge();
 }
 function init(){
+ if(localStorage.getItem('pedcare_signed_out')==='1')return;
  mount();
  const originalTabs=window.renderTabs;
  if(typeof originalTabs==='function' && !window.__pcWrappedTabs){
@@ -5317,7 +5420,7 @@ function init(){
  },1600);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
-window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,showDaily};
+window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,showDaily,beforeLogout};
 })();
 
 
