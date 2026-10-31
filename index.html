@@ -1838,7 +1838,10 @@
           </div>
 
           <div class="input-group" style="margin-bottom:14px;">
-            <label>História Clínica / Anamnese / Evolução</label>
+            <div class="pc-history-heading">
+              <label for="pront-history">História Clínica / Anamnese / Evolução</label>
+              <button type="button" id="pc-history-size-toggle" class="pc-history-size-toggle" aria-controls="pront-history" aria-expanded="false" onclick="pcToggleHistorySize()">⤢ Ampliar</button>
+            </div>
             <textarea id="pront-history" rows="4" placeholder="História da doença atual, antecedentes mórbidos, imunizações..." oninput="updateProntuarioField('clinicalHistory', this.value)"></textarea>
           </div>
 
@@ -6001,6 +6004,29 @@ function init(){if(!ROOT())return;takeBaseline();loadConfig();selectedCategory=c
 window.PedCareMaster={open,close,addCategory,cancelConfirmation,commitConfirmation,refreshDoses:refreshCustomDoses};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
+</script>
+
+<!-- PedCare: campo de história clínica com rolagem interna e altura ajustável no celular -->
+<style id="pc-history-mobile-expansion">
+.pc-history-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.pc-history-size-toggle{display:none}
+@media screen and (max-width:768px){
+ #subview-pront .pc-history-heading label{flex:1 1 185px;margin:0}
+ #subview-pront .pc-history-size-toggle{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;border:1px solid #a9c8dc;border-radius:9px;background:#eef7fc;color:#145579;padding:8px 11px;font:600 13px/1.2 system-ui,sans-serif;cursor:pointer;min-height:36px;flex-shrink:0}
+ #subview-pront #pront-history{box-sizing:border-box!important;height:52dvh!important;min-height:350px!important;max-height:690px!important;overflow-y:auto!important;resize:vertical!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;line-height:1.58!important}
+ #subview-pront #pront-history.pc-history-large{height:78dvh!important;min-height:490px!important;max-height:none!important}
+}
+@media print{#subview-pront .pc-history-size-toggle{display:none!important}#subview-pront #pront-history{height:auto!important;max-height:none!important;overflow:visible!important}}
+</style>
+<script>
+function pcToggleHistorySize(){
+ const area=document.getElementById('pront-history');
+ const button=document.getElementById('pc-history-size-toggle');
+ if(!area||!button)return;
+ const expanded=area.classList.toggle('pc-history-large');
+ button.setAttribute('aria-expanded',String(expanded));
+ button.textContent=expanded?'⤡ Reduzir':'⤢ Ampliar';
+}
 </script>
 </body>
 </html>
