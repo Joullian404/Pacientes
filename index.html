@@ -3525,6 +3525,8 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
           const content = JSON.parse(data.files['pedcare_database.json'].content);
           if (content.patients) patients = content.patients;
           if (content.obsidianData) obsidianData = content.obsidianData;
+          // Preferências de layout sincronizadas sem entrar no prontuário clínico.
+          window.PedCareLayoutPrefs?.receiveCloud?.(content.uiPreferences);
 
           localStorage.setItem(PATIENTS_STORAGE_KEY, JSON.stringify(patients));
           localStorage.setItem(OBSIDIAN_STORAGE_KEY, JSON.stringify(obsidianData));
@@ -3574,7 +3576,8 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
         app: 'PedCare',
         updatedAt: new Date().toISOString(),
         patients: patients,
-        obsidianData: obsidianData
+        obsidianData: obsidianData,
+        uiPreferences: window.PedCareLayoutPrefs?.getCloudData?.() || {}
       };
     }
 
@@ -4175,7 +4178,67 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
 </script>
 <script>
 /* PedCare upgrade: impressão clínica e importação laboratorial v1.7
-   Adicionar após o script original, antes de </body>. Requer script original sem erros de sintaxe. */
+   Adicionar após o script original, antes de <script id="pc-launcher-toggle-same-docked-panel">
+/* A mesma ferramenta do menu alterna abrir/fechar apenas quando acoplada.
+   Usa IDs internos, nunca depende do texto ou título da janela. */
+(()=>{
+  'use strict';
+  const destinations = Object.freeze({
+    'pc-open-daily': {kind:'checklist'},
+    'pc-open-tasks': {kind:'programs'},
+    'pc-open-handoff': {kind:'handoff'},
+    'pc-open-pending': {kind:'reminders'},
+    'pc-open-folders': {kind:'folders'},
+    'pc-open-diagnostics': {native:'popup-diagnostics'},
+    'pc-open-notes': {native:'popup-patient-notes'},
+    'pc-open-obsidian': {native:'popup-obsidian'}
+  });
+  function visible(node){
+    if(!node || !node.isConnected || node.hidden) return false;
+    const style=window.getComputedStyle(node);
+    return style.display!=='none' && style.visibility!=='hidden' && node.getClientRects().length>0;
+  }
+  function activeDockedFor(triggerId){
+    const target=destinations[triggerId];
+    if(!target)return null;
+    if(target.native){
+      const node=document.getElementById(target.native);
+      return node && !node.classList.contains('pc-detached') && visible(node) ? node:null;
+    }
+    const node=document.getElementById('pc-overlay');
+    return node && !node.classList.contains('pc-detached') && node.dataset.pcWindowKind===target.kind && visible(node) ? node:null;
+  }
+  document.addEventListener('click',event=>{
+    const button=event.target.closest?.('#pc-fab-list > button');
+    if(!button)return;
+    const panel=activeDockedFor(button.id);
+    if(!panel)return;
+    // Impede o onclick anterior de reabrir a ferramenta depois do fechamento.
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if(panel.classList.contains('floating-popup')){
+      // O ciclo padrão também restaura dimensões minimizadas antigas.
+      if(window.PedCareWindowLifecycle?.reset)
+        window.PedCareWindowLifecycle.reset(panel,'native');
+      else panel.style.display='none';
+    }else{
+      panel.dispatchEvent(new Event('pc-before-close'));
+      panel.remove();
+    }
+    // O menu continua aberto, respeitando a preferência atual do usuário.
+  },true);
+})();
+</script>
+
+<style id="pc-lab-persistence-final-override">
+@media screen {
+  #raw-lab-input, #popup-diagnostics #raw-lab-input {
+    min-height:0!important;max-height:none!important;
+    resize:vertical!important;overflow-y:auto!important;
+  }
+}
+</style>
+</body>. Requer script original sem erros de sintaxe. */
 (() => {
   'use strict';
 
@@ -5630,7 +5693,11 @@ function openHandoff(p=pat(),initialDraft=null){
   const fields=handFields.map(([k,label])=>`<label class="wide">${esc(label)}<textarea data-hfield="${k}">${esc(draft[k]||'')}</textarea></label>`).join('');
   const textData=`<div class="pc-handoff"><label>Data da passagem<input type="date" lang="pt-BR" data-hfield="date" value="${esc(pcDateISO(draft.date||today())||today())}"></label><label>Hora<input type="text" data-hfield="time" readonly title="Atualizada automaticamente ao salvar" value="${esc(draft.time||'')}"></label><label>Dia de internação (DIH)<input type="text" data-hfield="dih" value="${esc(draft.dih||'')}"></label><label>Leito<input type="text" disabled value="${esc(p.bed||'')}"></label>${fields}</div>`;
   const examHTML=examBlocks.map(([name,opts],idx)=>`<div class="pc-exam"><h3>${idx+1}. ${esc(name)}</h3>${opts.map((o,i)=>`<label class="${o==='Outras visceromegalias'?'pc-viscera-label':''}"><input type="checkbox" data-exam="${idx}:${i}" ${draft.exam?.[idx+':'+i]?'checked':''}>${esc(o)}${o==='Outras visceromegalias'?`<input type="text" class="pc-viscera-input" data-hvisc placeholder="Qual(is)?" aria-label="Especificar outras visceromegalias" value="${esc(draft.otherViscera||'')}">`:''}</label>`).join('')}<label style="display:block">Observações<textarea data-enote="${idx}">${esc(draft.notes?.[idx]||'')}</textarea></label></div>`).join('');
-  host.innerHTML=`<div class="pc-hand-actions"><button id="pc-hand-save" class="pc-primary">Salvar</button><button id="pc-hand-print">Salvar e imprimir</button><button id="pc-hand-new">Nova passagem</button></div><p><strong>Documento independente:</strong> editar esta passagem não modifica a ficha clínica. Alterações do rascunho são salvas neste paciente; "Salvar versão" cria um registro histórico.</p><div class="pc-handoff"><label>Paciente<input disabled value="${esc(p.name||'')}"></label><label>Nome da mãe<input disabled value="${esc(p.mother||'')}"></label><label>Sexo / idade<input disabled value="${esc([p.sex,p.age].filter(Boolean).join(' / '))}"></label><label>Alergias<input disabled value="${esc(p.allergies||'')}"></label><label>Data de admissão<input disabled value="${esc(pcDateBR(p.admissionDate)||'')}"></label><label>Leito<input disabled value="${esc(p.bed||'')}"></label></div><h3>1. Resumo clínico</h3>${textData}<h3>2. Sinais vitais</h3><div class="pc-grid">${[['fc','FC'],['pa','PA'],['fr','FR'],['tx','Temperatura'],['weight','Peso'],['satO2','SatO₂'],['height','Altura'],['diuresis','Diurese'],['evacuations','Evacuações'],['flatus','Flatos']].map(([k,label])=>`<label>${label}<input data-vital="${k}" type="text" value="${esc(draft.vitals?.[k]??'')}"></label>`).join('')}</div><h3>3. Exame físico estruturado</h3>${examHTML}<div class="pc-hand-versions"><label for="pc-hand-history">Passagens salvas (versão mais recente de cada dia)</label><select id="pc-hand-history"><option value="">Consultar versões anteriores</option>${handoffLatestPerDay(p).map((h,i)=>`<option value="${i}">${esc(pcDateBR(handoffSavedDay(h)))} — ${esc(h.savedAt||h.date||'Versão')}</option>`).join('')}</select></div>`;
+  host.innerHTML=`<div class="pc-hand-actions"><button id="pc-hand-save" class="pc-primary">Salvar</button><button id="pc-hand-print">Salvar e imprimir</button><button id="pc-hand-new">Nova passagem</button><span class="pc-handoff-save-feedback" role="status" aria-live="polite"></span></div><p><strong>Documento independente:</strong> editar esta passagem não modifica a ficha clínica. Alterações do rascunho são salvas neste paciente; "Salvar versão" cria um registro histórico.</p><div class="pc-handoff"><label>Paciente<input disabled value="${esc(p.name||'')}"></label><label>Nome da mãe<input disabled value="${esc(p.mother||'')}"></label><label>Sexo / idade<input disabled value="${esc([p.sex,p.age].filter(Boolean).join(' / '))}"></label><label>Peso (kg)<input disabled data-hand-patient-weight value="${esc(p.weight??'')}"></label><label>Alergias<input disabled value="${esc(p.allergies||'')}"></label><label>Data de admissão<input disabled value="${esc(pcDateBR(p.admissionDate)||'')}"></label><label>Leito<input disabled value="${esc(p.bed||'')}"></label></div><h3>1. Resumo clínico</h3>${textData}<h3>2. Sinais vitais</h3><div class="pc-grid">${[['fc','FC'],['pa','PA'],['fr','FR'],['tx','Temperatura'],['satO2','SatO₂'],['height','Altura'],['diuresis','Diurese'],['evacuations','Evacuações'],['flatus','Flatos']].map(([k,label])=>`<label>${label}<input data-vital="${k}" type="text" value="${esc(draft.vitals?.[k]??'')}"></label>`).join('')}</div><h3>3. Exame físico estruturado</h3>${examHTML}<div class="pc-hand-versions"><label for="pc-hand-history">Passagens salvas (versão mais recente de cada dia)</label><select id="pc-hand-history"><option value="">Consultar versões anteriores</option>${handoffLatestPerDay(p).map((h,i)=>`<option value="${i}">${esc(pcDateBR(handoffSavedDay(h)))} — ${esc(h.savedAt||h.date||'Versão')}</option>`).join('')}</select></div>`;
+  // O peso pertence à Ficha Clínica; não integra os sinais vitais editáveis desta passagem.
+  const weightField=host.querySelector('[data-hand-patient-weight]');
+  const refreshWeight=()=>{if(weightField)weightField.value=String(p.weight??'')};
+  host.addEventListener('focusin',refreshWeight);
   const collect=()=>{
    host.querySelectorAll('[data-hfield]').forEach(x=>{if(x.dataset.hfield==='date'){draft.date=x.value||'';}else draft[x.dataset.hfield]=x.value;});
    draft.exam={};host.querySelectorAll('[data-exam]').forEach(x=>{if(x.checked)draft.exam[x.dataset.exam]=true});
@@ -5659,10 +5726,18 @@ function openHandoff(p=pat(),initialDraft=null){
    p.handoffs=handoffLatestPerDay(p).filter(h=>handoffSavedDay(h)!==savedDay);
    p.handoffs.push(version);
    p.handoffs=handoffLatestPerDay(p);
-   safeSave();return version;
+   safeSave();
+   // Atualizar o histórico no mesmo formulário, sem remover ou reconstruir o painel.
+   const historySelect=host.querySelector('#pc-hand-history');
+   if(historySelect){
+    historySelect.innerHTML='<option value="">Consultar versões anteriores</option>'+handoffLatestPerDay(p).map((h,i)=>`<option value="${i}">${esc(pcDateBR(handoffSavedDay(h)))} — ${esc(h.savedAt||h.date||'Versão')}</option>`).join('');
+   }
+   const feedback=host.querySelector('.pc-handoff-save-feedback');
+   if(feedback)feedback.textContent='Salvo às '+draft.time+'.';
+   return version;
   };
-  el('pc-hand-save').onclick=()=>{save();window.PedCareDialog.alert('Passagem salva: somente a versão mais recente de hoje ficará no histórico.');host.closest('.pc-overlay')?.remove()};
-  el('pc-hand-print').onclick=()=>{const rec=save();printHandoff(p,rec);host.closest('.pc-overlay')?.remove()};
+  el('pc-hand-save').onclick=()=>{save()};
+  el('pc-hand-print').onclick=()=>{const rec=save();printHandoff(p,rec)};
   el('pc-hand-new').onclick=()=>{clearTimeout(timer);storeDraft();const next={date:today(),time:'',dih:'',reason:'',comorbidities:'',clinicalHistory:'',impression:'',conduct:'',pending:'',devices:'',neurology:'',exam:{},notes:{},vitals:{},id:''};openHandoff(p,next)};
   el('pc-hand-history').onchange=e=>{if(e.target.value==='')return;clearTimeout(timer);storeDraft();let i=Number(e.target.value);let rec=handoffLatestPerDay(p)[i];if(rec)openHandoffVersion(p,rec)};
   // Fechar não perde o texto já digitado.
@@ -5681,7 +5756,7 @@ function printHandoff(p,h){
  const get=(key)=>String(h[key]??'').trim()?`<section class="clinical-section"><h3>${esc(handFields.find(x=>x[0]===key)?.[1]||key)}</h3><div class="paragraph">${esc(h[key])}</div></section>`:'';
  const impressionText=String(h.impression??'').trim();
  const impression=`<section class="writing-section impression"><h2>Impressão clínica / evolução da visita diária</h2>${impressionText?`<div class="written-value">${esc(impressionText)}</div>`:''}<div class="handwriting-lines" aria-label="Espaço para evolução clínica manuscrita"></div></section>`;
- const vitalFields=[['fc','FC','bpm'],['pa','PA','mmHg'],['fr','FR','irpm'],['tx','Temperatura','°C'],['satO2','SatO₂','%'],['weight','Peso','kg'],['height','Altura','cm'],['diuresis','Diurese',''],['evacuations','Evacuações',''],['flatus','Flatos','']];
+ const vitalFields=[['fc','FC','bpm'],['pa','PA','mmHg'],['fr','FR','irpm'],['tx','Temperatura','°C'],['satO2','SatO₂','%'],['height','Altura','cm'],['diuresis','Diurese',''],['evacuations','Evacuações',''],['flatus','Flatos','']];
  const vitals=`<section class="writing-section vital-section"><h2>Sinais vitais e eliminações — preencher durante a visita</h2><div class="vital-grid">${vitalFields.map(([key,label,unit])=>{const value=String(h.vitals?.[key]??'').trim();return `<div class="vital-item"><span class="vital-label">${esc(label)}</span><span class="vital-write">${value?esc(value):'&nbsp;'}</span>${unit?`<span class="vital-unit">${esc(unit)}</span>`:''}</div>`}).join('')}</div></section>`;
  // A folha impressa apresenta TODAS as opções, inclusive as não selecionadas,
  // com quadrados próprios para marcação manuscrita. Preserva as seleções digitais.
@@ -5768,7 +5843,7 @@ function printHandoff(p,h){
 .pc-program-remove{margin-top:7px!important;padding-top:6px}
 @media(max-width:550px){.pc-program-group>summary{padding:9px 10px;gap:7px;min-height:46px}.pc-program-group-content{padding:6px 8px 8px}.pc-tasks-intro{padding:9px 10px}}
 
-</style></head><body><button class="button" onclick="window.print()">Imprimir / Salvar PDF</button><main class="handoff-first-page"><div class="handoff-first-top"><h1>Passagem de caso pediátrico</h1><div class="facts">${[['Paciente',p.name],['Mãe',p.mother],['Leito',p.bed],['Sexo',p.sex],['Idade',p.age],['Alergias',p.allergies],['Data/hora',[pcDateBR(h.date),h.time].filter(Boolean).join(' ')],['Data de admissão',pcDateBR(p.admissionDate)],['DIH',h.dih]].filter(([,v])=>String(v??'').trim()).map(([k,v])=>`<span><b>${esc(k)}:</b> ${esc(v)}</span>`).join('')}</div><h2>Resumo clínico</h2>${summary}${impression}</div>${vitals}</main><h1>Exame físico</h1>${physical}${get('neurology')}<footer>PedCare • Versão salva em ${esc(h.savedAt||stamp())}</footer></body></html>`;
+</style></head><body><button class="button" onclick="window.print()">Imprimir / Salvar PDF</button><main class="handoff-first-page"><div class="handoff-first-top"><h1>Passagem de caso pediátrico</h1><div class="facts">${[['Paciente',p.name],['Mãe',p.mother],['Leito',p.bed],['Sexo',p.sex],['Idade',p.age],['Peso',String(p.weight??'').trim()?`${p.weight} kg`:''],['Alergias',p.allergies],['Data/hora',[pcDateBR(h.date),h.time].filter(Boolean).join(' ')],['Data de admissão',pcDateBR(p.admissionDate)],['DIH',h.dih]].filter(([,v])=>String(v??'').trim()).map(([k,v])=>`<span><b>${esc(k)}:</b> ${esc(v)}</span>`).join('')}</div><h2>Resumo clínico</h2>${summary}${impression}</div>${vitals}</main><h1>Exame físico</h1>${physical}${get('neurology')}<footer>PedCare • Versão salva em ${esc(h.savedAt||stamp())}</footer></body></html>`;
  const w=window.open('','_blank');if(!w)return window.PedCareDialog.alert('Permita pop-ups para imprimir.');w.document.open();w.document.write(doc);w.document.close();w.focus();
 }
 function tabs(){let container=el('tabs-bar');if(!container||typeof patients==='undefined')return;const order=meta().tabOrder;const ids=patients.map(p=>p.id);meta().tabOrder=[...order.filter(id=>ids.includes(id)),...ids.filter(id=>!order.includes(id))];const map=new Map([...container.querySelectorAll('.tab-btn')].filter(n=>n.id!=='tab-archive-btn').map(n=>[n.dataset.pcid,n]));for(const btn of [...container.querySelectorAll('.tab-btn')]){if(btn.id==='tab-archive-btn')continue;let name=btn.querySelector('span')?.textContent||'';let p=patients.find(x=>name.startsWith(x.name||'Novo Paciente'));if(p)btn.dataset.pcid=p.id;map.set(btn.dataset.pcid,btn)};
@@ -6863,6 +6938,12 @@ document.addEventListener('click',e=>{
  if(!trigger)return;
  const root=document.getElementById('popup-obsidian');
  if(!root)return;
+ // Segundo toque no atalho fecha o caderno acoplado, tal como os outros painéis.
+ if(!root.classList.contains('pc-detached') && getComputedStyle(root).display!=='none' && root.getClientRects().length){
+  e.preventDefault();e.stopImmediatePropagation();
+  restoreWindowState(root,'native');
+  return;
+ }
  e.preventDefault();e.stopImmediatePropagation();
  if(root.classList.contains('pc-detached') && getComputedStyle(root).display!=='none'){
   if(root.classList.contains('pc-minimized')){
@@ -7601,52 +7682,153 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </style>
 <script id="pc-local-textarea-sizes">
 (()=>{'use strict';
- const PREFIX='pedcare_ui_textarea_height_v1:';
- const selectors=['#raw-lab-input','#pront-history','#pront-exames','#patient-general-notes','#popup-diagnostics .image-comment-box'];
- const sizes=new WeakMap();
- const idFor=(el)=>el.id||('image-comment:'+(el.dataset.imgId||el.closest('[data-img-id]')?.dataset.imgId||'default'));
- const heights=new Map();
- function saved(key){if(heights.has(key))return heights.get(key);try{const n=Number(localStorage.getItem(PREFIX+key));if(n>=100&&n<=2000){heights.set(key,n);return n;}}catch{}return null;}
- function attach(el){if(!el||sizes.has(el))return;
-   const key=idFor(el);sizes.set(el,key);
-   const height=saved(key);if(height)el.style.setProperty('height',height+'px','important');
-   else if(el.id==='raw-lab-input')el.style.setProperty('height','250px','important');
-   const ro=new ResizeObserver(entries=>{
-     if(!el.isConnected||el.offsetParent===null)return;
-     const actual=Math.round(entries[0].contentRect.height);
-     const styleHeight=el.style.height;
-     const rendered=el.getBoundingClientRect().height;
-     // Persist only sizes explicitly changed by the user (mouseup/touchend/keyboard).
-     el.dataset.pcCurrentHeight=String(Math.round(rendered));
-   });
-   ro.observe(el);
- }
- function scan(){for(const sel of selectors)document.querySelectorAll(sel).forEach(attach);}
- function commit(ev){const el=ev.target;if(!(el instanceof HTMLElement))return;
-   const field=el.matches(selectors.join(','))?el:el.closest?.(selectors.join(','));
-   if(!field||!sizes.has(field))return;
-   requestAnimationFrame(()=>{
-     const n=Math.round(field.getBoundingClientRect().height);
-     if(n<100||n>2000)return;
-     const key=sizes.get(field);heights.set(key,n);
-     try{localStorage.setItem(PREFIX+key,String(n));}catch{}
-   });
- }
- // These preferences never enter patient records or cloud sync.
- document.addEventListener('pointerup',commit,true);
- document.addEventListener('touchend',commit,true);
- document.addEventListener('keyup',commit,true);
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan,{once:true});else scan();
- new MutationObserver(()=>scan()).observe(document.documentElement,{childList:true,subtree:true});
- // Scroll vertically over the date strip to navigate dates without Shift.
- document.addEventListener('wheel',ev=>{
-   const rail=ev.target.closest?.('.pc-lab-date-rail');
-   if(!rail||rail.scrollWidth<=rail.clientWidth)return;
-   if(Math.abs(ev.deltaY)>Math.abs(ev.deltaX)){
-     rail.scrollLeft+=ev.deltaY;
-     ev.preventDefault();
-   }
- },{passive:false});
+  // Per-browser installation ID: does not contain patient details. Kept separate
+  // from clinical storage so a local logout does not break layout restoration.
+  const DEVICE_KEY='pc_ui_installation_id_v2';
+  const OLD_DEVICE_KEY='pedcare_ui_device_id_v1';
+  const HEIGHT_KEY='pedcare_lab_input_height_v2';
+  const OLD_HEIGHT_KEY='pedcare_ui_textarea_height_v1:raw-lab-input';
+  const LAYOUT_KEY='pedcare_ui_layout_prefs_v1';
+  const heightByDevice={};
+  // Preserve legacy local sizing for the other text editors. These remain
+  // local to the browser; only Laboratory height is included in Gist sync.
+  const OTHER_SELECTORS=['#pront-history','#pront-exames','#patient-general-notes','#popup-diagnostics .image-comment-box'];
+  const OTHER_PREFIX='pedcare_ui_textarea_height_v1:';
+  const otherSeen=new WeakSet();
+  function restoreOtherEditors(){
+    for(const el of document.querySelectorAll(OTHER_SELECTORS.join(','))){
+      if(otherSeen.has(el))continue;
+      otherSeen.add(el);
+      const key=el.id||'image-comment:'+(el.dataset.imgId||el.closest('[data-img-id]')?.dataset.imgId||'default');
+      const n=Number(localStorage.getItem(OTHER_PREFIX+key));
+      if(Number.isFinite(n)&&n>=30&&n<=2400)el.style.height=Math.round(n)+'px';
+      let armed=false,start=0;
+      el.addEventListener('pointerdown',e=>{const r=el.getBoundingClientRect(),x=r.right-e.clientX,y=r.bottom-e.clientY;armed=x>=-5&&x<=35&&y>=-5&&y<=35;start=Math.round(r.height)},{passive:true});
+      const save=()=>{if(!armed)return;armed=false;setTimeout(()=>{const h=Math.round(el.getBoundingClientRect().height);if(h>=30&&h<=2400&&Math.abs(h-start)>=3)try{localStorage.setItem(OTHER_PREFIX+key,String(h))}catch{}},120)};
+      el.addEventListener('pointerup',save);el.addEventListener('pointercancel',save);
+    }
+  }
+  const keepInRange=x=>{const n=Number(x);return Number.isFinite(n)&&n>=30&&n<=2400?Math.round(n):null};
+  const defaultHeight=()=>matchMedia('(max-width:720px)').matches?210:180;
+  const lab=()=>document.getElementById('raw-lab-input');
+  let deviceId='';
+  try{
+    deviceId=localStorage.getItem(DEVICE_KEY)||localStorage.getItem(OLD_DEVICE_KEY)||'';
+    if(!deviceId)deviceId=typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():'device_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2);
+    localStorage.setItem(DEVICE_KEY,deviceId);
+  }catch{deviceId='temporary_browser';}
+  let ownHeight=null,ownStamp=0,receiveComplete=false,lastCloudValue=null;
+  try{
+    const item=JSON.parse(localStorage.getItem(LAYOUT_KEY)||'null');
+    if(item&&(!item.deviceId||item.deviceId===deviceId)){
+      ownHeight=keepInRange(item.labHeight);ownStamp=Number(item.updatedAt)||0;
+    }
+    if(!ownHeight)ownHeight=keepInRange(localStorage.getItem(HEIGHT_KEY))||keepInRange(localStorage.getItem(OLD_HEIGHT_KEY));
+  }catch{}
+  if(ownHeight)heightByDevice[deviceId]={labHeight:ownHeight,updatedAt:ownStamp};
+
+  function persist(height,stamp,cloudSync){
+    height=keepInRange(height);if(!height)return;
+    ownHeight=height;ownStamp=stamp||Date.now();
+    heightByDevice[deviceId]={labHeight:height,updatedAt:ownStamp};
+    try{
+      localStorage.setItem(HEIGHT_KEY,String(height));
+      localStorage.setItem(LAYOUT_KEY,JSON.stringify({deviceId,labHeight:height,updatedAt:ownStamp}));
+    }catch(e){console.warn('PedCare: preferencia local indisponivel',e)}
+    if(cloudSync&&typeof triggerCloudSync==='function'&&localStorage.getItem('pedcare_signed_out')!=='1')triggerCloudSync();
+  }
+  function apply(height){
+    const el=lab();height=keepInRange(height);if(!el||!height)return;
+    // Not important: the browser's native resize grip must be free to write
+    // the textarea's inline height. An !important height blocks the gesture.
+    el.style.setProperty('height',height+'px');
+    el.dataset.pcLabPreferredHeight=String(height);
+    if(watch)watch.last=height;
+  }
+  let watch=null,commitTimer=null,cloudTimer=null;
+  function finishResize(){
+    if(!watch||!watch.armed)return;
+    const el=lab();watch.armed=false;
+    if(!el)return;
+    const after=keepInRange(el.getBoundingClientRect().height);
+    if(after&&Math.abs(after-watch.started)>=3){
+      persist(after,Date.now(),true);
+      apply(after);
+    }
+  }
+  function scheduleFinish(){clearTimeout(commitTimer);commitTimer=setTimeout(finishResize,120)}
+  function install(){
+    restoreOtherEditors();
+    const el=lab();if(!el)return;
+    if(watch&&watch.el===el)return;
+    if(watch?.observer)watch.observer.disconnect();
+    watch={el,armed:false,started:0,last:0,observer:null};
+    apply(ownHeight||defaultHeight());
+    const pointerDown=event=>{
+      if(event.pointerType==='mouse'&&event.button!==0)return;
+      const rect=el.getBoundingClientRect();
+      const x=rect.right-event.clientX,y=rect.bottom-event.clientY;
+      // Native resize handle is at the bottom right; normal editing/taps
+      // elsewhere must not overwrite a saved height.
+      if(x>=-4&&x<=36&&y>=-4&&y<=36){
+        watch.armed=true;watch.started=Math.round(rect.height);
+      }
+    };
+    el.addEventListener('pointerdown',pointerDown,{passive:true});
+    el.addEventListener('blur',scheduleFinish);
+    watch.observer=new ResizeObserver(entries=>{
+      if(!watch||watch.el!==el||!watch.armed)return;
+      const h=Math.round(entries[0].contentRect.height);
+      if(h>=30&&h<=2400&&Math.abs(h-watch.started)>2){
+        // Ensure the final drag state is persisted even if browser input
+        // finishes without the expected pointerup target.
+        clearTimeout(commitTimer);
+        commitTimer=setTimeout(finishResize,350);
+      }
+    });
+    watch.observer.observe(el);
+  }
+  document.addEventListener('pointerup',scheduleFinish,true);
+  document.addEventListener('pointercancel',scheduleFinish,true);
+  function receiveCloud(incoming){
+    if(!incoming||typeof incoming!=='object')return;
+    const remote=incoming.textareaHeightsByDevice||{};
+    if(remote&&typeof remote==='object')for(const [id,record]of Object.entries(remote)){
+      if(!id||id.length>100||!record||typeof record!=='object')continue;
+      const h=keepInRange(record.labHeight),stamp=Number(record.updatedAt)||0;
+      if(h&&(!heightByDevice[id]||stamp>Number(heightByDevice[id].updatedAt||0)))heightByDevice[id]={labHeight:h,updatedAt:stamp};
+    }
+    const match=heightByDevice[deviceId];
+    // The browser can use a newly downloaded HTML on a different local file
+    // origin. Fall back to the most recently synced preference in that case.
+    const latest=Object.values(heightByDevice).filter(x=>keepInRange(x.labHeight)).sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0))[0];
+    const globalHeight=keepInRange(incoming.labHeightDefault);
+    const selected=match&&keepInRange(match.labHeight)&&Number(match.updatedAt||0)>=ownStamp
+       ?match:(!ownHeight?(globalHeight?{labHeight:globalHeight,updatedAt:Number(incoming.labHeightUpdatedAt)||0}:latest):null);
+    if(selected&&keepInRange(selected.labHeight)){
+      const h=keepInRange(selected.labHeight);
+      if(h!==ownHeight||Number(selected.updatedAt||0)>ownStamp){persist(h,Number(selected.updatedAt)||Date.now(),false);apply(h);}
+    }else if(ownHeight)apply(ownHeight);
+    receiveComplete=true;
+  }
+  function getCloudData(){
+    if(ownHeight)heightByDevice[deviceId]={labHeight:ownHeight,updatedAt:ownStamp};
+    const current=heightByDevice[deviceId];
+    return {textareaHeightsByDevice:heightByDevice,
+      labHeightDefault:current?.labHeight||lastCloudValue||null,
+      labHeightUpdatedAt:current?.updatedAt||0};
+  }
+  window.PedCareLayoutPrefs={receiveCloud,getCloudData,getLocalHeight:()=>ownHeight,refresh:()=>{install();apply(ownHeight||defaultHeight())}};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+  // Popup is not recreated every time but may be rendered after initialization.
+  new MutationObserver(()=>{if(!watch||!watch.el.isConnected)install()}).observe(document.documentElement,{childList:true,subtree:true});
+  // Browser may close while user is dragging. Save the current actual height.
+  window.addEventListener('pagehide',()=>{if(watch?.armed){clearTimeout(commitTimer);finishResize()}});
+  document.addEventListener('wheel',event=>{
+    const rail=event.target.closest?.('.pc-lab-date-rail');
+    if(!rail||rail.scrollWidth<=rail.clientWidth)return;
+    if(Math.abs(event.deltaY)>Math.abs(event.deltaX)){rail.scrollLeft+=event.deltaY;event.preventDefault()}
+  },{passive:false});
 })();
 </script>
 
@@ -7672,6 +7854,29 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 }
 #pc-tools.pc-panel-open .pc-fab-list > button .pc-menu-counter{
  top:-3px!important;right:-9px!important;
+}
+</style>
+
+<style id="pc-lab-adjustable-height-final">
+/* Laboratório: tamanho inicial menor e sem altura mínima CSS para redução manual. */
+@media screen {
+ #raw-lab-input, #popup-diagnostics #raw-lab-input {
+   min-height:0!important;
+   height:180px;
+   max-height:none!important;
+   resize:vertical!important;
+   overflow-y:auto!important;
+   box-sizing:border-box;
+ }
+ .pc-handoff-overlay .pc-hand-actions .pc-handoff-save-feedback {
+   font-size:12px;
+   color:#166534;
+   font-weight:600;
+   align-self:center;
+ }
+}
+@media screen and (max-width:720px) {
+ #raw-lab-input, #popup-diagnostics #raw-lab-input {height:210px;min-height:0!important;}
 }
 </style>
 </body>
