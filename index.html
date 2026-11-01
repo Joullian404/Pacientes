@@ -1454,7 +1454,13 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
             <button type="button" onclick="printDocument('presc')">💊 Somente Prescrição</button>
             <button type="button" onclick="printDocument('pront')">📋 Somente Ficha Clínica</button>
             <div class="print-dropdown-divider"></div>
-            <button type="button" onclick="printDocument('all')">📄 Tudo (Ficha + Prescrição)</button>
+            <button type="button" onclick="printDocument('clinical_lab')">🧾 Ficha + Laboratório</button>
+            <button type="button" onclick="printDocument('lab')">🧪 Somente Laboratório</button>
+            <button type="button" onclick="printDocument('img')">🩻 Somente Imagens</button>
+            <button type="button" onclick="printDocument('exams')">🔬 Laboratório + Imagens</button>
+            <div class="print-dropdown-divider"></div>
+            <button type="button" onclick="printDocument('clinical_exams')">📑 Ficha + Exames</button>
+            <button type="button" onclick="printDocument('all')">📄 Tudo: Ficha + Prescrição + Exames</button>
           </div>
         </div>
 
@@ -3352,15 +3358,14 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
     });
 
     function printDocument(mode) {
-      selectedPrintMode = mode;
       const menu = document.getElementById('print-dropdown-menu');
       if (menu) menu.classList.remove('show');
-
-      document.body.classList.remove('print-mode-all', 'print-mode-presc', 'print-mode-pront');
-      document.body.classList.add('print-mode-' + mode);
-
-      updatePrintClasses();
-      window.print();
+      if (typeof window.PedCareUpgrade?.print === 'function') {
+        window.PedCareUpgrade.print(mode);
+        return;
+      }
+      if (window.PedCareDialog?.alert) window.PedCareDialog.alert('O motor de impressão ainda está carregando. Reabra a página e tente novamente.');
+      else console.error('PedCare: motor de impressão indisponível. A impressão da página completa foi bloqueada para evitar código no PDF.');
     }
 
     function updatePrintClasses() {
@@ -4238,7 +4243,7 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
   }
 }
 </style>
-</body>. Requer script original sem erros de sintaxe. */
+<script id="pc-print-upgrade">
 (() => {
   'use strict';
 
@@ -4713,10 +4718,17 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
       window.PedCareDialog.alert('O navegador bloqueou a janela de impressão. Permita pop-ups para este site.');
       return;
     }
-    popup.document.open();
-    popup.document.write(printableHtml(pat, mode));
-    popup.document.close();
-    popup.focus();
+    try {
+      const output = printableHtml(pat, mode);
+      popup.document.open();
+      popup.document.write(output);
+      popup.document.close();
+      popup.focus();
+    } catch (error) {
+      popup.close();
+      console.error('PedCare: falha ao montar documento de impressão', error);
+      window.PedCareDialog?.alert?.('Não foi possível preparar a impressão. Nenhum dado foi alterado.');
+    }
   }
 
   function decorateSatField(container, input){
@@ -4799,37 +4811,9 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
   }
 
   function rebuildPrintMenu(){
-    const menu = document.getElementById('print-dropdown-menu');
-    if (!menu) return;
-    menu.innerHTML = '';
-    const items = [
-      ['presc','💊 Somente Prescrição'],
-      ['pront','📋 Somente Ficha Clínica'],
-      ['clinical_lab','🧾 Ficha + Laboratório'],
-      ['lab','🧪 Somente Laboratório'],
-      ['img','🩻 Somente Imagens'],
-      ['exams','🔬 Laboratório + Imagens'],
-      ['clinical_exams','📑 Ficha + Exames'],
-      ['all','📄 Tudo: Ficha + Prescrição + Exames']
-    ];
-
-    items.forEach(([mode, label], i) => {
-      if (i === 2 || i === 6) {
-        const div = document.createElement('div');
-        div.className = 'print-dropdown-divider';
-        menu.appendChild(div);
-      }
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.textContent = label;
-      b.addEventListener('click', () => {
-        menu.classList.remove('show');
-        printUpgrade(mode);
-      });
-      menu.appendChild(b);
-    });
+    // As oito opções já constam do HTML. Somente assegura que o menu fique fechado na inicialização.
+    document.getElementById('print-dropdown-menu')?.classList.remove('show');
   }
-
 
   // Quadro de manutenção Holliday-Segar: referência didática, sem preparo automatizado de concentrados.
   function renderMaintenanceGuide(){
