@@ -1409,6 +1409,14 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
 })();
 </script>
 
+<style id="pc-handoff-actions-style">
+.pc-handoff-overlay #pc-content .pc-hand-actions{position:sticky;top:0;z-index:12;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 11px;margin:-2px 0 12px;background:rgba(246,249,253,.97);border:1px solid #d1e4f2;border-radius:12px;box-shadow:0 5px 18px rgba(18,55,84,.09);backdrop-filter:blur(8px)}
+.pc-handoff-overlay #pc-content .pc-hand-actions button{border-radius:9px;padding:10px 12px;font-size:12px;font-weight:750;min-height:39px}
+.pc-handoff-overlay #pc-content .pc-hand-versions{display:flex;flex-direction:column;gap:6px;margin:18px 0 4px;padding:13px;border-radius:11px;background:#eef4fb;border:1px solid #d4e3f1;font-size:12px;color:#244760;font-weight:700}
+.pc-handoff-overlay #pc-content .pc-hand-versions select{width:100%;max-width:100%;background:#fff}
+.pc-handoff-overlay #pc-content [data-hfield="time"]{background:#f2f6fb;color:#526b7e}
+@media(max-width:650px){.pc-handoff-overlay #pc-content .pc-hand-actions{gap:5px;padding:7px}.pc-handoff-overlay #pc-content .pc-hand-actions button{padding:8px;font-size:11px;flex:1 1 auto}}
+</style>
 </head>
 <body>
 
@@ -1538,7 +1546,7 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
           </div>
           <div class="input-group">
             <label>Peso (kg) *Cálculo*</label>
-            <input type="number" step="0.1" id="p-weight" class="input-weight-highlight" placeholder="Ex: 12.5" oninput="onWeightChange(this.value)">
+            <input type="text" inputmode="decimal" id="p-weight" class="input-weight-highlight" placeholder="Ex.: 12,5" autocomplete="off" aria-label="Peso do paciente em quilogramas" oninput="onWeightChange(this.value)">
           </div>
           <div class="input-group">
             <label>Alergias</label>
@@ -3806,11 +3814,21 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
       }
     }
 
+    // Aceita o separador decimal brasileiro sem transformar uma entrada parcial em dose.
+    function pcParseWeight(value) {
+      const raw = String(value ?? '').trim();
+      if (!/^\d+(?:[,.]\d+)?$/.test(raw)) return NaN;
+      const weight = Number(raw.replace(',', '.'));
+      return Number.isFinite(weight) && weight > 0 && weight <= 500 ? weight : NaN;
+    }
+
     function onWeightChange(val) {
-      syncPatientField('weight', val);
-      document.getElementById('p-weight').value = val || '';
-      const w = parseFloat(val);
-      calculateAllDoses(w);
+      const raw = String(val ?? '');
+      syncPatientField('weight', raw);
+      const input = document.getElementById('p-weight');
+      if (input && input.value !== raw) input.value = raw;
+      calculateAllDoses(pcParseWeight(raw));
+      if (typeof window.pcRefreshCustomMasterDoses === 'function') window.pcRefreshCustomMasterDoses();
     }
 
     function switchSubTab(sub) {
@@ -5577,22 +5595,42 @@ const examBlocks=[
 ];
 const handFields=[['reason','Motivo da internação'],['comorbidities','Comorbidades'],['clinicalHistory','História clínica'],['impression','Impressão clínica / Diagnósticos ativos'],['conduct','Condutas atuais'],['pending','Pendências para o próximo plantão'],['devices','Dispositivos / suporte em uso'],['neurology','Exame neurológico e observações adicionais']];
 function handoffFor(p){p.handoffs??=[];return p.handoffs}
+// Histórico da passagem: uma única versão persistida por dia de salvamento.
+function handoffSavedDay(record){
+ const raw=String(record?.savedAt||'').trim();
+ const br=raw.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+ if(br)return `${br[3]}-${br[2]}-${br[1]}`;
+ const iso=raw.match(/^(\d{4}-\d{2}-\d{2})/);
+ return iso?iso[1]:(pcDateISO(record?.date)||'');
+}
+function handoffLatestPerDay(p){
+ const byDay=new Map();
+ (handoffFor(p)||[]).forEach((record,index)=>{
+  const day=handoffSavedDay(record);
+  byDay.set(day||`legacy-${index}`,record);
+ });
+ return [...byDay.values()].sort((a,b)=>{
+  const da=handoffSavedDay(a),db=handoffSavedDay(b);
+  return da.localeCompare(db)||String(a.savedAt||'').localeCompare(String(b.savedAt||''));
+ });
+}
+
 // O prontuário clínico e a passagem de plantão têm armazenamento independente.
 // Dados clínicos existentes são copiados apenas na primeira criação do rascunho.
 function seedHandoff(p){
  if(p.handoffDraft && typeof p.handoffDraft==='object') return structuredClone(p.handoffDraft);
- const previous=handoffFor(p);
+ const previous=handoffLatestPerDay(p);
  if(previous.length) return structuredClone(previous[previous.length-1]);
- return {date:today(),time:new Date().toTimeString().slice(0,5),dih:'',reason:p.reason||'',comorbidities:p.comorbidities||'',clinicalHistory:p.clinicalHistory||'',impression:'',conduct:'',pending:program(p).filter(t=>!t.done).map(t=>t.text).join('\n'),devices:'',neurology:'',exam:{},notes:{},vitals:{},id:''};
+ return {date:today(),time:'',dih:'',reason:'',comorbidities:'',clinicalHistory:'',impression:'',conduct:'',pending:'',devices:'',neurology:'',exam:{},notes:{},vitals:{},id:''};
 }
 function openHandoff(p=pat(),initialDraft=null){
  if(!p)return window.PedCareDialog.alert('Selecione um paciente.');
  let draft=initialDraft?structuredClone(initialDraft):seedHandoff(p);
  overlay('Passagem de plantão — edição independente',host=>{
   const fields=handFields.map(([k,label])=>`<label class="wide">${esc(label)}<textarea data-hfield="${k}">${esc(draft[k]||'')}</textarea></label>`).join('');
-  const textData=`<div class="pc-handoff"><label>Data da passagem<input type="date" lang="pt-BR" data-hfield="date" value="${esc(pcDateISO(draft.date||today())||today())}"></label><label>Hora<input type="text" data-hfield="time" value="${esc(draft.time||'')}"></label><label>Dia de internação (DIH)<input type="text" data-hfield="dih" value="${esc(draft.dih||'')}"></label><label>Leito<input type="text" disabled value="${esc(p.bed||'')}"></label>${fields}</div>`;
+  const textData=`<div class="pc-handoff"><label>Data da passagem<input type="date" lang="pt-BR" data-hfield="date" value="${esc(pcDateISO(draft.date||today())||today())}"></label><label>Hora<input type="text" data-hfield="time" readonly title="Atualizada automaticamente ao salvar" value="${esc(draft.time||'')}"></label><label>Dia de internação (DIH)<input type="text" data-hfield="dih" value="${esc(draft.dih||'')}"></label><label>Leito<input type="text" disabled value="${esc(p.bed||'')}"></label>${fields}</div>`;
   const examHTML=examBlocks.map(([name,opts],idx)=>`<div class="pc-exam"><h3>${idx+1}. ${esc(name)}</h3>${opts.map((o,i)=>`<label class="${o==='Outras visceromegalias'?'pc-viscera-label':''}"><input type="checkbox" data-exam="${idx}:${i}" ${draft.exam?.[idx+':'+i]?'checked':''}>${esc(o)}${o==='Outras visceromegalias'?`<input type="text" class="pc-viscera-input" data-hvisc placeholder="Qual(is)?" aria-label="Especificar outras visceromegalias" value="${esc(draft.otherViscera||'')}">`:''}</label>`).join('')}<label style="display:block">Observações<textarea data-enote="${idx}">${esc(draft.notes?.[idx]||'')}</textarea></label></div>`).join('');
-  host.innerHTML=`<p><strong>Documento independente:</strong> editar esta passagem não modifica a ficha clínica. Alterações do rascunho são salvas neste paciente; "Salvar versão" cria um registro histórico.</p><div class="pc-handoff"><label>Paciente<input disabled value="${esc(p.name||'')}"></label><label>Nome da mãe<input disabled value="${esc(p.mother||'')}"></label><label>Sexo / idade<input disabled value="${esc([p.sex,p.age].filter(Boolean).join(' / '))}"></label><label>Alergias<input disabled value="${esc(p.allergies||'')}"></label></div><h3>1. Resumo clínico</h3>${textData}<h3>2. Sinais vitais</h3><div class="pc-grid">${[['fc','FC'],['pa','PA'],['fr','FR'],['tx','Temperatura'],['weight','Peso'],['satO2','SatO₂'],['height','Altura'],['diuresis','Diurese'],['evacuations','Evacuações'],['flatus','Flatos']].map(([k,label])=>`<label>${label}<input data-vital="${k}" type="text" value="${esc(draft.vitals?.[k]??p[k]??'')}"></label>`).join('')}</div><h3>3. Exame físico estruturado</h3>${examHTML}<div class="pc-row"><button id="pc-hand-save" class="pc-primary">Salvar versão</button><button id="pc-hand-print">Salvar e imprimir</button><button id="pc-hand-new">Nova passagem (cópia editável)</button><select id="pc-hand-history"><option value="">Consultar versões anteriores</option>${handoffFor(p).map((h,i)=>`<option value="${i}">${esc(h.savedAt||h.date||'Versão')}</option>`).join('')}</select></div>`;
+  host.innerHTML=`<div class="pc-hand-actions"><button id="pc-hand-save" class="pc-primary">Salvar</button><button id="pc-hand-print">Salvar e imprimir</button><button id="pc-hand-new">Nova passagem</button></div><p><strong>Documento independente:</strong> editar esta passagem não modifica a ficha clínica. Alterações do rascunho são salvas neste paciente; "Salvar versão" cria um registro histórico.</p><div class="pc-handoff"><label>Paciente<input disabled value="${esc(p.name||'')}"></label><label>Nome da mãe<input disabled value="${esc(p.mother||'')}"></label><label>Sexo / idade<input disabled value="${esc([p.sex,p.age].filter(Boolean).join(' / '))}"></label><label>Alergias<input disabled value="${esc(p.allergies||'')}"></label><label>Data de admissão<input disabled value="${esc(pcDateBR(p.admissionDate)||'')}"></label><label>Leito<input disabled value="${esc(p.bed||'')}"></label></div><h3>1. Resumo clínico</h3>${textData}<h3>2. Sinais vitais</h3><div class="pc-grid">${[['fc','FC'],['pa','PA'],['fr','FR'],['tx','Temperatura'],['weight','Peso'],['satO2','SatO₂'],['height','Altura'],['diuresis','Diurese'],['evacuations','Evacuações'],['flatus','Flatos']].map(([k,label])=>`<label>${label}<input data-vital="${k}" type="text" value="${esc(draft.vitals?.[k]??'')}"></label>`).join('')}</div><h3>3. Exame físico estruturado</h3>${examHTML}<div class="pc-hand-versions"><label for="pc-hand-history">Passagens salvas (versão mais recente de cada dia)</label><select id="pc-hand-history"><option value="">Consultar versões anteriores</option>${handoffLatestPerDay(p).map((h,i)=>`<option value="${i}">${esc(pcDateBR(handoffSavedDay(h)))} — ${esc(h.savedAt||h.date||'Versão')}</option>`).join('')}</select></div>`;
   const collect=()=>{
    host.querySelectorAll('[data-hfield]').forEach(x=>{if(x.dataset.hfield==='date'){draft.date=x.value||'';}else draft[x.dataset.hfield]=x.value;});
    draft.exam={};host.querySelectorAll('[data-exam]').forEach(x=>{if(x.checked)draft.exam[x.dataset.exam]=true});
@@ -5606,16 +5644,27 @@ function openHandoff(p=pat(),initialDraft=null){
   const queueDraft=()=>{clearTimeout(timer);timer=setTimeout(storeDraft,400)};
   host.querySelectorAll('[data-hfield],[data-vital],[data-exam],[data-enote],[data-hvisc]').forEach(n=>{n.addEventListener('input',queueDraft);n.addEventListener('change',queueDraft)});
   const save=()=>{
-   clearTimeout(timer);storeDraft();
+   clearTimeout(timer);collect();
+   // A hora reflete o clique em Salvar/Salvar e imprimir, nunca a abertura da tela.
+   const instant=new Date();
+   draft.time=`${String(instant.getHours()).padStart(2,'0')}:${String(instant.getMinutes()).padStart(2,'0')}`;
+   const timeInput=host.querySelector('[data-hfield="time"]');
+   if(timeInput)timeInput.value=draft.time;
+   p.handoffDraft=structuredClone(draft);
    const version=structuredClone(draft);
    version.id='hand_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-   version.savedAt=stamp();
-   handoffFor(p).push(version);safeSave();return version;
+   version.savedAt=instant.toLocaleString('pt-BR');
+   const savedDay=today();
+   // Substitui todas as versões daquele dia e preserva a mais recente dos demais dias.
+   p.handoffs=handoffLatestPerDay(p).filter(h=>handoffSavedDay(h)!==savedDay);
+   p.handoffs.push(version);
+   p.handoffs=handoffLatestPerDay(p);
+   safeSave();return version;
   };
-  el('pc-hand-save').onclick=()=>{save();window.PedCareDialog.alert('Versão da passagem salva separadamente da ficha clínica.');host.closest('.pc-overlay')?.remove()};
+  el('pc-hand-save').onclick=()=>{save();window.PedCareDialog.alert('Passagem salva: somente a versão mais recente de hoje ficará no histórico.');host.closest('.pc-overlay')?.remove()};
   el('pc-hand-print').onclick=()=>{const rec=save();printHandoff(p,rec);host.closest('.pc-overlay')?.remove()};
-  el('pc-hand-new').onclick=()=>{clearTimeout(timer);storeDraft();const next=structuredClone(draft);next.id='';next.date=today();next.time=new Date().toTimeString().slice(0,5);openHandoff(p,next)};
-  el('pc-hand-history').onchange=e=>{if(e.target.value==='')return;clearTimeout(timer);storeDraft();let i=Number(e.target.value);let rec=handoffFor(p)[i];if(rec)openHandoffVersion(p,rec)};
+  el('pc-hand-new').onclick=()=>{clearTimeout(timer);storeDraft();const next={date:today(),time:'',dih:'',reason:'',comorbidities:'',clinicalHistory:'',impression:'',conduct:'',pending:'',devices:'',neurology:'',exam:{},notes:{},vitals:{},id:''};openHandoff(p,next)};
+  el('pc-hand-history').onchange=e=>{if(e.target.value==='')return;clearTimeout(timer);storeDraft();let i=Number(e.target.value);let rec=handoffLatestPerDay(p)[i];if(rec)openHandoffVersion(p,rec)};
   // Fechar não perde o texto já digitado.
   const root=el('pc-overlay');
   root?.addEventListener('click',event=>{if(event.target===root || event.target.id==='pc-close'){clearTimeout(timer);storeDraft()}}, {capture:true});
@@ -6188,7 +6237,9 @@ function doseParametersValid(p){
 }
 function formNumber(value){return Number(value).toLocaleString('pt-BR',{maximumFractionDigits:2});}
 function currentWeight(){
- const w=Number($('p-weight')?.value);
+ const raw=String($('p-weight')?.value ?? '').trim();
+ if(!/^\d+(?:[,.]\d+)?$/.test(raw))return NaN;
+ const w=Number(raw.replace(',','.'));
  return Number.isFinite(w)&&w>0&&w<=500?w:NaN;
 }
 function paintCustomDose(cell,params){
