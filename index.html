@@ -2042,6 +2042,29 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
             <textarea id="pront-history" rows="4" placeholder="História da doença atual, antecedentes mórbidos, imunizações..." oninput="updateProntuarioField('clinicalHistory', this.value)"></textarea>
           </div>
 
+          <!-- Evoluções diárias: registros próprios por paciente, separados da anamnese. -->
+          <section id="pc-daily-evolutions" class="pc-evo" aria-label="Histórico de evoluções diárias">
+            <div class="pc-evo-heading">
+              <div><span class="pc-evo-eyebrow">Registro longitudinal</span><h3>Evoluções diárias</h3><p>Uma evolução por dia, preservando o histórico dos outros dias.</p></div>
+              <span class="pc-evo-count" id="pc-evo-count">0 registros</span>
+            </div>
+            <div class="pc-evo-tools">
+              <label for="pc-evo-date">Dia da evolução
+                <input type="date" id="pc-evo-date" aria-label="Selecionar dia da evolução">
+              </label>
+              <div class="pc-evo-actions">
+                <button type="button" class="pc-evo-btn pc-evo-save" id="pc-evo-save">Salvar</button>
+                <button type="button" class="pc-evo-btn pc-evo-release" id="pc-evo-release">Liberar evolução</button>
+                <button type="button" class="pc-evo-btn pc-evo-reopen" id="pc-evo-reopen" hidden>Reabrir</button>
+                <button type="button" class="pc-evo-btn pc-evo-delete" id="pc-evo-delete">Excluir</button>
+              </div>
+            </div>
+            <div class="pc-evo-state" id="pc-evo-state" role="status" aria-live="polite"></div>
+            <textarea id="pc-evo-text" placeholder="Descreva a evolução do dia, avaliação, exames e condutas. O rascunho é salvo automaticamente; liberar finaliza a evolução." aria-label="Texto da evolução diária"></textarea>
+            <div class="pc-evo-history-title">Histórico de evoluções <span>(da mais recente à mais antiga)</span></div>
+            <div class="pc-evo-list" id="pc-evo-history-list"></div>
+          </section>
+
           <div class="prontuario-section-title">Exames Laboratoriais & Imagem (Resumo Geral)</div>
           <div class="input-group">
             <textarea id="pront-exames" rows="3" placeholder="Resumo geral de exames, culturas pendentes..." oninput="updateProntuarioField('labExams', this.value)"></textarea>
@@ -2502,7 +2525,7 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
       loadObsidianData();
       loadAllPatients();
 
-      if (!patients.length) {
+      if (!patients.length && !(localStorage.getItem(GH_TOKEN_KEY) && localStorage.getItem(GH_GIST_KEY))) {
         createNewPatient();
       } else {
         const firstOpen = patients.find(p => !p.tabClosed);
@@ -3033,7 +3056,8 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
 
     function saveObsidianData() {
       if (isPedCareSignedOut()) return;
-      localStorage.setItem(OBSIDIAN_STORAGE_KEY, JSON.stringify(obsidianData));
+      try {localStorage.setItem(OBSIDIAN_STORAGE_KEY, JSON.stringify(obsidianData))}
+      catch(e){console.error('Falha no salvamento local das notas',e);updateCloudStatus('disconnected','⚠️ Armazenamento local indisponível')}
       triggerCloudSync();
     }
 
@@ -3425,6 +3449,13 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
 
     /* GITHUB SYNC */
     function openGitHubModal() {
+      let backupBtn=document.getElementById('pc-sync-export-backup');
+      if(!backupBtn){
+        const section=document.getElementById('modal-github');
+        if(section){backupBtn=document.createElement('button');backupBtn.id='pc-sync-export-backup';backupBtn.type='button';backupBtn.textContent='⬇ Exportar cópia local de segurança';
+          backupBtn.style.cssText='display:block;margin:12px auto;padding:9px 14px;border-radius:9px;background:#e8f1fa;color:#15456b;border:1px solid #bad5ea;cursor:pointer';
+          backupBtn.onclick=()=>window.PedCareSyncRecovery?.download();section.appendChild(backupBtn);}
+      }
       const token = localStorage.getItem(GH_TOKEN_KEY);
       const gistId = localStorage.getItem(GH_GIST_KEY);
 
@@ -3501,6 +3532,7 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
 
           localStorage.setItem(GH_TOKEN_KEY, token);
           localStorage.setItem(GH_GIST_KEY, gistId);
+          pcWriteBase(prepareDatabasePayload());
           window.PedCareDialog.alert('Banco de dados criado no seu GitHub!');
         }
 
@@ -3514,90 +3546,245 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
       }
     }
 
-    async function pullFromGitHub(token, gistId) {
-      if (isPedCareSignedOut()) return;
-      try {
-        updateCloudStatus('syncing', 'Baixando da Nuvem...');
-        const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-          headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
-        });
-
-        if (!res.ok) throw new Error('Erro ao baixar banco.');
-        const data = await res.json();
-        if (isPedCareSignedOut() || localStorage.getItem(GH_TOKEN_KEY) !== token || localStorage.getItem(GH_GIST_KEY) !== gistId) return;
-
-        if (data.files && data.files['pedcare_database.json']) {
-          const content = JSON.parse(data.files['pedcare_database.json'].content);
-          if (content.patients) patients = content.patients;
-          if (content.obsidianData) obsidianData = content.obsidianData;
-          // Preferências de layout sincronizadas sem entrar no prontuário clínico.
-          window.PedCareLayoutPrefs?.receiveCloud?.(content.uiPreferences);
-
-          localStorage.setItem(PATIENTS_STORAGE_KEY, JSON.stringify(patients));
-          localStorage.setItem(OBSIDIAN_STORAGE_KEY, JSON.stringify(obsidianData));
-
-          renderTabs();
-          if (patients.length) switchPatientTab(currentPatientId || patients[0].id);
-          renderObsidianUI();
-          updateCloudStatus('connected', '☁️ GitHub Sincronizado ✓');
+    /* Sincronização conservadora: nunca substituir dados locais antes de comparar
+       a revisão da nuvem. As alterações e o último estado conhecido persistem no
+       navegador para permitir recuperação após falhas e troca de dias. */
+    const PC_SYNC_BASE_PREFIX = 'pedcare_sync_base_v2_';
+    const PC_SYNC_RECOVERY_PREFIX = 'pedcare_sync_conflicts_v2_';
+    let pcSyncBusy = false;
+    let pcSyncReady = false;
+    let pcSyncDirty = false;
+    let pcSyncNeedsRetry = false;
+    let pcSyncRevision = 0;
+    let pcSyncGeneration = 0;
+    let pcSyncTimer = null;
+    let pcSyncBase = null;
+    let pcSyncConflicts = [];
+    const pcClone = x => x === undefined ? undefined : JSON.parse(JSON.stringify(x));
+    const pcEq = (a,b) => JSON.stringify(a) === JSON.stringify(b);
+    const pcObj = v => v && typeof v === 'object' && !Array.isArray(v);
+    const pcGistValid = (token,gist) => !isPedCareSignedOut() &&
+       localStorage.getItem(GH_TOKEN_KEY) === token && localStorage.getItem(GH_GIST_KEY) === gist;
+    function pcSyncKey(){return PC_SYNC_BASE_PREFIX+(localStorage.getItem(GH_GIST_KEY)||'none')}
+    function pcRecoverKey(){return PC_SYNC_RECOVERY_PREFIX+(localStorage.getItem(GH_GIST_KEY)||'none')}
+    function pcReadBase(){try{return JSON.parse(localStorage.getItem(pcSyncKey())||'null')}catch{return null}}
+    function pcWriteBase(value){
+      pcSyncBase=pcClone(value);
+      try{localStorage.setItem(pcSyncKey(),JSON.stringify(pcSyncBase))}catch(e){console.warn('Snapshot de sincronização indisponível',e)}
+    }
+    function pcRecordConflict(path,local,remote){
+      pcSyncConflicts.push({field:path,local:pcClone(local),remote:pcClone(remote),at:new Date().toISOString()});
+      // Os valores conflitantes permanecem exportáveis, sem impedir novos salvamentos.
+    }
+    function pcSaveConflicts(){
+      if(!pcSyncConflicts.length)return;
+      try{
+        const existing=JSON.parse(localStorage.getItem(pcRecoverKey())||'[]');
+        localStorage.setItem(pcRecoverKey(),JSON.stringify(existing.concat(pcSyncConflicts).slice(-30)));
+      }catch(e){console.warn('Recuperação muito grande para o armazenamento do navegador',e)}
+      pcSyncConflicts=[];
+      updateCloudStatus('disconnected','⚠️ Conflito de sincronização — confira os dados');
+    }
+    function pcArrayKey(item,index,path){
+      if(!pcObj(item))return 'index:'+index;
+      if(item.id!==undefined&&item.id!==null)return 'id:'+String(item.id);
+      // Uma passagem por dia, ou uma coleta por data; conferir conflitos por campo.
+      if(/\.handoffs$/.test(path)){
+        const d=String(item.savedAt||item.date||'');
+        const m=d.match(/^(\d\d)\/(\d\d)\/(\d{4})/);
+        return 'day:'+(m?m[3]+'-'+m[2]+'-'+m[1]:d.slice(0,10));
+      }
+      if(/\.labHistory$/.test(path))return 'lab:'+String(item.date||index);
+      if(/\.checkHistory$/.test(path))return 'history:'+String(item.at||item.date||index)+':'+String(item.note||'');
+      if(/\.dailyChecklistHistory$/.test(path))return 'date:'+String(item.date||index);
+      return 'index:'+index;
+    }
+    function pcMergeArray(base,ours,theirs,path){
+      const b=Array.isArray(base)?base:[], a=Array.isArray(ours)?ours:[], c=Array.isArray(theirs)?theirs:[];
+      const toMap=list=>new Map(list.map((item,i)=>[pcArrayKey(item,i,path),item]));
+      const bm=toMap(b),am=toMap(a),cm=toMap(c);
+      const keys=[...new Set([...cm.keys(),...am.keys(),...bm.keys()])];
+      const out=[];
+      for(const k of keys){
+        const result=pcMergeValue(bm.get(k),am.get(k),cm.get(k),path+'['+k+']');
+        if(result!==undefined)out.push(result);
+      }
+      return out;
+    }
+    function pcMergeValue(base,ours,theirs,path){
+      if(pcEq(ours,theirs))return pcClone(ours);
+      if(pcEq(ours,base))return pcClone(theirs);
+      if(pcEq(theirs,base))return pcClone(ours);
+      if(Array.isArray(ours)&&Array.isArray(theirs))return pcMergeArray(base,ours,theirs,path);
+      if(pcObj(ours)&&pcObj(theirs)){
+        const b=pcObj(base)?base:{};const result={};
+        for(const key of new Set([...Object.keys(b),...Object.keys(ours),...Object.keys(theirs)])){
+          const val=pcMergeValue(b[key],ours[key],theirs[key],path+'.'+key);
+          if(val!==undefined)result[key]=val;
         }
-      } catch (e) {
-        console.error(e);
-        updateCloudStatus('disconnected', '☁️ Erro na Sincronização');
+        return result;
       }
+      // Não descartar silenciosamente uma evolução ou programação concorrente.
+      // Mantém a edição local em tela e guarda a alternativa remota para revisão.
+      pcRecordConflict(path,ours,theirs);
+      return pcClone(ours);
     }
-
-    async function pushToGitHub() {
-      if (isPedCareSignedOut()) return;
-      const token = localStorage.getItem(GH_TOKEN_KEY);
-      const gistId = localStorage.getItem(GH_GIST_KEY);
-      if (!token || !gistId) return;
-
-      updateCloudStatus('syncing', 'Enviando ao GitHub...');
-      try {
-        const payload = prepareDatabasePayload();
-        const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-          method: 'PATCH',
-          headers: {
-            'Authorization': 'token ' + token,
-            'Content-Type': 'application/json',
-            'Accept': 'application/vnd.github.v3+json'
-          },
-          body: JSON.stringify({
-            files: { 'pedcare_database.json': { content: JSON.stringify(payload, null, 2) } }
-          })
-        });
-
-        if (!res.ok) throw new Error('Falha ao atualizar Gist.');
-        updateCloudStatus('connected', '☁️ GitHub Sincronizado ✓');
-      } catch (err) {
-        console.error(err);
-        updateCloudStatus('disconnected', '☁️ Erro ao Salvar Nuvem');
-      }
-    }
-
-    function prepareDatabasePayload() {
+    function pcMergePayload(base,ours,theirs){
+      const b=pcObj(base)?base:{}, a=pcObj(ours)?ours:{}, c=pcObj(theirs)?theirs:{};
       return {
-        app: 'PedCare',
-        updatedAt: new Date().toISOString(),
-        patients: patients,
-        obsidianData: obsidianData,
-        uiPreferences: window.PedCareLayoutPrefs?.getCloudData?.() || {}
+        app:'PedCare',updatedAt:new Date().toISOString(),
+        patients:pcMergeValue(b.patients||[],a.patients||[],c.patients||[],'patients')||[],
+        obsidianData:pcMergeValue(b.obsidianData||{},a.obsidianData||{},c.obsidianData||{},'obsidianData')||{},
+        uiPreferences:pcMergeValue(b.uiPreferences||{},a.uiPreferences||{},c.uiPreferences||{},'uiPreferences')||{}
       };
     }
-
-    function triggerCloudSync() {
-      if (isPedCareSignedOut()) return;
+    function pcCurrentPayload(){return prepareDatabasePayload()}
+    function pcInstallMerged(data){
+      if(!data || !Array.isArray(data.patients))throw Error('Banco remoto inválido: pacientes ausentes');
+      patients=data.patients;
+      if(pcObj(data.obsidianData)&&Array.isArray(data.obsidianData.notes))obsidianData=data.obsidianData;
+      window.PedCareLayoutPrefs?.receiveCloud?.(data.uiPreferences);
+      localStorage.setItem(PATIENTS_STORAGE_KEY,JSON.stringify(patients));
+      localStorage.setItem(OBSIDIAN_STORAGE_KEY,JSON.stringify(obsidianData));
+      const active=patients.find(p=>String(p.id)===String(currentPatientId));
+      renderTabs();
+      if(active)switchPatientTab(active.id);
+      else if(patients.length)switchPatientTab((patients.find(p=>!p.tabClosed)||patients[0]).id);
+      else showArchiveView();
+      renderObsidianUI();
+    }
+    async function pcFetchGist(token,gist){
+      const response=await fetch('https://api.github.com/gists/'+encodeURIComponent(gist),{
+        headers:{Authorization:'token '+token,Accept:'application/vnd.github.v3+json'},cache:'no-store'
+      });
+      if(!response.ok)throw Error('Falha ao ler Gist (HTTP '+response.status+')');
+      const json=await response.json();const entry=json.files?.['pedcare_database.json'];
+      if(!entry)throw Error('Arquivo pedcare_database.json não encontrado no Gist');
+      let raw=entry.content;
+      if(entry.truncated){
+        if(!entry.raw_url)throw Error('Gist truncado, conteúdo indisponível');
+        const full=await fetch(entry.raw_url,{cache:'no-store'});
+        if(!full.ok)throw Error('Falha ao carregar banco completo');
+        raw=await full.text();
+      }
+      if(!raw)throw Error('Banco remoto vazio');
+      const data=JSON.parse(raw);
+      if(!Array.isArray(data.patients))throw Error('Formato de banco remoto inválido');
+      return data;
+    }
+    function pcScheduleSync(ms=2200){
+      if(isPedCareSignedOut()||!localStorage.getItem(GH_GIST_KEY))return;
       clearTimeout(syncTimeout);
-      syncTimeout = setTimeout(() => { pushToGitHub(); }, 2500);
+      if(!pcSyncReady){pcSyncNeedsRetry=true;return}
+      syncTimeout=setTimeout(()=>{pushToGitHub()},ms);
     }
-
-    function manualSyncGitHub() {
-      const token = localStorage.getItem(GH_TOKEN_KEY);
-      const gistId = localStorage.getItem(GH_GIST_KEY);
-      if (token && gistId) pushToGitHub();
-      else openGitHubModal();
+    async function pullFromGitHub(token,gistId){
+      if(!pcGistValid(token,gistId))return;
+      // A inicialização remota é exclusiva; nunca baixar no meio de um envio.
+      if(pcSyncBusy){pcSyncNeedsRetry=true;return}
+      pcSyncBusy=true;pcSyncReady=false;
+      const generation=++pcSyncGeneration;
+      updateCloudStatus('syncing','Conferindo versões...');
+      try{
+        const remote=await pcFetchGist(token,gistId);
+        if(generation!==pcSyncGeneration||!pcGistValid(token,gistId))return;
+        const local=pcCurrentPayload();
+        const base=pcReadBase();
+        const merged=pcMergePayload(base,local,remote);
+        // Guardar cópia da nuvem e dos dados locais se não houver base anterior.
+        // Não apagar informações locais ao iniciar uma sessão noutro dispositivo.
+        const needsPush=!pcEq(merged.patients,remote.patients)||!pcEq(merged.obsidianData,remote.obsidianData);
+        pcWriteBase(remote);
+        if(!pcEq(local.patients,merged.patients)||!pcEq(local.obsidianData,merged.obsidianData))pcInstallMerged(merged);
+        pcSyncDirty=pcSyncDirty||needsPush;
+        if(pcSyncConflicts.length)pcSaveConflicts();
+        else updateCloudStatus('connected',needsPush?'☁️ Alterações para enviar':'☁️ GitHub sincronizado ✓');
+      }catch(err){
+        console.error('PedCare: download não concluído',err);
+        updateCloudStatus('disconnected','⚠️ Sem sincronização — dados locais mantidos');
+      }finally{
+        pcSyncBusy=false;
+        pcSyncReady=true;
+        if(pcSyncDirty||pcSyncNeedsRetry){pcSyncNeedsRetry=false;pcScheduleSync(400)}
+      }
     }
+    async function pushToGitHub(){
+      if(isPedCareSignedOut())return;
+      const token=localStorage.getItem(GH_TOKEN_KEY),gistId=localStorage.getItem(GH_GIST_KEY);
+      if(!token||!gistId)return;
+      if(!pcSyncReady){pcSyncNeedsRetry=true;return}
+      if(pcSyncBusy){pcSyncNeedsRetry=true;return}
+      pcSyncBusy=true;
+      const revisionAtStart=pcSyncRevision;
+      updateCloudStatus('syncing','Conferindo e enviando ao GitHub...');
+      try{
+        const remote=await pcFetchGist(token,gistId);
+        if(!pcGistValid(token,gistId))return;
+        const local=pcCurrentPayload();
+        const base=pcSyncBase||pcReadBase();
+        const merged=pcMergePayload(base,local,remote);
+        // Não sobrescrever com dados anteriores à última sincronização.
+        const response=await fetch('https://api.github.com/gists/'+encodeURIComponent(gistId),{
+          method:'PATCH',headers:{Authorization:'token '+token,'Content-Type':'application/json',Accept:'application/vnd.github.v3+json'},
+          body:JSON.stringify({files:{'pedcare_database.json':{content:JSON.stringify(merged)}}})
+        });
+        if(!response.ok)throw Error('Falha ao salvar Gist (HTTP '+response.status+')');
+        if(!pcGistValid(token,gistId))return;
+        // Dados alterados enquanto a requisição estava em curso não são perdidos.
+        const after=pcCurrentPayload();
+        const combined=pcMergePayload(local,after,merged);
+        pcWriteBase(merged);
+        if(!pcEq(after.patients,combined.patients)||!pcEq(after.obsidianData,combined.obsidianData))pcInstallMerged(combined);
+        pcSyncDirty=!pcEq(combined.patients,merged.patients)||!pcEq(combined.obsidianData,merged.obsidianData)||pcSyncRevision!==revisionAtStart;
+        if(pcSyncConflicts.length)pcSaveConflicts();
+        else updateCloudStatus('connected',pcSyncDirty?'☁️ Novas alterações aguardando envio':'☁️ GitHub sincronizado ✓');
+      }catch(err){
+        console.error('PedCare: envio não concluído; dados locais preservados',err);
+        pcSyncDirty=true;
+        updateCloudStatus('disconnected','⚠️ Falha ao enviar — alterações locais preservadas');
+      }finally{
+        pcSyncBusy=false;
+        if(pcSyncNeedsRetry||pcSyncDirty){pcSyncNeedsRetry=false;pcScheduleSync(4500)}
+      }
+    }
+    function prepareDatabasePayload(){
+      return {app:'PedCare',updatedAt:new Date().toISOString(),patients:patients,
+        obsidianData:obsidianData,uiPreferences:window.PedCareLayoutPrefs?.getCloudData?.()||{}};
+    }
+    function triggerCloudSync(){
+      if(isPedCareSignedOut())return;
+      pcSyncRevision++;pcSyncDirty=true;
+      pcScheduleSync();
+    }
+    function manualSyncGitHub(){
+      const token=localStorage.getItem(GH_TOKEN_KEY),gistId=localStorage.getItem(GH_GIST_KEY);
+      if(!token||!gistId){openGitHubModal();return}
+      if(!pcSyncReady){pcSyncNeedsRetry=true;return}
+      // Manual: sempre conferir a cópia remota, mesmo que nada local tenha mudado.
+      if(pcSyncDirty)pushToGitHub();else pullFromGitHub(token,gistId);
+    }
+    // Ao voltar à aba (ou após um minuto de atividade), conferir alterações feitas
+    // em outro dispositivo sem exigir que o usuário sobrescreva a nuvem primeiro.
+    function pcRefreshFromCloud(){
+      if(isPedCareSignedOut()||!pcSyncReady||pcSyncBusy)return;
+      const token=localStorage.getItem(GH_TOKEN_KEY),gist=localStorage.getItem(GH_GIST_KEY);
+      if(!token||!gist)return;
+      if(pcSyncDirty)pcScheduleSync(100);
+      else pullFromGitHub(token,gist);
+    }
+    setInterval(()=>{if(document.visibilityState==='visible')pcRefreshFromCloud()},60000);
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pcRefreshFromCloud()});
+    window.addEventListener('focus',()=>{if(document.visibilityState==='visible')pcRefreshFromCloud()});
+    // Exportação local de emergência; dados são sensíveis, guarde o arquivo em local seguro.
+    window.PedCareSyncRecovery={
+      download(){
+        const payload={local:pcCurrentPayload(),conflicts:JSON.parse(localStorage.getItem(pcRecoverKey())||'[]'),exportedAt:new Date().toISOString()};
+        const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+        const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
+        a.download='pedcare-copia-local-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+        setTimeout(()=>URL.revokeObjectURL(url),2000);
+      }
+    };
 
     function disconnectGitHub() {
       if(window.PedCareWorkflow?.beforeLogout) return window.PedCareWorkflow.beforeLogout();
@@ -3624,8 +3811,8 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
 
     function saveAllPatients() {
       if (isPedCareSignedOut()) return;
-      localStorage.setItem(PATIENTS_STORAGE_KEY, JSON.stringify(patients));
-      flashSaveIndicator();
+      try {localStorage.setItem(PATIENTS_STORAGE_KEY, JSON.stringify(patients));flashSaveIndicator()}
+      catch(e){console.error('Falha no salvamento local dos pacientes',e);updateCloudStatus('disconnected','⚠️ Armazenamento local indisponível')}
       triggerCloudSync();
     }
 
@@ -3767,6 +3954,7 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
       document.getElementById('pront-reason').value = pat.reason || '';
       document.getElementById('pront-comorbidities').value = pat.comorbidities || '';
       document.getElementById('pront-history').value = pat.clinicalHistory || '';
+      window.PedCareDailyEvolutions?.showPatient?.(pat.id);
       if (typeof pcResetHistoryView === 'function') pcResetHistoryView();
       document.getElementById('pront-exames').value = pat.labExams || '';
 
@@ -7863,6 +8051,142 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  #raw-lab-input, #popup-diagnostics #raw-lab-input {height:210px;min-height:0!important;}
 }
 </style>
+
+<style id="pc-daily-evolution-styles">
+#pc-daily-evolutions{margin:18px 0 10px;border:1px solid #d5e4f0;border-radius:16px;background:linear-gradient(180deg,#f7fbff,#fff 45%);padding:17px;box-shadow:0 6px 25px rgba(22,59,95,.045);min-width:0}
+#pc-daily-evolutions .pc-evo-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:13px}
+#pc-daily-evolutions .pc-evo-eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#507fa4;font-weight:800}
+#pc-daily-evolutions h3{margin:3px 0 4px;color:#173e63;font-size:19px;line-height:1.25}
+#pc-daily-evolutions .pc-evo-heading p{margin:0;color:#647a91;font-size:12px}
+#pc-daily-evolutions .pc-evo-count{border:1px solid #d1e1ee;border-radius:999px;padding:5px 10px;background:#eef6fd;color:#245678;font-size:11px;font-weight:700;white-space:nowrap}
+#pc-daily-evolutions .pc-evo-tools{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+#pc-daily-evolutions .pc-evo-tools>label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700;color:#345a78}
+#pc-daily-evolutions #pc-evo-date{min-height:39px;padding:7px 10px;border:1px solid #b9d1e3;border-radius:9px;background:#fff;color:#183e5f;font:inherit}
+#pc-daily-evolutions .pc-evo-actions{display:flex;gap:6px;flex-wrap:wrap}
+#pc-daily-evolutions .pc-evo-btn{border:1px solid #cbdce9;border-radius:9px;padding:9px 12px;min-height:38px;background:#fff;color:#24516e;font:600 12px/1.2 inherit;cursor:pointer;transition:background .15s}
+#pc-daily-evolutions .pc-evo-btn:hover{background:#eff6fc}
+#pc-daily-evolutions .pc-evo-btn:disabled{opacity:.48;cursor:not-allowed}
+#pc-daily-evolutions .pc-evo-btn[hidden]{display:none!important}
+#pc-daily-evolutions .pc-evo-save{background:#e8f3fd;border-color:#a8cbe7;color:#14517f}
+#pc-daily-evolutions .pc-evo-release{background:#e9f7ef;border-color:#a4d9b7;color:#17633a}
+#pc-daily-evolutions .pc-evo-reopen{background:#fff4de;border-color:#ecd2a0;color:#8a5d0b}
+#pc-daily-evolutions .pc-evo-delete{color:#a22f3a;border-color:#eacbd0}
+#pc-daily-evolutions .pc-evo-state{font-size:12px;color:#53718b;margin:10px 0 8px;min-height:18px}
+#pc-daily-evolutions #pc-evo-text{width:100%;box-sizing:border-box;height:230px;min-height:90px;max-height:none;resize:vertical;overflow:auto;border:1px solid #bfd4e5;border-radius:12px;padding:13px 14px;font:14px/1.55 system-ui,-apple-system,Segoe UI,sans-serif;background:#fff;color:#22384a;display:block}
+#pc-daily-evolutions #pc-evo-text:disabled{background:#f3f8fb;color:#526477;opacity:1}
+#pc-daily-evolutions .pc-evo-history-title{margin-top:16px;margin-bottom:9px;font-size:13px;font-weight:800;color:#193f60}
+#pc-daily-evolutions .pc-evo-history-title span{font-weight:400;font-size:11px;color:#7890a2}
+#pc-daily-evolutions .pc-evo-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto}
+#pc-daily-evolutions .pc-evo-entry{width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid #dfebf3;border-radius:9px;background:#fff;padding:10px;cursor:pointer;color:#1a405f}
+#pc-daily-evolutions .pc-evo-entry[aria-current="true"]{border-color:#5a9cc9;background:#edf7ff}
+#pc-daily-evolutions .pc-evo-date-label{font-size:13px;font-weight:750}
+#pc-daily-evolutions .pc-evo-snippet{font-size:11px;color:#6b8093;margin-top:2px;max-width:42ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#pc-daily-evolutions .pc-evo-status{font-size:11px;border-radius:999px;padding:4px 8px;background:#eef4fb;white-space:nowrap}
+#pc-daily-evolutions .pc-evo-status.released{background:#dff5e9;color:#17613b}
+#pc-daily-evolutions .pc-evo-empty{color:#8292a1;font-size:12px;padding:12px;text-align:center}
+@media(max-width:720px){#pc-daily-evolutions{padding:12px;border-radius:12px}#pc-daily-evolutions .pc-evo-tools{align-items:stretch}#pc-daily-evolutions .pc-evo-actions{width:100%}#pc-daily-evolutions .pc-evo-btn{flex:1 1 auto;padding:9px 8px}#pc-daily-evolutions #pc-evo-text{height:270px;font-size:16px}}
+@media print{#pc-daily-evolutions{display:none!important}}
+</style>
+<script id="pc-daily-evolution-controller">
+(() => {
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ const dateLocal=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
+ const toBR=iso=>{const m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:iso};
+ const nowISO=()=>new Date().toISOString();
+ const clock=iso=>iso?new Date(iso).toLocaleString('pt-BR'):'—';
+ const getPatient=()=>typeof patients==='undefined'?null:patients.find(p=>String(p.id)===String(currentPatientId));
+ const records=p=>{if(!Array.isArray(p.dailyEvolutions))p.dailyEvolutions=[];return p.dailyEvolutions};
+ const record=(p,d)=>records(p).find(e=>e.date===d);
+ let date=dateLocal(), shownPatient=null, lastTyped='', timer=null, pendingPatient=null, pendingDate=null;
+ function persist(){if(typeof saveAllPatients==='function')saveAllPatients()}
+ function flush(){if(timer){clearTimeout(timer);timer=null;persist()}pendingPatient=null;pendingDate=null}
+ function stashDraft(){
+  const p=getPatient(),input=$('pc-evo-text');if(!p||!input||shownPatient!==String(p.id))return;
+  const d=date; const current=record(p,d);
+  if(current?.status==='released')return;
+  const value=input.value;
+  if(value===lastTyped)return;
+  lastTyped=value;
+  if(!value.trim()&&!current)return;
+  if(current){current.text=value;current.updatedAt=nowISO();current.status='draft'}
+  else records(p).push({id:'daily-evolution:'+d,date:d,text:value,status:'draft',updatedAt:nowISO(),savedAt:null,releasedAt:null});
+  pendingPatient=p.id;pendingDate=d;
+  clearTimeout(timer);timer=setTimeout(()=>{timer=null;persist();pendingPatient=null;pendingDate=null},750);
+ }
+ function refresh(){
+  const p=getPatient(); if(!$('pc-evo-text'))return;
+  if(!p){$('pc-evo-text').value='';$('pc-evo-text').disabled=true;return}
+  shownPatient=String(p.id);
+  const e=record(p,date),released=e?.status==='released';
+  $('pc-evo-date').value=date;
+  $('pc-evo-text').value=e?.text||'';lastTyped=$('pc-evo-text').value;
+  $('pc-evo-text').disabled=!!released;
+  $('pc-evo-save').disabled=!!released;
+  $('pc-evo-release').disabled=!!released;
+  $('pc-evo-reopen').hidden=!released;
+  $('pc-evo-delete').disabled=!e;
+  $('pc-evo-state').textContent=released?`Evolução liberada em ${clock(e.releasedAt)}. Para editar, selecione Reabrir.`:e?`Rascunho • ${e.savedAt?'Salvo em '+clock(e.savedAt):'Salvamento automático ativo'}`:'Evolução ainda não registrada para este dia.';
+  const list=$('pc-evo-history-list');list.replaceChildren();
+  const all=[...records(p)].filter(x=>x.date).sort((a,b)=>b.date.localeCompare(a.date));
+  $('pc-evo-count').textContent=all.length+' '+(all.length===1?'registro':'registros');
+  if(!all.length){const empty=document.createElement('div');empty.className='pc-evo-empty';empty.textContent='Nenhuma evolução diária salva.';list.appendChild(empty)}
+  all.forEach(item=>{
+   const btn=document.createElement('button');btn.type='button';btn.className='pc-evo-entry';btn.setAttribute('aria-current',String(item.date===date));
+   const body=document.createElement('div'),header=document.createElement('div'),summary=document.createElement('div'),tag=document.createElement('span');
+   header.className='pc-evo-date-label';header.textContent=toBR(item.date);summary.className='pc-evo-snippet';summary.textContent=(item.text||'').replace(/\s+/g,' ').trim()||'Sem texto';
+   tag.className='pc-evo-status'+(item.status==='released'?' released':'');tag.textContent=item.status==='released'?'Liberada':'Rascunho';
+   body.append(header,summary);btn.append(body,tag);
+   btn.addEventListener('click',()=>{if(item.date===date)return;stashDraft();flush();date=item.date;refresh()});list.appendChild(btn)
+  });
+ }
+ function showPatient(id){
+  stashDraft();flush();shownPatient=String(id);
+  date=dateLocal();refresh();
+ }
+ function save(release=false){
+  const p=getPatient();if(!p||shownPatient!==String(p.id))return;
+  stashDraft();flush();
+  const value=$('pc-evo-text').value.trim();
+  if(!value){window.PedCareDialog?.alert?.('Digite a evolução do dia antes de salvar.');return}
+  let e=record(p,date);
+  if(e?.status==='released'){window.PedCareDialog?.alert?.('Esta evolução foi liberada. Use Reabrir para editá-la.');return}
+  const time=nowISO();
+  if(!e){e={id:'daily-evolution:'+date,date:date};records(p).push(e)}
+  e.text=$('pc-evo-text').value;e.updatedAt=time;e.savedAt=time;e.status=release?'released':'draft';e.releasedAt=release?time:null;
+  persist();refresh();
+ }
+ async function release(){
+  const ok=await window.PedCareDialog.confirm(`Liberar a evolução de ${toBR(date)}? Ela ficará bloqueada para edição até ser reaberta.`);
+  if(ok)save(true)
+ }
+ async function reopen(){
+  const p=getPatient(),e=p&&record(p,date);if(!e||e.status!=='released')return;
+  if(!await window.PedCareDialog.confirm('Reabrir esta evolução liberada para edição?'))return;
+  e.status='draft';e.reopenedAt=nowISO();e.updatedAt=e.reopenedAt;e.releasedAt=null;persist();refresh();
+ }
+ async function remove(){
+  const p=getPatient(),e=p&&record(p,date);if(!e)return;
+  if(!await window.PedCareDialog.confirm(`Excluir a evolução de ${toBR(date)} deste paciente? A exclusão será sincronizada.`))return;
+  p.dailyEvolutions=records(p).filter(item=>item.date!==date);persist();refresh();
+ }
+ function init(){
+  if(!$('pc-evo-date'))return;
+  $('pc-evo-date').addEventListener('change',e=>{stashDraft();flush();date=e.target.value||dateLocal();refresh()});
+  $('pc-evo-text').addEventListener('input',stashDraft);
+  $('pc-evo-save').addEventListener('click',()=>save(false));
+  $('pc-evo-release').addEventListener('click',release);
+  $('pc-evo-reopen').addEventListener('click',reopen);
+  $('pc-evo-delete').addEventListener('click',remove);
+  window.addEventListener('pagehide',()=>{stashDraft();flush()});
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){stashDraft();flush()}});
+  const p=getPatient();if(p)showPatient(p.id);else refresh();
+ }
+ window.PedCareDailyEvolutions={showPatient,flush};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+
 </body>
 </html>
 
