@@ -2039,13 +2039,13 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
               <label for="pront-history">História Clínica / Anamnese / Evolução</label>
               <div class="pc-history-controls" role="group" aria-label="Tamanho do campo História Clínica"><button type="button" id="pc-history-expand" class="pc-history-size-toggle" aria-controls="pront-history" onclick="pcSetHistorySize(true)">⤢ Ampliar</button><button type="button" id="pc-history-shrink" class="pc-history-size-toggle" aria-controls="pront-history" onclick="pcSetHistorySize(false)" disabled>⤡ Reduzir</button></div>
             </div>
-            <textarea id="pront-history" rows="4" placeholder="História da doença atual, antecedentes mórbidos, imunizações..." oninput="updateProntuarioField('clinicalHistory', this.value)"></textarea>
+            <textarea id="pront-history" rows="4" placeholder="História da doença atual, antecedentes mórbidos, imunizações..." oninput="window.PedCareClinicalHistory?.input(this.value)"></textarea>
           </div>
 
-          <!-- Evoluções diárias: registros próprios por paciente, separados da anamnese. -->
+          <!-- Histórico de versões do próprio campo História Clínica / Anamnese / Evolução. -->
           <section id="pc-daily-evolutions" class="pc-evo" aria-label="Histórico de evoluções diárias">
             <div class="pc-evo-heading">
-              <div><span class="pc-evo-eyebrow">Registro longitudinal</span><h3>Evoluções diárias</h3><p>Uma evolução por dia, preservando o histórico dos outros dias.</p></div>
+              <div><span class="pc-evo-eyebrow">Versões do campo acima</span><h3>Histórico por dia</h3><p>Salvar, liberar, reabrir ou excluir o texto da História Clínica acima, sem outra caixa de edição.</p></div>
               <span class="pc-evo-count" id="pc-evo-count">0 registros</span>
             </div>
             <div class="pc-evo-tools">
@@ -2060,7 +2060,6 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
               </div>
             </div>
             <div class="pc-evo-state" id="pc-evo-state" role="status" aria-live="polite"></div>
-            <textarea id="pc-evo-text" placeholder="Descreva a evolução do dia, avaliação, exames e condutas. O rascunho é salvo automaticamente; liberar finaliza a evolução." aria-label="Texto da evolução diária"></textarea>
             <div class="pc-evo-history-title">Histórico de evoluções <span>(da mais recente à mais antiga)</span></div>
             <div class="pc-evo-list" id="pc-evo-history-list"></div>
           </section>
@@ -3861,6 +3860,7 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
     function switchPatientTab(id) {
       const chosen = patients.find(p => String(p.id) === String(id));
       if (!chosen) return;
+      window.PedCareClinicalHistory?.flush?.();
       if (chosen.tabClosed) { chosen.tabClosed = false; saveAllPatients(); }
       if (String(currentPatientId) !== String(chosen.id)) window.PedCarePatientWindows?.beforeSwitch?.();
       currentPatientId = chosen.id;
@@ -3954,7 +3954,7 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
       document.getElementById('pront-reason').value = pat.reason || '';
       document.getElementById('pront-comorbidities').value = pat.comorbidities || '';
       document.getElementById('pront-history').value = pat.clinicalHistory || '';
-      window.PedCareDailyEvolutions?.showPatient?.(pat.id);
+      window.PedCareClinicalHistory?.showPatient?.(pat.id);
       if (typeof pcResetHistoryView === 'function') pcResetHistoryView();
       document.getElementById('pront-exames').value = pat.labExams || '';
 
@@ -8053,135 +8053,161 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </style>
 
 <style id="pc-daily-evolution-styles">
-#pc-daily-evolutions{margin:18px 0 10px;border:1px solid #d5e4f0;border-radius:16px;background:linear-gradient(180deg,#f7fbff,#fff 45%);padding:17px;box-shadow:0 6px 25px rgba(22,59,95,.045);min-width:0}
-#pc-daily-evolutions .pc-evo-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:13px}
-#pc-daily-evolutions .pc-evo-eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#507fa4;font-weight:800}
-#pc-daily-evolutions h3{margin:3px 0 4px;color:#173e63;font-size:19px;line-height:1.25}
-#pc-daily-evolutions .pc-evo-heading p{margin:0;color:#647a91;font-size:12px}
-#pc-daily-evolutions .pc-evo-count{border:1px solid #d1e1ee;border-radius:999px;padding:5px 10px;background:#eef6fd;color:#245678;font-size:11px;font-weight:700;white-space:nowrap}
-#pc-daily-evolutions .pc-evo-tools{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
-#pc-daily-evolutions .pc-evo-tools>label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700;color:#345a78}
-#pc-daily-evolutions #pc-evo-date{min-height:39px;padding:7px 10px;border:1px solid #b9d1e3;border-radius:9px;background:#fff;color:#183e5f;font:inherit}
+/* Registro de versões diretamente abaixo do editor original, sem campo extra. */
+#pc-daily-evolutions{margin:8px 0 18px;padding:12px 14px;border:1px solid #d9e7f1;border-radius:13px;background:#f7fbff;color:#173e63}
+#pc-daily-evolutions .pc-evo-heading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:9px}
+#pc-daily-evolutions .pc-evo-eyebrow{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#5582a5}
+#pc-daily-evolutions h3{margin:2px 0;color:#173e63;font-size:16px}
+#pc-daily-evolutions .pc-evo-heading p{margin:3px 0 0;font-size:12px;color:#5c7890}
+#pc-daily-evolutions .pc-evo-count{font-size:11px;color:#295c7e;background:#ebf5fc;border-radius:999px;padding:4px 9px}
+#pc-daily-evolutions .pc-evo-tools{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:8px}
+#pc-daily-evolutions .pc-evo-tools>label{display:flex;flex-direction:column;gap:4px;color:#345a78;font-weight:700;font-size:12px}
+#pc-daily-evolutions #pc-evo-date{border:1px solid #bfd1e0;border-radius:8px;padding:7px 9px;background:white;font-size:14px;color:#173e63;min-height:38px}
 #pc-daily-evolutions .pc-evo-actions{display:flex;gap:6px;flex-wrap:wrap}
-#pc-daily-evolutions .pc-evo-btn{border:1px solid #cbdce9;border-radius:9px;padding:9px 12px;min-height:38px;background:#fff;color:#24516e;font:600 12px/1.2 inherit;cursor:pointer;transition:background .15s}
-#pc-daily-evolutions .pc-evo-btn:hover{background:#eff6fc}
-#pc-daily-evolutions .pc-evo-btn:disabled{opacity:.48;cursor:not-allowed}
+#pc-daily-evolutions .pc-evo-btn{cursor:pointer;border:1px solid #c7dae7;background:white;border-radius:8px;padding:8px 11px;min-height:36px;font-size:12px;font-weight:700;color:#254761}
+#pc-daily-evolutions .pc-evo-btn:disabled{opacity:.5;cursor:not-allowed}
 #pc-daily-evolutions .pc-evo-btn[hidden]{display:none!important}
-#pc-daily-evolutions .pc-evo-save{background:#e8f3fd;border-color:#a8cbe7;color:#14517f}
-#pc-daily-evolutions .pc-evo-release{background:#e9f7ef;border-color:#a4d9b7;color:#17633a}
-#pc-daily-evolutions .pc-evo-reopen{background:#fff4de;border-color:#ecd2a0;color:#8a5d0b}
-#pc-daily-evolutions .pc-evo-delete{color:#a22f3a;border-color:#eacbd0}
-#pc-daily-evolutions .pc-evo-state{font-size:12px;color:#53718b;margin:10px 0 8px;min-height:18px}
-#pc-daily-evolutions #pc-evo-text{width:100%;box-sizing:border-box;height:230px;min-height:90px;max-height:none;resize:vertical;overflow:auto;border:1px solid #bfd4e5;border-radius:12px;padding:13px 14px;font:14px/1.55 system-ui,-apple-system,Segoe UI,sans-serif;background:#fff;color:#22384a;display:block}
-#pc-daily-evolutions #pc-evo-text:disabled{background:#f3f8fb;color:#526477;opacity:1}
-#pc-daily-evolutions .pc-evo-history-title{margin-top:16px;margin-bottom:9px;font-size:13px;font-weight:800;color:#193f60}
-#pc-daily-evolutions .pc-evo-history-title span{font-weight:400;font-size:11px;color:#7890a2}
-#pc-daily-evolutions .pc-evo-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto}
-#pc-daily-evolutions .pc-evo-entry{width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid #dfebf3;border-radius:9px;background:#fff;padding:10px;cursor:pointer;color:#1a405f}
-#pc-daily-evolutions .pc-evo-entry[aria-current="true"]{border-color:#5a9cc9;background:#edf7ff}
-#pc-daily-evolutions .pc-evo-date-label{font-size:13px;font-weight:750}
-#pc-daily-evolutions .pc-evo-snippet{font-size:11px;color:#6b8093;margin-top:2px;max-width:42ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#pc-daily-evolutions .pc-evo-status{font-size:11px;border-radius:999px;padding:4px 8px;background:#eef4fb;white-space:nowrap}
+#pc-daily-evolutions .pc-evo-save{background:#e5f2fb;color:#16527d}
+#pc-daily-evolutions .pc-evo-release{background:#e7f6ed;color:#17603d}
+#pc-daily-evolutions .pc-evo-reopen{background:#fff4df;color:#86580c}
+#pc-daily-evolutions .pc-evo-delete{color:#ac343b}
+#pc-daily-evolutions .pc-evo-state{margin:9px 0;font-size:12px;color:#456c88;min-height:18px}
+#pc-daily-evolutions .pc-evo-history-title{font-size:12px;font-weight:800;color:#1b4564;margin-bottom:7px}
+#pc-daily-evolutions .pc-evo-history-title span{font-weight:400;color:#698398}
+#pc-daily-evolutions .pc-evo-list{display:flex;flex-wrap:wrap;gap:6px;max-height:150px;overflow-y:auto}
+#pc-daily-evolutions .pc-evo-entry{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:7px;text-align:left;background:white;border:1px solid #d7e6f0;border-radius:9px;padding:7px 9px;min-width:152px;max-width:260px;flex:1 1 170px;color:#1b4564}
+#pc-daily-evolutions .pc-evo-entry[aria-current="true"]{border-color:#5298c6;background:#e9f5ff}
+#pc-daily-evolutions .pc-evo-date-label{font-size:12px;font-weight:800}
+#pc-daily-evolutions .pc-evo-snippet{font-size:11px;color:#637c90;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:175px}
+#pc-daily-evolutions .pc-evo-status{font-size:10px;color:#315878;border-radius:999px;padding:4px 6px;background:#eef4f8;white-space:nowrap}
 #pc-daily-evolutions .pc-evo-status.released{background:#dff5e9;color:#17613b}
-#pc-daily-evolutions .pc-evo-empty{color:#8292a1;font-size:12px;padding:12px;text-align:center}
-@media(max-width:720px){#pc-daily-evolutions{padding:12px;border-radius:12px}#pc-daily-evolutions .pc-evo-tools{align-items:stretch}#pc-daily-evolutions .pc-evo-actions{width:100%}#pc-daily-evolutions .pc-evo-btn{flex:1 1 auto;padding:9px 8px}#pc-daily-evolutions #pc-evo-text{height:270px;font-size:16px}}
+#pc-daily-evolutions .pc-evo-empty{font-size:12px;color:#728b9f;padding:6px}
+#pront-history:disabled{background:#f3f8fb!important;color:#445c72!important;opacity:1!important;cursor:default}
+@media(max-width:720px){#pc-daily-evolutions{padding:10px}#pc-daily-evolutions .pc-evo-actions{width:100%}#pc-daily-evolutions .pc-evo-btn{flex:1 1 auto}}
 @media print{#pc-daily-evolutions{display:none!important}}
 </style>
 <script id="pc-daily-evolution-controller">
 (() => {
  'use strict';
  const $=id=>document.getElementById(id);
- const dateLocal=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
+ const today=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
  const toBR=iso=>{const m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:iso};
- const nowISO=()=>new Date().toISOString();
- const clock=iso=>iso?new Date(iso).toLocaleString('pt-BR'):'—';
- const getPatient=()=>typeof patients==='undefined'?null:patients.find(p=>String(p.id)===String(currentPatientId));
- const records=p=>{if(!Array.isArray(p.dailyEvolutions))p.dailyEvolutions=[];return p.dailyEvolutions};
- const record=(p,d)=>records(p).find(e=>e.date===d);
- let date=dateLocal(), shownPatient=null, lastTyped='', timer=null, pendingPatient=null, pendingDate=null;
- function persist(){if(typeof saveAllPatients==='function')saveAllPatients()}
- function flush(){if(timer){clearTimeout(timer);timer=null;persist()}pendingPatient=null;pendingDate=null}
- function stashDraft(){
-  const p=getPatient(),input=$('pc-evo-text');if(!p||!input||shownPatient!==String(p.id))return;
-  const d=date; const current=record(p,d);
-  if(current?.status==='released')return;
-  const value=input.value;
-  if(value===lastTyped)return;
-  lastTyped=value;
-  if(!value.trim()&&!current)return;
-  if(current){current.text=value;current.updatedAt=nowISO();current.status='draft'}
-  else records(p).push({id:'daily-evolution:'+d,date:d,text:value,status:'draft',updatedAt:nowISO(),savedAt:null,releasedAt:null});
-  pendingPatient=p.id;pendingDate=d;
-  clearTimeout(timer);timer=setTimeout(()=>{timer=null;persist();pendingPatient=null;pendingDate=null},750);
+ const timestamp=()=>new Date().toISOString();
+ const timeText=iso=>iso?new Date(iso).toLocaleString('pt-BR'):'—';
+ const patientById=id=>typeof patients==='undefined'?null:patients.find(p=>String(p.id)===String(id));
+ const currentPatient=()=>typeof currentPatientId==='undefined'?null:patientById(currentPatientId);
+ const list=p=>{if(!Array.isArray(p.dailyEvolutions))p.dailyEvolutions=[];return p.dailyEvolutions};
+ const find=(p,d)=>list(p).find(x=>x.date===d);
+ let day=today(),shownId=null,lastContent='',saveTimer=null;
+ const write=()=>{if(typeof saveAllPatients==='function')saveAllPatients()};
+ const defer=()=>{clearTimeout(saveTimer);saveTimer=setTimeout(()=>{saveTimer=null;write()},550)};
+ const flush=()=>{if(saveTimer){clearTimeout(saveTimer);saveTimer=null;write()}};
+ // Keep legacy print and existing integrations based on clinicalHistory using latest record.
+ function updateLegacyMirror(p){const latest=[...list(p)].filter(x=>x.date&&typeof x.text==='string').sort((a,b)=>b.date.localeCompare(a.date))[0];if(latest)p.clinicalHistory=latest.text;else p.clinicalHistory=''}
+ function migrateLegacy(p){
+  const items=list(p);
+  if(items.length||!String(p.clinicalHistory||'').trim())return;
+  // Preserve existing written clinical history exactly once; never erase on upgrade.
+  const d=today(),v=String(p.clinicalHistory);
+  items.push({id:'daily-evolution:'+d,date:d,text:v,status:'draft',updatedAt:timestamp(),savedAt:null,releasedAt:null,legacyImported:true});
+  defer();
+ }
+ function updateRecord(value){
+  const p=patientById(shownId);
+  if(!p||!day)return;
+  const old=find(p,day);
+  if(old?.status==='released')return;
+  if(!old && !value.trim()){lastContent=value;return}
+  const when=timestamp();
+  if(old){old.text=value;old.updatedAt=when;old.status='draft'}
+  else list(p).push({id:'daily-evolution:'+day,date:day,text:value,status:'draft',updatedAt:when,savedAt:null,releasedAt:null});
+  lastContent=value;
+  updateLegacyMirror(p);
+  defer();
+ }
+ function readField(){
+  const area=$('pront-history');if(!area||!shownId)return;
+  if(currentPatient()&&String(currentPatientId)!==shownId)return;
+  if(area.value!==lastContent)updateRecord(area.value);
  }
  function refresh(){
-  const p=getPatient(); if(!$('pc-evo-text'))return;
-  if(!p){$('pc-evo-text').value='';$('pc-evo-text').disabled=true;return}
-  shownPatient=String(p.id);
-  const e=record(p,date),released=e?.status==='released';
-  $('pc-evo-date').value=date;
-  $('pc-evo-text').value=e?.text||'';lastTyped=$('pc-evo-text').value;
-  $('pc-evo-text').disabled=!!released;
+  const p=patientById(shownId),area=$('pront-history'),history=$('pc-evo-history-list');
+  if(!area||!history)return;
+  if(!p){area.value='';area.disabled=true;history.replaceChildren();return}
+  const rec=find(p,day),released=rec?.status==='released';
+  $('pc-evo-date').value=day;
+  area.value=rec?.text||'';lastContent=area.value;area.disabled=!!released;
   $('pc-evo-save').disabled=!!released;
   $('pc-evo-release').disabled=!!released;
   $('pc-evo-reopen').hidden=!released;
-  $('pc-evo-delete').disabled=!e;
-  $('pc-evo-state').textContent=released?`Evolução liberada em ${clock(e.releasedAt)}. Para editar, selecione Reabrir.`:e?`Rascunho • ${e.savedAt?'Salvo em '+clock(e.savedAt):'Salvamento automático ativo'}`:'Evolução ainda não registrada para este dia.';
-  const list=$('pc-evo-history-list');list.replaceChildren();
-  const all=[...records(p)].filter(x=>x.date).sort((a,b)=>b.date.localeCompare(a.date));
-  $('pc-evo-count').textContent=all.length+' '+(all.length===1?'registro':'registros');
-  if(!all.length){const empty=document.createElement('div');empty.className='pc-evo-empty';empty.textContent='Nenhuma evolução diária salva.';list.appendChild(empty)}
-  all.forEach(item=>{
-   const btn=document.createElement('button');btn.type='button';btn.className='pc-evo-entry';btn.setAttribute('aria-current',String(item.date===date));
-   const body=document.createElement('div'),header=document.createElement('div'),summary=document.createElement('div'),tag=document.createElement('span');
-   header.className='pc-evo-date-label';header.textContent=toBR(item.date);summary.className='pc-evo-snippet';summary.textContent=(item.text||'').replace(/\s+/g,' ').trim()||'Sem texto';
-   tag.className='pc-evo-status'+(item.status==='released'?' released':'');tag.textContent=item.status==='released'?'Liberada':'Rascunho';
-   body.append(header,summary);btn.append(body,tag);
-   btn.addEventListener('click',()=>{if(item.date===date)return;stashDraft();flush();date=item.date;refresh()});list.appendChild(btn)
-  });
+  $('pc-evo-delete').disabled=!rec;
+  $('pc-evo-state').textContent=released?`Evolução liberada em ${timeText(rec.releasedAt)}. Reabra para editar.`:rec?(rec.savedAt?`Rascunho salvo em ${timeText(rec.savedAt)}.`:'Rascunho com salvamento automático.'):'Sem registro nesta data. Escreva na caixa de História Clínica acima.';
+  history.replaceChildren();
+  const all=[...list(p)].filter(x=>x.date).sort((a,b)=>b.date.localeCompare(a.date));
+  $('pc-evo-count').textContent=`${all.length} ${all.length===1?'dia salvo':'dias salvos'}`;
+  if(!all.length){const e=document.createElement('span');e.className='pc-evo-empty';e.textContent='Nenhuma versão salva.';history.append(e)}
+  for(const item of all){
+   const b=document.createElement('button');b.type='button';b.className='pc-evo-entry';b.setAttribute('aria-current',String(item.date===day));
+   const body=document.createElement('div'),hdr=document.createElement('div'),preview=document.createElement('div'),status=document.createElement('span');
+   hdr.className='pc-evo-date-label';hdr.textContent=toBR(item.date);
+   preview.className='pc-evo-snippet';preview.textContent=String(item.text||'').replace(/\s+/g,' ').trim()||'Sem texto';
+   status.className='pc-evo-status'+(item.status==='released'?' released':'');status.textContent=item.status==='released'?'Liberada':'Rascunho';
+   body.append(hdr,preview);b.append(body,status);
+   b.addEventListener('click',()=>{if(item.date===day)return;readField();flush();day=item.date;refresh()});history.append(b);
+  }
  }
  function showPatient(id){
-  stashDraft();flush();shownPatient=String(id);
-  date=dateLocal();refresh();
+  // Input changes are committed immediately to the correct patient (no DOM migration across patients).
+  flush();shownId=String(id);day=today();const p=patientById(shownId);if(p)migrateLegacy(p);refresh();
  }
- function save(release=false){
-  const p=getPatient();if(!p||shownPatient!==String(p.id))return;
-  stashDraft();flush();
-  const value=$('pc-evo-text').value.trim();
-  if(!value){window.PedCareDialog?.alert?.('Digite a evolução do dia antes de salvar.');return}
-  let e=record(p,date);
-  if(e?.status==='released'){window.PedCareDialog?.alert?.('Esta evolução foi liberada. Use Reabrir para editá-la.');return}
-  const time=nowISO();
-  if(!e){e={id:'daily-evolution:'+date,date:date};records(p).push(e)}
-  e.text=$('pc-evo-text').value;e.updatedAt=time;e.savedAt=time;e.status=release?'released':'draft';e.releasedAt=release?time:null;
-  persist();refresh();
+ function input(value){
+  if(!shownId||!currentPatient()||String(currentPatientId)!==shownId)return;
+  const p=patientById(shownId);if(find(p,day)?.status==='released')return;
+  updateRecord(value);
+  const rec=find(p,day);$('pc-evo-delete').disabled=!rec;
+  $('pc-evo-state').textContent='Rascunho • salvamento automático ativo';
+ }
+ function save(release){
+  const p=patientById(shownId),area=$('pront-history');
+  if(!p||!area||String(currentPatientId)!==shownId)return;
+  if(find(p,day)?.status==='released'){window.PedCareDialog?.alert?.('Esta versão está liberada. Reabra para editar.');return}
+  const value=area.value;
+  if(!value.trim()){window.PedCareDialog?.alert?.('Escreva na História Clínica antes de salvar.');return}
+  updateRecord(value);
+  const rec=find(p,day);if(!rec)return;
+  const when=timestamp();rec.text=value;rec.savedAt=when;rec.updatedAt=when;rec.status=release?'released':'draft';rec.releasedAt=release?when:null;
+  updateLegacyMirror(p);flush();write();refresh();
  }
  async function release(){
-  const ok=await window.PedCareDialog.confirm(`Liberar a evolução de ${toBR(date)}? Ela ficará bloqueada para edição até ser reaberta.`);
-  if(ok)save(true)
+  const pid=shownId,d=day;
+  const ok=await window.PedCareDialog.confirm(`Liberar a evolução de ${toBR(d)}? Ela ficará bloqueada até ser reaberta.`);
+  if(ok&&shownId===pid&&day===d)save(true)
  }
  async function reopen(){
-  const p=getPatient(),e=p&&record(p,date);if(!e||e.status!=='released')return;
-  if(!await window.PedCareDialog.confirm('Reabrir esta evolução liberada para edição?'))return;
-  e.status='draft';e.reopenedAt=nowISO();e.updatedAt=e.reopenedAt;e.releasedAt=null;persist();refresh();
+  const pid=shownId,d=day,p=patientById(pid),e=p&&find(p,d);if(!e||e.status!=='released')return;
+  if(!await window.PedCareDialog.confirm('Reabrir esta versão para edição?'))return;
+  if(shownId!==pid||day!==d)return;
+  e.status='draft';e.reopenedAt=timestamp();e.updatedAt=e.reopenedAt;e.releasedAt=null;write();refresh();
  }
  async function remove(){
-  const p=getPatient(),e=p&&record(p,date);if(!e)return;
-  if(!await window.PedCareDialog.confirm(`Excluir a evolução de ${toBR(date)} deste paciente? A exclusão será sincronizada.`))return;
-  p.dailyEvolutions=records(p).filter(item=>item.date!==date);persist();refresh();
+  const pid=shownId,d=day,p=patientById(pid),e=p&&find(p,d);if(!e)return;
+  if(!await window.PedCareDialog.confirm(`Excluir a evolução de ${toBR(d)}?`))return;
+  if(shownId!==pid||day!==d)return;
+  p.dailyEvolutions=list(p).filter(x=>x.date!==d);updateLegacyMirror(p);write();refresh();
  }
  function init(){
-  if(!$('pc-evo-date'))return;
-  $('pc-evo-date').addEventListener('change',e=>{stashDraft();flush();date=e.target.value||dateLocal();refresh()});
-  $('pc-evo-text').addEventListener('input',stashDraft);
+  if(!$('pc-evo-date')||!$('pront-history'))return;
+  $('pc-evo-date').addEventListener('change',e=>{readField();flush();day=e.target.value||today();refresh()});
   $('pc-evo-save').addEventListener('click',()=>save(false));
   $('pc-evo-release').addEventListener('click',release);
   $('pc-evo-reopen').addEventListener('click',reopen);
   $('pc-evo-delete').addEventListener('click',remove);
-  window.addEventListener('pagehide',()=>{stashDraft();flush()});
-  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){stashDraft();flush()}});
-  const p=getPatient();if(p)showPatient(p.id);else refresh();
+  window.addEventListener('pagehide',()=>{readField();flush()});
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){readField();flush()}});
+  const p=currentPatient();if(p)showPatient(p.id);else refresh();
  }
+ window.PedCareClinicalHistory={showPatient,input,flush};
+ // Compatibility for other integrations calling this API.
  window.PedCareDailyEvolutions={showPatient,flush};
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
