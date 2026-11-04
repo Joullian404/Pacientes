@@ -3573,7 +3573,8 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
     }
     function pcRecordConflict(path,local,remote){
       pcSyncConflicts.push({field:path,local:pcClone(local),remote:pcClone(remote),at:new Date().toISOString()});
-      // Os valores conflitantes permanecem exportáveis, sem impedir novos salvamentos.
+      // Os valores conflitantes permanecem exportáveis para revisão manual.
+      // Não afirmar que o dado divergente foi automaticamente resolvido.
     }
     function pcSaveConflicts(){
       if(!pcSyncConflicts.length)return;
@@ -3623,10 +3624,10 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
         }
         return result;
       }
-      // Não descartar silenciosamente uma evolução ou programação concorrente.
-      // Mantém a edição local em tela e guarda a alternativa remota para revisão.
+      // Nunca sobrescrever silenciosamente a versão remota com edição concorrente.
+      // Manter a versão local em cópia de recuperação para reconciliação manual.
       pcRecordConflict(path,ours,theirs);
-      return pcClone(ours);
+      return pcClone(theirs);
     }
     function pcMergePayload(base,ours,theirs){
       const b=pcObj(base)?base:{}, a=pcObj(ours)?ours:{}, c=pcObj(theirs)?theirs:{};
@@ -3689,10 +3690,17 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
         if(generation!==pcSyncGeneration||!pcGistValid(token,gistId))return;
         const local=pcCurrentPayload();
         const base=pcReadBase();
-        const merged=pcMergePayload(base,local,remote);
-        // Guardar cópia da nuvem e dos dados locais se não houver base anterior.
-        // Não apagar informações locais ao iniciar uma sessão noutro dispositivo.
-        const needsPush=!pcEq(merged.patients,remote.patients)||!pcEq(merged.obsidianData,remote.obsidianData);
+        // Sem ancestral comum, não é possível afirmar que a cópia local é mais nova.
+        // Priorizar o Gist e guardar o estado local divergente para recuperação manual.
+        const noBase=!base || !Array.isArray(base.patients);
+        if(noBase && !pcEq(local.patients,remote.patients)){
+          pcRecordConflict('bootstrap.patients',local.patients,remote.patients);
+        }
+        if(noBase && !pcEq(local.obsidianData,remote.obsidianData)){
+          pcRecordConflict('bootstrap.obsidianData',local.obsidianData,remote.obsidianData);
+        }
+        const merged=noBase ? pcClone(remote) : pcMergePayload(base,local,remote);
+        const needsPush=!noBase && (!pcEq(merged.patients,remote.patients)||!pcEq(merged.obsidianData,remote.obsidianData));
         pcWriteBase(remote);
         if(!pcEq(local.patients,merged.patients)||!pcEq(local.obsidianData,merged.obsidianData))pcInstallMerged(merged);
         pcSyncDirty=pcSyncDirty||needsPush;
@@ -3721,6 +3729,12 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
         if(!pcGistValid(token,gistId))return;
         const local=pcCurrentPayload();
         const base=pcSyncBase||pcReadBase();
+        if(!base || !Array.isArray(base.patients)){
+          // Falta ancestral remoto confiável: nunca fazer PATCH deste dispositivo.
+          // Reconciliar no download inicial e guardar eventuais diferenças.
+          pcSyncNeedsRetry=true;
+          throw Error('Sincronização bloqueada: primeiro é necessário recuperar o estado atual do Gist.');
+        }
         const merged=pcMergePayload(base,local,remote);
         // Não sobrescrever com dados anteriores à última sincronização.
         const response=await fetch('https://api.github.com/gists/'+encodeURIComponent(gistId),{
@@ -3731,9 +3745,12 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
         if(!pcGistValid(token,gistId))return;
         // Dados alterados enquanto a requisição estava em curso não são perdidos.
         const after=pcCurrentPayload();
-        const combined=pcMergePayload(local,after,merged);
+        // Edições efetuadas enquanto o PATCH estava em curso NÃO podem ser
+        // substituídas pela cópia enviada segundos antes.
+        const editedDuringUpload=pcSyncRevision!==revisionAtStart;
+        const combined=editedDuringUpload ? after : pcMergePayload(local,after,merged);
         pcWriteBase(merged);
-        if(!pcEq(after.patients,combined.patients)||!pcEq(after.obsidianData,combined.obsidianData))pcInstallMerged(combined);
+        if(!editedDuringUpload && (!pcEq(after.patients,combined.patients)||!pcEq(after.obsidianData,combined.obsidianData)))pcInstallMerged(combined);
         pcSyncDirty=!pcEq(combined.patients,merged.patients)||!pcEq(combined.obsidianData,merged.obsidianData)||pcSyncRevision!==revisionAtStart;
         if(pcSyncConflicts.length)pcSaveConflicts();
         else updateCloudStatus('connected',pcSyncDirty?'☁️ Novas alterações aguardando envio':'☁️ GitHub sincronizado ✓');
@@ -3878,9 +3895,18 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
       }, 50);
     }
 
-    function closePatientTab(id) {
+    async function closePatientTab(id) {
       const chosen = patients.find(p => String(p.id) === String(id));
       if (!chosen) return;
+      window.PedCareClinicalHistory?.flush?.();
+      const pending = window.PedCareEvolutionWarnings?.draftsForPatient?.(chosen) || [];
+      if (pending.length) {
+        const dates = pending.slice(0, 4).map(item => window.PedCareEvolutionWarnings.formatDate(item.date)).join(', ');
+        const extra = pending.length > 4 ? ` e mais ${pending.length - 4}` : '';
+        const question = `Atenção: ${chosen.name || 'este paciente'} possui ${pending.length} evolução(ões) ainda não liberada(s) (${dates}${extra}).\n\nVocê pode voltar à Ficha Clínica para LIBERAR ou continuar fechando apenas a aba. Os rascunhos não serão excluídos.\n\nFechar a aba mesmo assim?`;
+        const ok = window.PedCareDialog?.confirm ? await window.PedCareDialog.confirm(question) : window.confirm(question);
+        if (!ok) return;
+      }
       chosen.tabClosed = true;
       // Fechar a aba apenas oculta o paciente; todos os seus dados permanecem salvos.
       saveAllPatients();
@@ -5368,7 +5394,8 @@ function dailyChecklist(p){
    if(p.dailyChecklist.date)p.dailyChecklistHistory.push({date:p.dailyChecklist.date,checked:{...(p.dailyChecklist.checked||{})}});
    p.dailyChecklistHistory=p.dailyChecklistHistory.slice(-120);
    p.dailyChecklist={date:today(),checked:{}};
-   safeSave();
+   // Virada do dia e leitura de badges NÃO devem publicar o banco inteiro.
+   // A mudança será persistida apenas com uma alteração explícita do usuário.
  }
  p.dailyChecklist.checked??={};
  return p.dailyChecklist.checked;
@@ -5683,6 +5710,26 @@ function beforeLogout(){
      <div class="pc-exit-patients">${cards||'<p>Nenhum paciente ativo cadastrado.</p>'}</div>
      <div class="pc-exit-caution">Ao sair, os dados locais e as credenciais de sincronização serão apagados <strong>deste navegador</strong>. Os registros armazenados no GitHub não serão excluídos.</div>
      <div class="pc-exit-actions"><button type="button" id="pc-exit-back">Voltar e revisar</button><button type="button" id="pc-exit-anyway">Sair mesmo e apagar dados deste aparelho</button></div>`;
+   // Alertar sobre evoluções em rascunho sem bloquear a opção explícita de sair.
+   window.PedCareClinicalHistory?.flush?.();
+   const unresolved = (window.PedCareEvolutionWarnings?.allDrafts?.() || []);
+   if (unresolved.length) {
+     const warning = document.createElement('section');
+     warning.className='pc-exit-evolution-warning';
+     const title=document.createElement('strong');
+     title.textContent=`⚠ ${unresolved.length} evolução(ões) ainda não liberada(s)`;
+     const desc=document.createElement('p');
+     desc.textContent='Confira a liberação das evoluções antes de encerrar a sessão. Você pode voltar e liberar cada registro ou sair mesmo assim; as versões em rascunho não são automaticamente liberadas.';
+     const list=document.createElement('ul');
+     for(const item of unresolved.slice(0,30)){
+       const li=document.createElement('li');
+       li.textContent=`${item.patientName}${item.bed?' · Leito '+item.bed:''} — ${window.PedCareEvolutionWarnings.formatDate(item.date)}`;
+       list.append(li);
+     }
+     if(unresolved.length>30){const li=document.createElement('li');li.textContent=`... e mais ${unresolved.length-30} registro(s)`;list.append(li)}
+     warning.append(title,desc,list);
+     host.querySelector('.pc-exit-status')?.after(warning);
+   }
    el('pc-exit-back').onclick=()=>el('pc-overlay')?.remove();
    el('pc-exit-anyway').onclick=performPedCareExit;
  },'modal');
@@ -8213,6 +8260,39 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 
+
+<style id="pc-evolution-exit-reminders-style">
+.pc-exit-evolution-warning{background:#fff8eb;border:1px solid #eac889;border-radius:12px;padding:12px 14px;color:#75501a;margin:12px 0}
+.pc-exit-evolution-warning strong{font-size:13px}
+.pc-exit-evolution-warning p{font-size:12px;line-height:1.5;margin:6px 0}
+.pc-exit-evolution-warning ul{font-size:12px;max-height:145px;overflow:auto;padding-left:19px;margin:5px 0 0}
+.pc-exit-evolution-warning li{margin:3px 0}
+</style>
+<script id="pc-evolution-exit-reminders">
+(() => {
+  'use strict';
+  const isSignedOut=()=>{try{return localStorage.getItem('pedcare_signed_out')==='1'}catch(_){return false}};
+  const fmt=iso=>{const m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:String(iso||'sem data')};
+  function draftsForPatient(patient){
+    if(!patient||!Array.isArray(patient.dailyEvolutions))return [];
+    return patient.dailyEvolutions.filter(item=>item && item.status!=='released' && typeof item.text==='string' && item.text.trim().length>0);
+  }
+  function allDrafts(){
+    if(typeof patients==='undefined'||!Array.isArray(patients))return [];
+    return patients.flatMap(p=>draftsForPatient(p).map(item=>({patientId:p.id,patientName:p.name||'Paciente sem nome',bed:p.bed||'',date:item.date||''})));
+  }
+  window.PedCareEvolutionWarnings={draftsForPatient,allDrafts,formatDate:fmt};
+  // Os navegadores só permitem a caixa nativa genérica ao fechar/recarregar a aba.
+  // Nunca apagar credenciais ou dados automaticamente no beforeunload.
+  window.addEventListener('beforeunload',event=>{
+    if(isSignedOut())return;
+    window.PedCareClinicalHistory?.flush?.();
+    if(!allDrafts().length)return;
+    event.preventDefault();
+    event.returnValue='';
+  });
+})();
+</script>
 </body>
 </html>
 
