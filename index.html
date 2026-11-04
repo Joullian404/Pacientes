@@ -1417,6 +1417,66 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
 .pc-handoff-overlay #pc-content [data-hfield="time"]{background:#f2f6fb;color:#526b7e}
 @media(max-width:650px){.pc-handoff-overlay #pc-content .pc-hand-actions{gap:5px;padding:7px}.pc-handoff-overlay #pc-content .pc-hand-actions button{padding:8px;font-size:11px;flex:1 1 auto}}
 </style>
+<style id="pc-exit-layout-fix-v1">
+/* PedCare: saída centralizada com topo integrado, sem moldura clara externa. */
+.pc-overlay:has(.pc-exit-content){
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  padding:clamp(10px,3vw,24px)!important;
+  background:rgba(9,24,42,.72)!important;
+  backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+}
+.pc-overlay:has(.pc-exit-content)>.pc-dialog{
+  width:min(760px,100%)!important;max-width:760px!important;
+  max-height:min(92dvh,940px)!important;height:auto!important;
+  margin:auto!important;padding:0!important;overflow:hidden!important;
+  display:flex!important;flex-direction:column!important;
+  border:1px solid rgba(119,153,180,.28)!important;
+  border-radius:18px!important;background:#f9fbfe!important;
+  box-shadow:0 28px 85px rgba(8,27,49,.38)!important;
+  animation:pcExitPanelEnter .26s cubic-bezier(.2,.8,.2,1) both!important;
+}
+@keyframes pcExitPanelEnter{
+  from{opacity:0;transform:translateY(24px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.pc-overlay:has(.pc-exit-content)>.pc-dialog>.pc-row:first-child{
+  position:relative!important;top:auto!important;margin:0!important;
+  padding:12px 16px!important;flex:none!important;
+  min-height:58px!important;border:0!important;border-radius:0!important;
+  background:linear-gradient(112deg,#155e82,#228dac)!important;
+  color:#fff!important;box-shadow:none!important;
+}
+.pc-overlay:has(.pc-exit-content)>.pc-dialog>.pc-row:first-child h2{
+  color:#fff!important;font-size:15px!important;font-weight:750!important;
+}
+.pc-overlay:has(.pc-exit-content)>.pc-dialog #pc-content{
+  min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain;
+  padding:16px 20px 20px!important;background:#f9fbfe!important;
+}
+.pc-overlay:has(.pc-exit-content) .pc-exit-content{gap:12px}
+.pc-overlay:has(.pc-exit-content) .pc-exit-patients{max-height:min(42dvh,420px)}
+.pc-overlay:has(.pc-exit-content) .pc-exit-actions{
+  position:sticky;bottom:-20px;z-index:2;justify-content:flex-end;
+  background:#f9fbfe;padding:11px 0 2px;border-top:1px solid #e4edf5;
+}
+@media(max-width:600px){
+  .pc-overlay:has(.pc-exit-content)>.pc-dialog{max-height:calc(100dvh - 20px)!important;width:100%!important}
+  .pc-overlay:has(.pc-exit-content)>.pc-dialog #pc-content{padding:12px 13px 15px!important}
+  .pc-overlay:has(.pc-exit-content) .pc-exit-actions{bottom:-15px}
+  .pc-overlay:has(.pc-exit-content) .pc-exit-actions button{width:100%}
+}
+@media(prefers-reduced-motion:reduce){.pc-overlay:has(.pc-exit-content)>.pc-dialog{animation:none!important}}
+/* Diálogo de sincronização continua centralizado independentemente das janelas flutuantes. */
+#modal-github.modal-backdrop{inset:0!important;width:100vw!important;height:100dvh!important;
+  justify-content:center!important;align-items:center!important;padding:16px!important}
+#modal-github .modal-box{position:relative!important;margin:auto!important;
+  width:min(460px,100%)!important;max-height:calc(100dvh - 32px);overflow-y:auto}
+#modal-github .pc-gh-backup-advanced{margin-top:14px;padding:10px 12px;border-radius:10px;
+  background:#f3f7fb;border:1px solid #dce7f0;font-size:12px;color:#43556a}
+#modal-github .pc-gh-backup-advanced summary{cursor:pointer;font-weight:650}
+#modal-github #pc-sync-export-backup{display:block;margin:10px 0 0;padding:9px 12px;
+  border-radius:9px;background:#e8f1fa;color:#15456b;border:1px solid #bad5ea;cursor:pointer}
+</style>
 </head>
 <body>
 
@@ -3451,9 +3511,20 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
       let backupBtn=document.getElementById('pc-sync-export-backup');
       if(!backupBtn){
         const section=document.getElementById('modal-github');
-        if(section){backupBtn=document.createElement('button');backupBtn.id='pc-sync-export-backup';backupBtn.type='button';backupBtn.textContent='⬇ Exportar cópia local de segurança';
-          backupBtn.style.cssText='display:block;margin:12px auto;padding:9px 14px;border-radius:9px;background:#e8f1fa;color:#15456b;border:1px solid #bad5ea;cursor:pointer';
-          backupBtn.onclick=()=>window.PedCareSyncRecovery?.download();section.appendChild(backupBtn);}
+        if(section){
+          // A exportação continua disponível, mas não como botão solto no modal.
+          const card=document.createElement('details');
+          card.className='pc-gh-backup-advanced';
+          const summary=document.createElement('summary');
+          summary.textContent='Opções avançadas de recuperação';
+          backupBtn=document.createElement('button');
+          backupBtn.id='pc-sync-export-backup';
+          backupBtn.type='button';
+          backupBtn.textContent='Exportar cópia de segurança deste navegador';
+          backupBtn.onclick=()=>window.PedCareSyncRecovery?.download();
+          card.append(summary,backupBtn);
+          section.querySelector('.modal-box')?.appendChild(card);
+        }
       }
       const token = localStorage.getItem(GH_TOKEN_KEY);
       const gistId = localStorage.getItem(GH_GIST_KEY);
@@ -5387,24 +5458,44 @@ function customDailyQuestions(){
 function allDailyQuestions(){
  return [...dailyQuestions,...customDailyQuestions().map(q=>[q.id,q.text])];
 }
-function dailyChecklist(p){
- if(!p.dailyChecklist || typeof p.dailyChecklist!=='object')p.dailyChecklist={date:today(),checked:{}};
- if(p.dailyChecklist.date!==today()){
-   p.dailyChecklistHistory??=[];
-   if(p.dailyChecklist.date)p.dailyChecklistHistory.push({date:p.dailyChecklist.date,checked:{...(p.dailyChecklist.checked||{})}});
-   p.dailyChecklistHistory=p.dailyChecklistHistory.slice(-120);
-   p.dailyChecklist={date:today(),checked:{}};
-   // Virada do dia e leitura de badges NÃO devem publicar o banco inteiro.
-   // A mudança será persistida apenas com uma alteração explícita do usuário.
+// Consultar o checklist não modifica o prontuário nem aciona sincronização.
+// A data identifica a quais marcações os checks pertencem; as perguntas são permanentes.
+// Somente uma ação explícita de marcar/desmarcar consolida o novo dia.
+function dailyChecklist(p, write=false){
+ const day=today();
+ const stored=p?.dailyChecklist;
+ if(!stored || typeof stored!=='object'){
+   if(!write)return {};
+   p.dailyChecklist={date:day,checked:{}};
+   return p.dailyChecklist.checked;
  }
- p.dailyChecklist.checked??={};
+ if(stored.date===day){
+   if(stored.checked && typeof stored.checked==='object')return stored.checked;
+   if(write){stored.checked={};return stored.checked;}
+   return {};
+ }
+ // Uma data anterior passa a ser exibida com caixas vazias, sem apagar nenhum registro.
+ if(!write)return {};
+ // Não sobrescrever uma data futura se o relógio do aparelho estiver incorreto.
+ if(typeof stored.date==='string' && stored.date>day){
+   console.warn('PedCare: relógio anterior à última revisão; alterações do checklist suspensas.');
+   return null;
+ }
+ if(!Array.isArray(p.dailyChecklistHistory))p.dailyChecklistHistory=[];
+ if(stored.date){
+   const old={date:stored.date,checked:{...(stored.checked||{})}};
+   const i=p.dailyChecklistHistory.findIndex(x=>x?.date===old.date);
+   if(i>=0)p.dailyChecklistHistory[i]=old;
+   else p.dailyChecklistHistory.push(old);
+ }
+ p.dailyChecklist={date:day,checked:{}};
  return p.dailyChecklist.checked;
 }
 function openDailyChecklist(p=pat()){
  if(!p)return window.PedCareDialog.alert('Selecione um paciente.');
- const check=dailyChecklist(p);
  overlay('Checklist diário — '+(p.name||'Paciente'),host=>{
    const paint=()=>{
+     const check=dailyChecklist(p);
      const due=program(p).filter(reminderDue);
      const questions=allDailyQuestions();
      host.innerHTML=`<p class="pc-daily-title"><strong>${esc(today().split('-').reverse().join('/'))}</strong> · Revisões diárias de ${esc(p.name||'Paciente')}. Todas as caixas voltam a ficar vazias em um novo dia; confirme os cuidados também no prontuário.</p>`+
@@ -5415,9 +5506,12 @@ function openDailyChecklist(p=pat()){
        due.map(t=>`<div class="pc-task"><span style="flex:1">${esc(t.text)} <small>${esc(pcDateBR(t.date)||'Sem data')}</small>${reminderFrom(t)?'<span class="pc-overdue"> • Lembrar desde '+esc(reminderFrom(t).split('-').reverse().join('/'))+'</span>':''}</span></div>`).join('')+
        `<div class="pc-row"><button id="pc-daily-programs">Editar programações</button><button id="pc-daily-close" class="pc-primary">Concluir revisão</button></div>`;
      host.querySelectorAll('[data-daily]').forEach(input=>input.addEventListener('change',()=>{
-       check[input.dataset.daily]=input.checked;safeSave();updatePendingBadge();
+       const current=dailyChecklist(p,true);
+       if(!current){input.checked=false;return;}
+       current[input.dataset.daily]=input.checked;
+       safeSave();updatePendingBadge();
        const counter=host.querySelector('.pc-daily-sectionhead span');
-       if(counter)counter.textContent=`${questions.filter(([key])=>!!check[key]).length} de ${questions.length} concluídas`;
+       if(counter)counter.textContent=`${questions.filter(([key])=>!!current[key]).length} de ${questions.length} concluídas`;
      }));
      const add=()=>{
        const input=el('pc-add-daily-input');
@@ -5636,7 +5730,7 @@ function showDaily(force=false){
        const details=document.createElement('details');details.className='pc-review-patient';
        details.open=done<questions.length;
        details.innerHTML=`<summary><span>${esc(p.name||'Paciente')} ${p.bed?'· Leito '+esc(p.bed):''}</span><span class="pc-review-status ${done===questions.length?'complete':''}">${done}/${questions.length}</span></summary><div class="pc-review-body">${questions.map(([key,q])=>`<label class="pc-daily-question"><input type="checkbox" data-question="${esc(key)}" ${check[key]?'checked':''}><span>${esc(q)}</span></label>`).join('')}<button data-configure>Personalizar perguntas</button></div>`;
-       details.querySelectorAll('[data-question]').forEach(box=>box.onchange=()=>{check[box.dataset.question]=box.checked;safeSave();updatePendingBadge();const total=questions.filter(([key])=>check[key]).length;const chip=details.querySelector('.pc-review-status');chip.textContent=`${total}/${questions.length}`;chip.classList.toggle('complete',total===questions.length);if(total===questions.length)details.open=false;});
+       details.querySelectorAll('[data-question]').forEach(box=>box.onchange=()=>{const current=dailyChecklist(p,true);if(!current){box.checked=false;return;}current[box.dataset.question]=box.checked;safeSave();updatePendingBadge();const total=questions.filter(([key])=>current[key]).length;const chip=details.querySelector('.pc-review-status');chip.textContent=`${total}/${questions.length}`;chip.classList.toggle('complete',total===questions.length);if(total===questions.length)details.open=false;});
        details.querySelector('[data-configure]').onclick=()=>openDailyChecklist(p);
        dailyHost.appendChild(details);
      }
@@ -6124,12 +6218,11 @@ function init(){
  }
  let lastDay=today();
  setInterval(()=>{
-   if(today()!==lastDay){lastDay=today();if(Array.isArray(patients))patients.forEach(dailyChecklist);updatePendingBadge();if(!el('pc-overlay') && !document.querySelector('.pc-overlay.pc-detached'))showDaily()}
+   if(today()!==lastDay){lastDay=today();updatePendingBadge();if(!el('pc-overlay') && !document.querySelector('.pc-overlay.pc-detached'))showDaily()}
    else updatePendingBadge();
  },60000);
  setTimeout(()=>{
    if(!Array.isArray(patients) || !patients.length)return;
-   patients.forEach(dailyChecklist);
    updatePendingBadge();
    if(!el('pc-overlay') && !document.querySelector('.pc-overlay.pc-detached'))showDaily();
  },1600);
