@@ -3728,6 +3728,8 @@ html.pc-full-firebase-pending body > :not(#pc-full-firebase-gate):not(script):no
     function pcCurrentPayload(){return prepareDatabasePayload()}
     function pcInstallMerged(data){
       if(!data || !Array.isArray(data.patients))throw Error('Banco remoto inválido: pacientes ausentes');
+      const previousScrollX=window.scrollX, previousScrollY=window.scrollY;
+      const previousPatientId=currentPatientId;
       patients=data.patients;
       if(pcObj(data.obsidianData)&&Array.isArray(data.obsidianData.notes))obsidianData=data.obsidianData;
       window.PedCareLayoutPrefs?.receiveCloud?.(data.uiPreferences);
@@ -3735,10 +3737,15 @@ html.pc-full-firebase-pending body > :not(#pc-full-firebase-gate):not(script):no
       localStorage.setItem(OBSIDIAN_STORAGE_KEY,JSON.stringify(obsidianData));
       const active=patients.find(p=>String(p.id)===String(currentPatientId));
       renderTabs();
-      if(active)switchPatientTab(active.id);
-      else if(patients.length)switchPatientTab((patients.find(p=>!p.tabClosed)||patients[0]).id);
+      if(active)switchPatientTab(active.id,{fromCloud:true});
+      else if(patients.length)switchPatientTab((patients.find(p=>!p.tabClosed)||patients[0]).id,{fromCloud:true});
       else showArchiveView();
       renderObsidianUI();
+      // Nao deslocar a pagina quando um snapshot chega do servidor.
+      // Apenas restaurar se o paciente exibido nao foi realmente trocado pelo usuario.
+      if(String(previousPatientId)===String(currentPatientId)){
+        window.scrollTo({left:previousScrollX,top:previousScrollY,behavior:'instant'});
+      }
     }
     async function pcFetchGist(token,gist){
       const response=await fetch('https://api.github.com/gists/'+encodeURIComponent(gist),{
@@ -3969,11 +3976,11 @@ html.pc-full-firebase-pending body > :not(#pc-full-firebase-gate):not(script):no
       switchPatientTab(newId);
     }
 
-    function switchPatientTab(id) {
+    function switchPatientTab(id, options={}) {
       const chosen = patients.find(p => String(p.id) === String(id));
       if (!chosen) return;
-      window.PedCareClinicalHistory?.flush?.();
-      if (chosen.tabClosed) { chosen.tabClosed = false; saveAllPatients(); }
+      if(!options.fromCloud)window.PedCareClinicalHistory?.flush?.();
+      if (chosen.tabClosed && !options.fromCloud) { chosen.tabClosed = false; saveAllPatients(); }
       if (String(currentPatientId) !== String(chosen.id)) window.PedCarePatientWindows?.beforeSwitch?.();
       currentPatientId = chosen.id;
       document.getElementById('archive-view').style.display = 'none';
@@ -3984,7 +3991,7 @@ html.pc-full-firebase-pending body > :not(#pc-full-firebase-gate):not(script):no
       switchSubTab(currentSubTab);
       window.PedCarePatientWindows?.afterSwitch?.(chosen.id);
 
-      setTimeout(() => {
+      if(!options.fromCloud)setTimeout(() => {
         const activeTab = document.querySelector('.tab-btn.active');
         if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
       }, 50);
@@ -8860,7 +8867,7 @@ const status=msg=>{el('pc-full-firebase-status').textContent=msg;};
 const lock=()=>{document.documentElement.classList.add('pc-full-firebase-pending');el('pc-full-firebase-gate').style.display='flex';el('pc-full-firebase-mini').style.display='none'};
 const unlock=()=>{document.documentElement.classList.remove('pc-full-firebase-pending');el('pc-full-firebase-gate').style.display='none';el('pc-full-firebase-mini').style.display='block'};
 let app=null, auth=null, db=null, user=null, dbDoc=null, unsubscribe=null, base=null, version=0, dirty=false, saving=false, pending=false, armed=false, timer=null, hasConflict=false, lastStatus='';
-let localRevision=0, lastConfirmedRevision=0;
+let localRevision=0, lastConfirmedRevision=0, applyingRemote=false;
 function parseConfig(raw){const result={};for(const field of ['apiKey','authDomain','projectId','appId','storageBucket','messagingSenderId','measurementId']){const exp=new RegExp('(?:["\\\']?'+field+'["\\\']?)\\s*:\\s*(["\\\'])(.*?)\\1');const match=String(raw||'').match(exp);if(match)result[field]=match[2];}
 if(!result.apiKey||!result.projectId||!result.appId||!result.authDomain)throw Error('Copie o firebaseConfig completo do Firebase Console.');return result;}
 function recordPayload(){return {app:'PedCare',patients:JSON.parse(JSON.stringify(patients)),obsidianData:JSON.parse(JSON.stringify(obsidianData)),uiPreferences:window.PedCareLayoutPrefs?.getCloudData?.()||{}};}
@@ -8869,8 +8876,9 @@ function report(msg,error=false){lastStatus=msg;status(msg);updateCloudStatus(er
 function remoteDocument(snap){if(!snap.exists())return {version:0,data:{app:'PedCare',patients:[],obsidianData:null,uiPreferences:{}}};const obj=snap.data();if(!obj||!obj.payload||!Array.isArray(obj.payload.patients))throw Error('O banco recebido não tem o formato esperado.');return {version:Number(obj.version||0),data:obj.payload};}
 function install(remote){
  if(!remote||!Array.isArray(remote.patients))return;
- // Don't reset active typed text through a cloud event if local edits are outstanding.
- pcInstallMerged(remote);
+ // Apply remote snapshots without treating their UI effects as new user edits.
+ applyingRemote=true;
+ try{pcInstallMerged(remote)}finally{applyingRemote=false}
 }
 function backupOnConflict(data){try{const snapshots=JSON.parse(localStorage.getItem('pc_full_fb_conflict_backups_v1')||'[]');snapshots.push({savedAt:new Date().toISOString(),data});localStorage.setItem('pc_full_fb_conflict_backups_v1',JSON.stringify(snapshots.slice(-5)));}catch(e){console.warn(e)}}
 function reconcile(remoteVersion,remote,fromLive){
@@ -8901,7 +8909,12 @@ function listen(){if(unsubscribe)unsubscribe();unsubscribe=onSnapshot(dbDoc,{inc
 function queue(){if(!armed||!user||hasConflict)return;clearTimeout(timer);timer=setTimeout(save,1200)}
 async function save(){if(!armed||!user||hasConflict||!dirty)return;
  if(saving){pending=true;return;}
- saving=true;const revision=localRevision;const local=recordPayload();const known=base;const knownVersion=version;
+ const local=recordPayload();
+ // A form may request saving without changing data: never generate a version for it.
+ if(base && pcEq(local.patients,base.patients) && pcEq(local.obsidianData,base.obsidianData) && pcEq(local.uiPreferences,base.uiPreferences)){
+   dirty=false;pending=false;clearTimeout(timer);report('Sincronizado · versão '+version);return;
+ }
+ saving=true;const revision=localRevision;const known=base;const knownVersion=version;
  try{
    checkSize(local);report('Salvando na nuvem…');
    const saved=await runTransaction(db,async tx=>{
@@ -8911,6 +8924,10 @@ async function save(){if(!armed||!user||hasConflict||!dirty)return;
     const merged=current.version===knownVersion ? local : pcMergePayload(known||{patients:[],obsidianData:{},uiPreferences:{}},local,current.data);
     if(pcSyncConflicts.length)throw Error('CONFLITO_REAL: outra sessão modificou os mesmos dados. Nenhuma sobrescrita foi feita.');
     checkSize(merged);
+    // Se o resultado equivale ao registro existente, nenhuma gravacao deve ocorrer.
+    if(pcEq(merged.patients,current.data.patients) && pcEq(merged.obsidianData,current.data.obsidianData) && pcEq(merged.uiPreferences,current.data.uiPreferences)){
+      return {version:current.version,payload:current.data,unchanged:true};
+    }
     tx.set(dbDoc,{version:current.version+1,payload:merged,updatedAt:serverTimestamp()});
     return {version:current.version+1,payload:merged};
    });
@@ -8950,7 +8967,7 @@ el('pc-full-firebase-connect').onclick=async()=>{
  }catch(e){status('Não foi possível entrar: '+e.message)}finally{btn.disabled=false}
 };
 el('pc-full-firebase-mini').onclick=()=>{report('Conferindo a versão na nuvem…');refresh();};
-const bridge={ready:()=>armed&&!!user&&!hasConflict,localChange:()=>{if(!armed||hasConflict)return;dirty=true;localRevision++;queue()},showPanel:()=>{lock();status(lastStatus||'Entre no Firebase.')},showError:msg=>report(msg,true),refresh,onFocus:()=>{if(armed&&user&&document.visibilityState==='visible')refresh()},signOut:async()=>{if(dirty){report('Há alterações pendentes. Aguarde o salvamento ou exporte uma cópia.',true);return}await signOut(auth);lock();}};
+const bridge={ready:()=>armed&&!!user&&!hasConflict,localChange:()=>{if(!armed||hasConflict||applyingRemote)return;dirty=true;localRevision++;queue()},showPanel:()=>{lock();status(lastStatus||'Entre no Firebase.')},showError:msg=>report(msg,true),refresh,onFocus:()=>{if(armed&&user&&document.visibilityState==='visible')refresh()},signOut:async()=>{if(dirty){report('Há alterações pendentes. Aguarde o salvamento ou exporte uma cópia.',true);return}await signOut(auth);lock();}};
 window.PedCareFullFirebase=bridge;
 window.addEventListener('focus',()=>bridge.onFocus());document.addEventListener('visibilitychange',()=>bridge.onFocus());
 // In case the Firebase SDK fails entirely, page remains locked instead of exposing cached records.
