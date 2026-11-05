@@ -8532,7 +8532,7 @@ async function reconcileServer(){
  if(patient.exists()){
    const remote={id,...patient.data()};
    const i=state.patients.findIndex(p=>p.id===id);
-   if(i>=0){if(Number(remote.version||0)>=Number(state.patients[i].version||0))state.patients[i]=remote;}else state.patients.push(remote);
+   if(i>=0){state.patients[i]=remote;}else state.patients.push(remote);
    renderPatients();
  }
  const dayE=$('pc-fb-evo-date').value,dayH=$('pc-fb-handoff-date').value;
@@ -8542,11 +8542,11 @@ async function reconcileServer(){
  ]);
  if(epoch!==state.patientEpoch||id!==state.selected)return;
  if(dayE===$('pc-fb-evo-date').value){
-   if(evo.exists()){const received=evo.data(),current=state.evolutions.get(dayE);if(Number(received.version||0)>=Number(current?.version||0))state.evolutions.set(dayE,received);}else if(!state.evolutions.has(dayE))state.evolutions.delete(dayE);
+   if(evo.exists())state.evolutions.set(dayE,evo.data());else state.evolutions.delete(dayE);
    state.evolutionsConfirmed.delete(dayE);renderEvo();
  }
  if(dayH===$('pc-fb-handoff-date').value){
-   if(handoff.exists()){const received=handoff.data(),current=state.handoffs.get(dayH);if(Number(received.version||0)>=Number(current?.version||0))state.handoffs.set(dayH,received);}else if(!state.handoffs.has(dayH))state.handoffs.delete(dayH);
+   if(handoff.exists())state.handoffs.set(dayH,handoff.data());else state.handoffs.delete(dayH);
    state.handoffsConfirmed.delete(dayH);renderHandoff();
  }
  showFreshness('Conferido no servidor');
@@ -8557,12 +8557,15 @@ function refreshOnReturn(){
  if(reconcilePending)return;
  reconcilePending=reconcileServer().catch(err=>status('Não foi possível conferir na nuvem: '+(err.message||err),true)).finally(()=>{reconcilePending=null});
 }
-$('pc-fb-sync-now').onclick=()=>guard(async()=>{
+$('pc-fb-sync-now').onclick=()=>guard(()=>onceButton($('pc-fb-sync-now'),async()=>{
  if(!state.selected)throw Error('Selecione um paciente fictício.');
- if(reconcilePending)return reconcilePending;
+ status('Consultando documentos diretamente no servidor…');
+ // Avoid silently ignoring a user-triggered refresh because a background refresh is pending.
+ if(reconcilePending){try{await reconcilePending}catch(_){}}
  reconcilePending=reconcileServer().finally(()=>{reconcilePending=null});
- return reconcilePending;
-});
+ await reconcilePending;
+ status('Consulta manual concluída. Confira o horário e as versões dos registros.');
+}));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){startActiveRecordListeners(state.patientEpoch);refreshOnReturn()}});
 window.addEventListener('focus',refreshOnReturn);
 $('pc-fb-open').addEventListener('click',()=>{queueMicrotask(()=>{startActiveRecordListeners(state.patientEpoch);refreshOnReturn()})});
@@ -8742,11 +8745,13 @@ async function refreshRecord(kind, askBeforeDiscard=true){
  if(patientBefore!==state.selected||keyBefore!==editorKey(kind))return;
  const remote=snap.exists()?snap.data():null;
  const map=isEvo?state.evolutions:state.handoffs;
- if(remote){if(Number(remote.version||0)>=Number(map.get(dateId)?.version||0))map.set(dateId,remote);}else if(!map.has(dateId))map.delete(dateId);
+ // getDocFromServer is authoritative: an inflated/stale local version must never block manual recovery.
+ if(remote)map.set(dateId,remote);else map.delete(dateId);
  (isEvo?state.evolutionsConfirmed:state.handoffsConfirmed).delete(dateId);
  e.dirty=false;e.saving=false;e.key=null;
  (isEvo?renderEvo:renderHandoff)();
- status('Versão mais recente carregada diretamente da nuvem · '+(remote?'v'+Number(remote.version||0):'sem registro'));
+ status('Consulta direta concluída · '+(remote?'versão '+Number(remote.version||0):'sem registro')+' · '+new Date().toLocaleTimeString('pt-BR'));
+ showFreshness('Documento carregado diretamente do servidor');
 }
 $('pc-fb-evo-refresh').onclick=()=>guard(()=>refreshRecord('evo'));
 $('pc-fb-handoff-refresh').onclick=()=>guard(()=>refreshRecord('handoff'));
