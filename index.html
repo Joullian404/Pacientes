@@ -8421,7 +8421,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <button type="button" id="pc-fb-open">☁️ Firebase • Testes</button>
 <section id="pc-fb-lab" role="dialog" aria-modal="true" aria-label="Firebase - testes do PedCare">
 <div id="pc-fb-shell">
-<header id="pc-fb-head"><div><strong>☁️ PedCare · Laboratório Firebase V3</strong><small>Ambiente isolado · sincronização V3 · somente pacientes fictícios</small></div><button id="pc-fb-close" type="button">Fechar ×</button></header>
+<header id="pc-fb-head"><div><strong>☁️ PedCare · Laboratório Firebase V5</strong><small>Ambiente isolado · sincronização V5 · somente pacientes fictícios</small></div><button id="pc-fb-close" type="button">Fechar ×</button></header>
 <div id="pc-fb-content">
 <div class="pc-fb-status" id="pc-fb-status">Pronto para configurar o Firebase. Os dados do seu PedCare atual não serão enviados.</div>
 <section id="pc-fb-setup" class="pc-fb-panel">
@@ -8436,15 +8436,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <p class="pc-fb-meta" id="pc-fb-account">Nenhum usuário autenticado.</p>
 </section>
 <section id="pc-fb-work" class="pc-fb-panel pc-fb-hidden">
-<h3>3. Testar a sincronização em tempo real</h3>
+<h3>3. Testar a sincronização em tempo real</h3><div class="pc-fb-row"><button type="button" class="pc-fb-btn light" id="pc-fb-sync-now">↻ Conferir dados na nuvem</button><span class="pc-fb-meta" id="pc-fb-last-sync">Aguardando sincronização…</span></div>
 <p class="pc-fb-meta">Os registros abaixo são armazenados em <code>pedcare_test_users/{uid}/patients</code>. Nunca são copiados do prontuário real. Use dois navegadores com o mesmo login para testar.</p>
 <div class="pc-fb-row"><label>Nome fictício para novo paciente<input id="pc-fb-new-name" placeholder="Paciente Teste A"/></label><button type="button" class="pc-fb-btn" id="pc-fb-new">Criar paciente fictício</button></div>
 <label>Paciente de teste selecionado<select id="pc-fb-patient"><option value="">Selecione um paciente</option></select></label>
 <div id="pc-fb-editor" class="pc-fb-hidden pc-fb-grid">
 <section class="pc-fb-panel"><h3>Alta</h3><p class="pc-fb-meta" id="pc-fb-discharge-label">—</p><div class="pc-fb-row"><button type="button" class="pc-fb-btn" id="pc-fb-discharge">Dar alta</button><button type="button" class="pc-fb-btn light" id="pc-fb-reactivate">Reativar</button></div></section>
-<section class="pc-fb-panel"><h3>Evolução por dia</h3><label>Data<input id="pc-fb-evo-date" type="date"/></label><label>Evolução (somente dados fictícios)<textarea id="pc-fb-evo-text" placeholder="Texto fictício"></textarea></label><div class="pc-fb-row"><button type="button" class="pc-fb-btn" id="pc-fb-evo-save">Salvar evolução</button><button type="button" class="pc-fb-btn light" id="pc-fb-evo-release">Liberar evolução</button></div><p class="pc-fb-meta" id="pc-fb-evo-label"></p></section>
+<section class="pc-fb-panel"><h3>Evolução por dia</h3><label>Data<input id="pc-fb-evo-date" type="date"/></label><label>Evolução (somente dados fictícios)<textarea id="pc-fb-evo-text" placeholder="Texto fictício"></textarea></label><div class="pc-fb-row"><button type="button" class="pc-fb-btn" id="pc-fb-evo-save">Salvar evolução</button><button type="button" class="pc-fb-btn light" id="pc-fb-evo-refresh">Carregar da nuvem</button><button type="button" class="pc-fb-btn light" id="pc-fb-evo-release">Liberar evolução</button></div><p class="pc-fb-meta" id="pc-fb-evo-label"></p></section>
 <section class="pc-fb-panel"><h3>Programações contínuas</h3><label>Programação<input id="pc-fb-program-text" placeholder="Checar exame fictício"/></label><button type="button" class="pc-fb-btn" id="pc-fb-program-add">Adicionar programação</button><div id="pc-fb-program-list"></div></section>
-<section class="pc-fb-panel"><h3>Passagem de plantão</h3><label>Data<input id="pc-fb-handoff-date" type="date"/></label><label>Texto (somente dados fictícios)<textarea id="pc-fb-handoff-text"></textarea></label><button type="button" class="pc-fb-btn" id="pc-fb-handoff-save">Salvar última versão do dia</button><p class="pc-fb-meta" id="pc-fb-handoff-label"></p></section>
+<section class="pc-fb-panel"><h3>Passagem de plantão</h3><label>Data<input id="pc-fb-handoff-date" type="date"/></label><label>Texto (somente dados fictícios)<textarea id="pc-fb-handoff-text"></textarea></label><button type="button" class="pc-fb-btn" id="pc-fb-handoff-save">Salvar última versão do dia</button><button type="button" class="pc-fb-btn light" id="pc-fb-handoff-refresh">Carregar da nuvem</button><p class="pc-fb-meta" id="pc-fb-handoff-label"></p></section>
 </div>
 </section>
 <section class="pc-fb-panel"><h3>Segurança da etapa de teste</h3><p class="pc-fb-meta">Este ambiente não migra os dados do Gist e não interfere no PedCare principal. A integração definitiva deve ser feita após testes de concorrência, persistência entre dias, recuperação de versões e revisão das regras de segurança. Não armazene dados reais de pacientes neste protótipo.</p></section>
@@ -8453,10 +8453,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script type="module" id="pc-firebase-lab-module">
 import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
-import { getFirestore, doc, collection, onSnapshot, runTransaction, serverTimestamp, setDoc } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
+import { getFirestore, doc, collection, onSnapshot, runTransaction, getDocFromServer, serverTimestamp, setDoc } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
 const $ = id => document.getElementById(id);
 const key='pedcare_firebase_test_config_v1';
-const state={app:null,auth:null,db:null,user:null,selected:null,patients:[],programs:[],evolutions:new Map(),handoffs:new Map(),stops:[],activeVersion:new Map(),editors:{evo:{key:null,version:0,dirty:false,saving:false},handoff:{key:null,version:0,dirty:false,saving:false}},busy:new Set(),patientEpoch:0,evolutionsConfirmed:new Map(),handoffsConfirmed:new Map()};
+const state={app:null,auth:null,db:null,user:null,selected:null,patients:[],programs:[],evolutions:new Map(),handoffs:new Map(),stops:[],activeVersion:new Map(),editors:{evo:{key:null,version:0,dirty:false,saving:false,baseText:""},handoff:{key:null,version:0,dirty:false,saving:false,baseText:""}},busy:new Set(),patientEpoch:0,evolutionsConfirmed:new Map(),handoffsConfirmed:new Map()};
 const show=(id,on)=>$(id).classList.toggle('pc-fb-hidden',!on);
 const text=(id,value)=>$(id).textContent=String(value??'');
 const status=(message,isError=false)=>{text('pc-fb-status',message);$('pc-fb-status').classList.toggle('error',isError)};
@@ -8477,12 +8477,12 @@ function parseConfig(input){
 }
 function cleanSubs(){for(const stop of state.stops.splice(0))try{stop()}catch(_){}}
 function resetPatientEditor(){state.selected=null;show('pc-fb-editor',false);$('pc-fb-patient').value='';state.programs=[];state.evolutions.clear();state.handoffs.clear();resetEditorStates();}
-function resetEditorStates(){for(const e of Object.values(state.editors)){e.key=null;e.version=0;e.dirty=false;e.saving=false;}}
+function resetEditorStates(){for(const e of Object.values(state.editors)){e.key=null;e.version=0;e.dirty=false;e.saving=false;e.baseText="";}}
 function editorKey(kind){return `${state.selected||''}|${$(kind==='evo'?'pc-fb-evo-date':'pc-fb-handoff-date').value}`;}
 function editorRecord(kind){const day=$(kind==='evo'?'pc-fb-evo-date':'pc-fb-handoff-date').value;return (kind==='evo'?state.evolutions:state.handoffs).get(day);}
 function editorLabel(kind,msg){text(kind==='evo'?'pc-fb-evo-label':'pc-fb-handoff-label',msg);}
 function remoteConflict(kind){const e=state.editors[kind],record=editorRecord(kind);return e.key===editorKey(kind)&&e.dirty&&Number(record?.version||0)!==e.version;}
-function markDirty(kind){const e=state.editors[kind];if(e.key!==editorKey(kind)){e.key=editorKey(kind);e.version=Number(editorRecord(kind)?.version||0)}e.dirty=true;editorLabel(kind,remoteConflict(kind)?'⚠️ Alteração recebida de outro dispositivo. Seu texto está preservado; não salve por cima.':'Alterações locais ainda não salvas.');}
+function markDirty(kind){const e=state.editors[kind];if(e.key!==editorKey(kind)){e.key=editorKey(kind);e.version=Number(editorRecord(kind)?.version||0);e.baseText=String(editorRecord(kind)?.text||"")}e.dirty=true;editorLabel(kind,remoteConflict(kind)?'⚠️ Alteração recebida de outro dispositivo. Seu texto está preservado; não salve por cima.':'Alterações locais ainda não salvas.');}
 function discardOrSwitch(kind){const e=state.editors[kind];if(e.saving){status('Aguarde a confirmação do salvamento antes de mudar de paciente ou data.',true);return false;}if(!e.dirty)return true;if(!confirm('Há alterações não salvas nesta janela. Descartá-las?'))return false;e.dirty=false;return true;}
 
 function patientCollection(){return collection(state.db,'pedcare_test_users',state.user.uid,'patients')}
@@ -8491,7 +8491,66 @@ function subDoc(sub,id){return doc(state.db,'pedcare_test_users',state.user.uid,
 function patientDoc(id=state.selected){return doc(state.db,'pedcare_test_users',state.user.uid,'patients',id)}
 function subscribe(ref,callback){const stop=onSnapshot(ref,{includeMetadataChanges:true},callback,err=>status('Erro de leitura: '+err.message,true));state.stops.push(stop)}
 async function onceButton(btn,fn){if(state.busy.has(btn))return;state.busy.add(btn);btn.disabled=true;try{await fn()}finally{state.busy.delete(btn);btn.disabled=false}}
+function mergeVersionedSnapshots(previous, snap, confirmed){
+ const incoming=new Map(snap.docs.map(d=>[d.id,d.data()]));
+ for(const [id, old] of previous){
+   const next=incoming.get(id);
+   // A cached or delayed snapshot must not roll the UI back one version.
+   if(next && Number(next.version||0)<Number(old.version||0))incoming.set(id,old);
+ }
+ for(const [id, expected] of confirmed){
+   const next=incoming.get(id);
+   if(next && Number(next.version||0)>=Number(expected.version||0))confirmed.delete(id);
+   else incoming.set(id,expected);
+ }
+ return incoming;
+}
 function snapshotMessage(snap){return snap.metadata.fromCache?'Dados do cache local; aguardando confirmação da nuvem.':snap.metadata.hasPendingWrites?'Alteração local pendente de envio ao Firestore.':'Sincronizado com o Firestore.';}
+function showFreshness(source){
+ text('pc-fb-last-sync',source+' · '+new Date().toLocaleTimeString('pt-BR'));
+}
+async function reconcileServer(){
+ if(!state.user||!state.selected||!state.db)return;
+ const id=state.selected, epoch=state.patientEpoch;
+ const patient=await getDocFromServer(patientDoc(id));
+ if(epoch!==state.patientEpoch||id!==state.selected)return;
+ if(patient.exists()){
+   const remote={id,...patient.data()};
+   const i=state.patients.findIndex(p=>p.id===id);
+   if(i>=0)state.patients[i]=remote;else state.patients.push(remote);
+   renderPatients();
+ }
+ const dayE=$('pc-fb-evo-date').value,dayH=$('pc-fb-handoff-date').value;
+ const [evo,handoff]=await Promise.all([
+   getDocFromServer(subDoc('evolutions',dayE)),
+   getDocFromServer(subDoc('handoffs',dayH))
+ ]);
+ if(epoch!==state.patientEpoch||id!==state.selected)return;
+ if(dayE===$('pc-fb-evo-date').value){
+   if(evo.exists())state.evolutions.set(dayE,evo.data());else state.evolutions.delete(dayE);
+   state.evolutionsConfirmed.delete(dayE);renderEvo();
+ }
+ if(dayH===$('pc-fb-handoff-date').value){
+   if(handoff.exists())state.handoffs.set(dayH,handoff.data());else state.handoffs.delete(dayH);
+   state.handoffsConfirmed.delete(dayH);renderHandoff();
+ }
+ showFreshness('Conferido no servidor');
+}
+let reconcilePending=null;
+function refreshOnReturn(){
+ if(!state.user||!state.selected||!$('pc-fb-lab').classList.contains('pc-fb-visible')||document.hidden)return;
+ if(reconcilePending)return;
+ reconcilePending=reconcileServer().catch(err=>status('Não foi possível conferir na nuvem: '+(err.message||err),true)).finally(()=>{reconcilePending=null});
+}
+$('pc-fb-sync-now').onclick=()=>guard(async()=>{
+ if(!state.selected)throw Error('Selecione um paciente fictício.');
+ if(reconcilePending)return reconcilePending;
+ reconcilePending=reconcileServer().finally(()=>{reconcilePending=null});
+ return reconcilePending;
+});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshOnReturn()});
+window.addEventListener('focus',refreshOnReturn);
+$('pc-fb-open').addEventListener('click',()=>{queueMicrotask(refreshOnReturn)});
 function renderPatients(){
  const sel=$('pc-fb-patient');const old=state.selected;
  sel.replaceChildren(new Option('Selecione um paciente',''));
@@ -8503,12 +8562,12 @@ function renderPatients(){
 }
 function subscribePatients(){
  cleanSubs();++state.patientEpoch;resetPatientEditor();
- subscribe(patientCollection(),snap=>{state.patients=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''));renderPatients();status(snapshotMessage(snap));});
+ subscribe(patientCollection(),snap=>{state.patients=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''));renderPatients();status(snapshotMessage(snap));showFreshness(snap.metadata.fromCache?'Lista do cache':'Lista recebida');});
 }
 function renderEvo(){
  const e=state.editors.evo,d=$('pc-fb-evo-date').value,item=state.evolutions.get(d),key=editorKey('evo');
  if(e.key===key&&(e.dirty||e.saving)){editorLabel('evo',remoteConflict('evo')?'⚠️ CONFLITO: outra versão foi salva em outro dispositivo. Seu texto foi preservado. Copie-o antes de descartar ou atualizar.':e.saving?'Salvando na nuvem…':'Alterações locais ainda não salvas.');return;}
- e.key=key;e.version=Number(item?.version||0);e.dirty=false;
+ e.key=key;e.version=Number(item?.version||0);e.baseText=String(item?.text||"");e.dirty=false;
  $('pc-fb-evo-text').value=item?.text||'';
  $('pc-fb-evo-text').disabled=item?.status==='released';
  editorLabel('evo',item?.status==='released'?'Evolução liberada · edição bloqueada':item?'Rascunho salvo no Firestore · versão '+e.version:'Nenhuma evolução nesta data');
@@ -8516,7 +8575,7 @@ function renderEvo(){
 function renderHandoff(){
  const e=state.editors.handoff,item=editorRecord('handoff'),key=editorKey('handoff');
  if(e.key===key&&(e.dirty||e.saving)){editorLabel('handoff',remoteConflict('handoff')?'⚠️ CONFLITO: passagem atualizada em outro dispositivo. Texto local preservado.':e.saving?'Salvando na nuvem…':'Alterações locais ainda não salvas.');return;}
- e.key=key;e.version=Number(item?.version||0);e.dirty=false;
+ e.key=key;e.version=Number(item?.version||0);e.baseText=String(item?.text||"");e.dirty=false;
  $('pc-fb-handoff-text').value=item?.text||'';
  editorLabel('handoff',item?'Última versão salva deste dia · versão '+e.version:'Nenhuma passagem salva nesta data');
 }
@@ -8543,10 +8602,10 @@ function selectPatient(id){
  cleanSubs();const epoch=++state.patientEpoch;state.selected=id||null;state.evolutions.clear();state.handoffs.clear();state.evolutionsConfirmed.clear();state.handoffsConfirmed.clear();state.programs=[];programsRenderHash='';resetEditorStates();$('pc-fb-evo-save').disabled=true;$('pc-fb-evo-release').disabled=true;$('pc-fb-handoff-save').disabled=true;
  if(!id){show('pc-fb-editor',false);subscribePatients();return}
  // Keep patient list listener and rebuild the patient's specific subscriptions.
- subscribe(patientCollection(),snap=>{if(epoch!==state.patientEpoch)return;state.patients=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''));renderPatients()});
+ subscribe(patientCollection(),snap=>{if(epoch!==state.patientEpoch)return;state.patients=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''));renderPatients();showFreshness(snap.metadata.fromCache?'Lista do cache':'Lista recebida')});
  show('pc-fb-editor',true);
- subscribe(subCollection('evolutions'),snap=>{if(epoch!==state.patientEpoch)return;state.evolutions=new Map(snap.docs.map(d=>[d.id,d.data()]));for(const [date,prior] of state.evolutionsConfirmed||[]){const remote=state.evolutions.get(date);if(!remote||Number(remote.version||0)<Number(prior.version||0))state.evolutions.set(date,prior);else state.evolutionsConfirmed.delete(date)}$('pc-fb-evo-save').disabled=false;$('pc-fb-evo-release').disabled=false;renderEvo()});
- subscribe(subCollection('handoffs'),snap=>{if(epoch!==state.patientEpoch)return;state.handoffs=new Map(snap.docs.map(d=>[d.id,d.data()]));for(const [date,prior] of state.handoffsConfirmed||[]){const remote=state.handoffs.get(date);if(!remote||Number(remote.version||0)<Number(prior.version||0))state.handoffs.set(date,prior);else state.handoffsConfirmed.delete(date)}$('pc-fb-handoff-save').disabled=false;renderHandoff()});
+ subscribe(subCollection('evolutions'),snap=>{if(epoch!==state.patientEpoch)return;state.evolutions=mergeVersionedSnapshots(state.evolutions,snap,state.evolutionsConfirmed);$('pc-fb-evo-save').disabled=false;$('pc-fb-evo-release').disabled=false;renderEvo();showFreshness(snap.metadata.fromCache?'Evoluções do cache':'Evoluções recebidas')});
+ subscribe(subCollection('handoffs'),snap=>{if(epoch!==state.patientEpoch)return;state.handoffs=mergeVersionedSnapshots(state.handoffs,snap,state.handoffsConfirmed);$('pc-fb-handoff-save').disabled=false;renderHandoff();showFreshness(snap.metadata.fromCache?'Passagens do cache':'Passagens recebidas')});
  subscribe(subCollection('programs'),snap=>{if(epoch!==state.patientEpoch)return;state.programs=snap.docs.map(d=>({id:d.id,...d.data()}));renderPrograms()});
 }
 // Explicit transaction with a version check prevents silently overwriting a
@@ -8576,44 +8635,99 @@ $('pc-fb-new').onclick=()=>guard(async()=>{
  const id='test_'+crypto.randomUUID();await addDocWithId(patientDoc(id),{name,dischargedAt:null,createdAt:serverTimestamp()});$('pc-fb-new-name').value='';status('Paciente fictício salvo na nuvem.');
 });
 $('pc-fb-patient').onchange=e=>selectPatient(e.target.value);
-$('pc-fb-discharge').onclick=()=>guard(()=>onceButton($('pc-fb-discharge'),async()=>{const p=state.patients.find(p=>p.id===state.selected);await changeDoc(patientDoc(),p?.version||0,{dischargedAt:new Date().toISOString()});status('Alta confirmada no Firestore')}));
-$('pc-fb-reactivate').onclick=()=>guard(()=>onceButton($('pc-fb-reactivate'),async()=>{const p=state.patients.find(p=>p.id===state.selected);await changeDoc(patientDoc(),p?.version||0,{dischargedAt:null});status('Paciente reativado no Firestore')}));
+async function setDischarge(shouldDischarge){
+ const id=state.selected;
+ if(!id||!state.user)throw Error('Selecione um paciente fictício.');
+ const ref=patientDoc(id);
+ // Atualize apenas o campo de alta em uma transação que lê a versão atual.
+ // Outros campos do paciente permanecem intactos.
+ let result=null;
+ await runTransaction(state.db,async tx=>{
+   const snap=await tx.get(ref);
+   if(!snap.exists())throw Error('Paciente não encontrado na nuvem.');
+   const current=snap.data();
+   const timestamp=shouldDischarge?new Date().toISOString():null;
+   result={id,...current,dischargedAt:timestamp,version:Number(current.version||0)+1};
+   tx.update(ref,{dischargedAt:timestamp,version:result.version,updatedAt:serverTimestamp()});
+ });
+ if(id!==state.selected)return;
+ const i=state.patients.findIndex(p=>p.id===id);
+ if(i>=0)state.patients[i]=result;
+ renderPatients();
+ status(shouldDischarge?'Alta confirmada no Firestore e atualizada na tela.':'Reativação confirmada no Firestore e atualizada na tela.');
+ showFreshness('Alta verificada na nuvem');
+}
+$('pc-fb-discharge').onclick=()=>guard(()=>onceButton($('pc-fb-discharge'),()=>setDischarge(true)));
+$('pc-fb-reactivate').onclick=()=>guard(()=>onceButton($('pc-fb-reactivate'),()=>setDischarge(false)));
+
 $('pc-fb-evo-text').addEventListener('input',()=>markDirty('evo'));
 $('pc-fb-handoff-text').addEventListener('input',()=>markDirty('handoff'));
 // Maintain the last displayed date so a date switch cannot discard unsaved text silently.
 for(const kind of ['evo','handoff']){
  const input=$(kind==='evo'?'pc-fb-evo-date':'pc-fb-handoff-date');
  input.addEventListener('focus',()=>{input.dataset.previousDate=input.value});
- input.addEventListener('change',()=>{if(!discardOrSwitch(kind)){input.value=input.dataset.previousDate||dateToday();return;}input.dataset.previousDate=input.value;(kind==='evo'?renderEvo:renderHandoff)();});
+ input.addEventListener('change',()=>{if(!discardOrSwitch(kind)){input.value=input.dataset.previousDate||dateToday();return;}input.dataset.previousDate=input.value;(kind==='evo'?renderEvo:renderHandoff)();guard(()=>refreshRecord(kind,false));});
 }
+async function refreshRecord(kind, askBeforeDiscard=true){
+ const isEvo=kind==='evo',e=state.editors[kind],keyBefore=editorKey(kind),patientBefore=state.selected;
+ if(!patientBefore||!state.user)throw Error('Selecione um paciente e entre na conta.');
+ if(e.saving)throw Error('Aguarde o salvamento terminar.');
+ if(askBeforeDiscard&&e.dirty&&!confirm('Seu texto ainda não foi salvo. Deseja descartá-lo e carregar a versão da nuvem?'))return;
+ const dateId=keyBefore.split('|').slice(1).join('|');
+ const ref=subDoc(isEvo?'evolutions':'handoffs',dateId);
+ const snap=await getDocFromServer(ref);
+ if(patientBefore!==state.selected||keyBefore!==editorKey(kind))return;
+ const remote=snap.exists()?snap.data():null;
+ const map=isEvo?state.evolutions:state.handoffs;
+ if(remote)map.set(dateId,remote);else map.delete(dateId);
+ (isEvo?state.evolutionsConfirmed:state.handoffsConfirmed).delete(dateId);
+ e.dirty=false;e.saving=false;e.key=null;
+ (isEvo?renderEvo:renderHandoff)();
+ status('Versão mais recente carregada diretamente da nuvem · '+(remote?'v'+Number(remote.version||0):'sem registro'));
+}
+$('pc-fb-evo-refresh').onclick=()=>guard(()=>refreshRecord('evo'));
+$('pc-fb-handoff-refresh').onclick=()=>guard(()=>refreshRecord('handoff'));
 async function saveText(kind){
  const isEvo=kind==='evo',dateId=$(isEvo?'pc-fb-evo-date':'pc-fb-handoff-date').value;
  if(!dateId||!state.selected)throw Error('Selecione um paciente e uma data.');
  const e=state.editors[kind],key=editorKey(kind),item=editorRecord(kind);
- if(e.saving)throw Error('Este registro já está sendo salvo. Aguarde a confirmação.');
- if(e.key!==key)throw Error('Aguarde a evolução/passagem carregar antes de salvar.');
+ if(e.saving)throw Error('Este registro já está sendo salvo.');
+ if(e.key!==key)throw Error('Aguarde o registro carregar antes de salvar.');
  if(isEvo&&item?.status==='released')throw Error('Evolução liberada: não pode ser sobrescrita.');
- if(Number(item?.version||0)!==e.version)throw Error('CONFLITO: outro dispositivo salvou uma versão mais recente. Seu texto continua aqui, copie-o antes de descartar.');
  const field=$(isEvo?'pc-fb-evo-text':'pc-fb-handoff-text'),savedText=field.value;
  const changes=isEvo?{date:dateId,text:savedText,status:'draft'}:{date:dateId,text:savedText,savedAt:new Date().toISOString()};
+ const patientAtStart=state.selected;
+ const ref=subDoc(isEvo?'evolutions':'handoffs',dateId);
  field.disabled=true;e.saving=true;e.dirty=true;
  const btn=$(isEvo?'pc-fb-evo-save':'pc-fb-handoff-save');btn.disabled=true;
- editorLabel(kind,'Salvando na nuvem…');
+ editorLabel(kind,'Conferindo versão e salvando na nuvem…');
  try{
-   await changeDoc(subDoc(isEvo?'evolutions':'handoffs',dateId),e.version,changes);
-   e.version=Number(e.version)+1;
-   const confirmed={...(item||{}),...changes,version:e.version};
-   const confirmedMap=isEvo?state.evolutionsConfirmed:state.handoffsConfirmed;
-   confirmedMap.set(dateId,confirmed);(isEvo?state.evolutions:state.handoffs).set(dateId,confirmed);
-   // Reconcile snapshots only after the transaction has been confirmed.
-   e.dirty=false;
-   editorLabel(kind,'✓ Salvo na nuvem · versão '+e.version);
-   status((isEvo?'Evolução':'Passagem')+' salva na nuvem para '+dateId);
+   // Read the authoritative server copy before the transaction; do not trust
+   // an onSnapshot event that can still be one version behind on mobile.
+   const fresh=await getDocFromServer(ref);
+   if(patientAtStart!==state.selected||key!==editorKey(kind))throw Error('O paciente ou a data mudou durante o salvamento.');
+   const live=fresh.exists()?fresh.data():null;
+   if(isEvo&&live?.status==='released')throw Error('Esta evolução foi liberada em outro dispositivo.');
+   const liveVersion=Number(live?.version||0);
+   // A missing snapshot notification is harmless if the server text itself
+   // has not changed. Rebase that metadata/version-only update safely.
+   if(liveVersion!==e.version && String(live?.text||'')!==String(e.baseText||'')){
+     if(live)(isEvo?state.evolutions:state.handoffs).set(dateId,live);
+     throw Error('CONFLITO REAL: a nuvem tem um texto diferente (v'+liveVersion+'). Seu texto foi preservado. Copie-o ou use Carregar da nuvem para descartá-lo.');
+   }
+   await changeDoc(ref,liveVersion,changes);
+   const newVersion=liveVersion+1;
+   const confirmed={...(live||{}),...changes,version:newVersion};
+   (isEvo?state.evolutionsConfirmed:state.handoffsConfirmed).set(dateId,confirmed);
+   (isEvo?state.evolutions:state.handoffs).set(dateId,confirmed);
+   e.version=newVersion;e.baseText=savedText;e.dirty=false;
+   editorLabel(kind,'✓ Salvo na nuvem · versão '+newVersion);
+   status((isEvo?'Evolução':'Passagem')+' confirmada no Firestore · versão '+newVersion);
  }catch(error){e.dirty=true;editorLabel(kind,'⚠️ Não salvo: '+(error.message||error));throw error}
- finally{e.saving=false;btn.disabled=false;field.disabled=isEvo&&editorRecord('evo')?.status==='released';if(!e.dirty){(isEvo?renderEvo:renderHandoff)();}}
+ finally{e.saving=false;btn.disabled=false;field.disabled=isEvo&&editorRecord('evo')?.status==='released';if(!e.dirty)(isEvo?renderEvo:renderHandoff)()}
 }
 $('pc-fb-evo-save').onclick=()=>guard(()=>saveText('evo'));
-$('pc-fb-evo-release').onclick=()=>guard(()=>onceButton($('pc-fb-evo-release'),async()=>{const d=$('pc-fb-evo-date').value,item=state.evolutions.get(d),e=state.editors.evo;if(e.dirty)throw Error('Salve ou descarte o texto em edição antes de liberar.');if(!item)throw Error('Primeiro salve uma evolução');if(item.status==='released')throw Error('Esta evolução já foi liberada');if(e.version!==Number(item.version||0))throw Error('Conflito: evolução modificada em outro dispositivo.');await changeDoc(subDoc('evolutions',d),e.version,{status:'released',releasedAt:new Date().toISOString()});e.version+=1;status('Evolução liberada em '+d)}));
+$('pc-fb-evo-release').onclick=()=>guard(()=>onceButton($('pc-fb-evo-release'),async()=>{const d=$('pc-fb-evo-date').value,item=state.evolutions.get(d),e=state.editors.evo;if(e.dirty)throw Error('Salve ou descarte o texto em edição antes de liberar.');if(!item)throw Error('Primeiro salve uma evolução');if(item.status==='released')throw Error('Esta evolução já foi liberada');const fresh=await getDocFromServer(subDoc('evolutions',d));const latest=fresh.exists()?fresh.data():null;if(!latest||latest.status==='released'||String(latest.text||'')!==String(e.baseText||''))throw Error('A evolução mudou na nuvem. Use Carregar da nuvem antes de liberar.');await changeDoc(subDoc('evolutions',d),Number(latest.version||0),{status:'released',releasedAt:new Date().toISOString()});e.version=Number(latest.version||0)+1;state.evolutionsConfirmed.set(d,{...latest,status:'released',version:e.version});state.evolutions.set(d,{...latest,status:'released',version:e.version});renderEvo();status('Evolução liberada em '+d)}));
 $('pc-fb-handoff-save').onclick=()=>guard(()=>saveText('handoff'));
 $('pc-fb-program-add').onclick=()=>guard(()=>onceButton($('pc-fb-program-add'),async()=>{const title=$('pc-fb-program-text').value.trim();if(!title)throw Error('Informe uma programação fictícia');const id='program_'+crypto.randomUUID();await addDocWithId(subDoc('programs',id),{title,status:'open',lastComment:'',lastCheckedDate:'',createdOn:dateToday()});$('pc-fb-program-text').value='';status('Programação salva na nuvem')}));
 // Restore only project identification; never store the user's password.
