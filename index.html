@@ -8421,7 +8421,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <button type="button" id="pc-fb-open">☁️ Firebase • Testes</button>
 <section id="pc-fb-lab" role="dialog" aria-modal="true" aria-label="Firebase - testes do PedCare">
 <div id="pc-fb-shell">
-<header id="pc-fb-head"><div><strong>☁️ PedCare · Laboratório Firebase V5</strong><small>Ambiente isolado · sincronização V5 · somente pacientes fictícios</small></div><button id="pc-fb-close" type="button">Fechar ×</button></header>
+<header id="pc-fb-head"><div><strong>☁️ PedCare · Laboratório Firebase V7</strong><small>Ambiente isolado · sincronização V7 · somente pacientes fictícios</small></div><button id="pc-fb-close" type="button">Fechar ×</button></header>
 <div id="pc-fb-content">
 <div class="pc-fb-status" id="pc-fb-status">Pronto para configurar o Firebase. Os dados do seu PedCare atual não serão enviados.</div>
 <section id="pc-fb-setup" class="pc-fb-panel">
@@ -8475,7 +8475,7 @@ function parseConfig(input){
  if(!/^[a-z0-9-]+$/.test(result.projectId))throw Error('projectId inválido');
  return result;
 }
-function cleanSubs(){for(const stop of state.stops.splice(0))try{stop()}catch(_){}}
+function cleanSubs(){clearActiveRecordListeners();for(const stop of state.stops.splice(0))try{stop()}catch(_){}}
 function resetPatientEditor(){state.selected=null;show('pc-fb-editor',false);$('pc-fb-patient').value='';state.programs=[];state.evolutions.clear();state.handoffs.clear();resetEditorStates();}
 function resetEditorStates(){for(const e of Object.values(state.editors)){e.key=null;e.version=0;e.dirty=false;e.saving=false;e.baseText="";}}
 function editorKey(kind){return `${state.selected||''}|${$(kind==='evo'?'pc-fb-evo-date':'pc-fb-handoff-date').value}`;}
@@ -8563,15 +8563,20 @@ $('pc-fb-sync-now').onclick=()=>guard(async()=>{
  reconcilePending=reconcileServer().finally(()=>{reconcilePending=null});
  return reconcilePending;
 });
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshOnReturn()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){startActiveRecordListeners(state.patientEpoch);refreshOnReturn()}});
 window.addEventListener('focus',refreshOnReturn);
-$('pc-fb-open').addEventListener('click',()=>{queueMicrotask(refreshOnReturn)});
+$('pc-fb-open').addEventListener('click',()=>{queueMicrotask(()=>{startActiveRecordListeners(state.patientEpoch);refreshOnReturn()})});
+let lastPatientOptions='';
 function renderPatients(){
  const sel=$('pc-fb-patient');const old=state.selected;
- sel.replaceChildren(new Option('Selecione um paciente',''));
- for(const p of state.patients)sel.add(new Option((p.name||'Teste')+(p.dischargedAt?' (alta)':''),p.id));
+ const newOptions=JSON.stringify(state.patients.map(p=>[p.id,p.name,p.dischargedAt?1:0]));
+ if(newOptions!==lastPatientOptions){
+   lastPatientOptions=newOptions;
+   sel.replaceChildren(new Option('Selecione um paciente',''));
+   for(const p of state.patients)sel.add(new Option((p.name||'Teste')+(p.dischargedAt?' (alta)':''),p.id));
+ }
  if(old&&state.patients.some(p=>p.id===old))sel.value=old;
- else{resetPatientEditor();}
+ else if(old){sel.value=''; /* Keep selection until authoritative patient-doc lookup; avoid cache reset. */}
  const patient=state.patients.find(p=>p.id===state.selected);
  if(patient){text('pc-fb-discharge-label',patient.dischargedAt?'Alta registrada: '+new Date(patient.dischargedAt).toLocaleString('pt-BR'):'Paciente em acompanhamento');}
 }
@@ -8581,6 +8586,10 @@ function subscribePatients(){
 }
 function renderEvo(){
  const e=state.editors.evo,d=$('pc-fb-evo-date').value,item=state.evolutions.get(d),key=editorKey('evo');
+ if(e.key===key&&e.dirty&&!e.saving){
+   const current=$('pc-fb-evo-text').value;
+   if(current===String(item?.text||'')||current===e.baseText){e.dirty=false;}
+ }
  if(e.key===key&&(e.dirty||e.saving)){editorLabel('evo',remoteConflict('evo')?'⚠️ CONFLITO: outra versão foi salva em outro dispositivo. Seu texto foi preservado. Copie-o antes de descartar ou atualizar.':e.saving?'Salvando na nuvem…':'Alterações locais ainda não salvas.');return;}
  e.key=key;e.version=Number(item?.version||0);e.baseText=String(item?.text||"");e.dirty=false;
  $('pc-fb-evo-text').value=item?.text||'';
@@ -8589,6 +8598,10 @@ function renderEvo(){
 }
 function renderHandoff(){
  const e=state.editors.handoff,item=editorRecord('handoff'),key=editorKey('handoff');
+ if(e.key===key&&e.dirty&&!e.saving){
+   const current=$('pc-fb-handoff-text').value;
+   if(current===String(item?.text||'')||current===e.baseText){e.dirty=false;}
+ }
  if(e.key===key&&(e.dirty||e.saving)){editorLabel('handoff',remoteConflict('handoff')?'⚠️ CONFLITO: passagem atualizada em outro dispositivo. Texto local preservado.':e.saving?'Salvando na nuvem…':'Alterações locais ainda não salvas.');return;}
  e.key=key;e.version=Number(item?.version||0);e.baseText=String(item?.text||"");e.dirty=false;
  $('pc-fb-handoff-text').value=item?.text||'';
@@ -8618,10 +8631,45 @@ function selectPatient(id){
  if(!id){show('pc-fb-editor',false);subscribePatients();return}
  // Keep patient list listener and rebuild the patient's specific subscriptions.
  subscribe(patientCollection(),snap=>{if(epoch!==state.patientEpoch)return;mergePatientSnapshots(snap);renderPatients();showFreshness(snap.metadata.fromCache?'Lista do cache':'Lista recebida')});
+ // Observe the selected patient's document directly, independent of the list UI.
+ // This makes discharge/reactivation visible without reselecting the patient.
+ subscribe(patientDoc(id),snap=>{
+   if(epoch!==state.patientEpoch||id!==state.selected||!snap.exists())return;
+   const remote={id,...snap.data()};
+   const index=state.patients.findIndex(p=>p.id===id);
+   if(index<0)state.patients.push(remote);
+   else if(Number(remote.version||0)>=Number(state.patients[index].version||0))state.patients[index]=remote;
+   renderPatients();
+   showFreshness(snap.metadata.fromCache?'Paciente no cache':'Paciente atualizado');
+ });
  show('pc-fb-editor',true);
  subscribe(subCollection('evolutions'),snap=>{if(epoch!==state.patientEpoch)return;state.evolutions=mergeVersionedSnapshots(state.evolutions,snap,state.evolutionsConfirmed);$('pc-fb-evo-save').disabled=false;$('pc-fb-evo-release').disabled=false;renderEvo();showFreshness(snap.metadata.fromCache?'Evoluções do cache':'Evoluções recebidas')});
  subscribe(subCollection('handoffs'),snap=>{if(epoch!==state.patientEpoch)return;state.handoffs=mergeVersionedSnapshots(state.handoffs,snap,state.handoffsConfirmed);$('pc-fb-handoff-save').disabled=false;renderHandoff();showFreshness(snap.metadata.fromCache?'Passagens do cache':'Passagens recebidas')});
  subscribe(subCollection('programs'),snap=>{if(epoch!==state.patientEpoch)return;state.programs=snap.docs.map(d=>({id:d.id,...d.data()}));renderPrograms()});
+ startActiveRecordListeners(epoch);
+}
+let activeRecordStops=[];
+function clearActiveRecordListeners(){for(const stop of activeRecordStops.splice(0))try{stop()}catch(_){}}
+function startActiveRecordListeners(epoch){
+ clearActiveRecordListeners();
+ if(!state.selected)return;
+ for(const kind of ['evo','handoff']){
+   const day=$(kind==='evo'?'pc-fb-evo-date':'pc-fb-handoff-date').value;
+   if(!day)continue;
+   const id=state.selected;
+   const unsub=onSnapshot(subDoc(kind==='evo'?'evolutions':'handoffs',day),{includeMetadataChanges:true},snap=>{
+     if(epoch!==state.patientEpoch||id!==state.selected||day!==$(kind==='evo'?'pc-fb-evo-date':'pc-fb-handoff-date').value)return;
+     const map=kind==='evo'?state.evolutions:state.handoffs;
+     const existing=map.get(day);
+     if(snap.exists()){
+       const remote=snap.data();
+       if(Number(remote.version||0)>=Number(existing?.version||0))map.set(day,remote);
+     }else if(!snap.metadata.fromCache&&!existing){map.delete(day);}
+     (kind==='evo'?renderEvo:renderHandoff)();
+     showFreshness(snap.metadata.fromCache?'Registro do cache':'Registro recebido');
+   },err=>status('Falha na escuta do registro: '+err.message,true));
+   activeRecordStops.push(unsub);
+ }
 }
 // Explicit transaction with a version check prevents silently overwriting a
 // document that another device changed since the last onSnapshot update.
@@ -8681,7 +8729,7 @@ $('pc-fb-handoff-text').addEventListener('input',()=>markDirty('handoff'));
 for(const kind of ['evo','handoff']){
  const input=$(kind==='evo'?'pc-fb-evo-date':'pc-fb-handoff-date');
  input.addEventListener('focus',()=>{input.dataset.previousDate=input.value});
- input.addEventListener('change',()=>{if(!discardOrSwitch(kind)){input.value=input.dataset.previousDate||dateToday();return;}input.dataset.previousDate=input.value;(kind==='evo'?renderEvo:renderHandoff)();guard(()=>refreshRecord(kind,false));});
+ input.addEventListener('change',()=>{if(!discardOrSwitch(kind)){input.value=input.dataset.previousDate||dateToday();return;}input.dataset.previousDate=input.value;(kind==='evo'?renderEvo:renderHandoff)();startActiveRecordListeners(state.patientEpoch);guard(()=>refreshRecord(kind,false));});
 }
 async function refreshRecord(kind, askBeforeDiscard=true){
  const isEvo=kind==='evo',e=state.editors[kind],keyBefore=editorKey(kind),patientBefore=state.selected;
