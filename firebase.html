@@ -3726,11 +3726,47 @@ html.pc-full-firebase-pending body > :not(#pc-full-firebase-gate):not(script):no
       };
     }
     function pcCurrentPayload(){return prepareDatabasePayload()}
+    function pcWithoutDailyChecks(list){
+      return (Array.isArray(list)?list:[]).map(p=>{
+        if(!p || typeof p!=='object')return p;
+        const copy={...p};delete copy.dailyChecklist;delete copy.dailyChecklistHistory;
+        return copy;
+      });
+    }
+    // Preserva as referências de pacientes mantidas pelas janelas de rotina.
+    // O Firestore devolve objetos novos; trocar a instância quebrava os handlers
+    // das janelas que permaneciam abertas entre snapshots.
+    function pcStablePatients(incoming){
+      const existing=new Map(patients.map(p=>[String(p.id),p]));
+      return incoming.map(record=>{
+        const current=existing.get(String(record.id));
+        if(!current)return record;
+        if(pcEq(current,record))return current;
+        for(const key of Object.keys(current)){if(!(key in record))delete current[key]}
+        Object.assign(current,record);
+        return current;
+      });
+    }
+    function pcNotifyLivePanels(){
+      try{window.PedCareWorkflow?.refreshCloudPanels?.()}catch(e){console.warn('Falha ao atualizar painéis',e)}
+    }
     function pcInstallMerged(data){
       if(!data || !Array.isArray(data.patients))throw Error('Banco remoto inválido: pacientes ausentes');
+      // Checklists alterados isoladamente não exigem reconstruir o prontuário.
+      // Recriar o paciente a cada snapshot provoca engasgos e deixa janelas com
+      // referências antigas. Atualizamos somente as caixas e contadores visíveis.
+      const onlyDaily=pcEq(pcWithoutDailyChecks(patients),pcWithoutDailyChecks(data.patients))
+        && pcEq(obsidianData,data.obsidianData)
+        && pcEq(window.PedCareLayoutPrefs?.getCloudData?.()||{},data.uiPreferences||{});
+      if(onlyDaily){
+        patients=pcStablePatients(data.patients);
+        try{localStorage.setItem(PATIENTS_STORAGE_KEY,JSON.stringify(patients))}catch(e){console.warn('Cache local indisponível',e)}
+        pcNotifyLivePanels();
+        return;
+      }
       const previousScrollX=window.scrollX, previousScrollY=window.scrollY;
       const previousPatientId=currentPatientId;
-      patients=data.patients;
+      patients=pcStablePatients(data.patients);
       if(pcObj(data.obsidianData)&&Array.isArray(data.obsidianData.notes))obsidianData=data.obsidianData;
       window.PedCareLayoutPrefs?.receiveCloud?.(data.uiPreferences);
       localStorage.setItem(PATIENTS_STORAGE_KEY,JSON.stringify(patients));
@@ -3741,6 +3777,10 @@ html.pc-full-firebase-pending body > :not(#pc-full-firebase-gate):not(script):no
       else if(patients.length)switchPatientTab((patients.find(p=>!p.tabClosed)||patients[0]).id,{fromCloud:true});
       else showArchiveView();
       renderObsidianUI();
+      // O Controle Mestre usa um estado próprio; atualizá-lo após receber
+      // obsidianData evita catálogos antigos entre abas e dispositivos.
+      window.PedCareMaster?.refreshFromCloud?.();
+      pcNotifyLivePanels();
       // Nao deslocar a pagina quando um snapshot chega do servidor.
       // Apenas restaurar se o paciente exibido nao foi realmente trocado pelo usuario.
       if(String(previousPatientId)===String(currentPatientId)){
@@ -5525,9 +5565,12 @@ function dailyChecklist(p, write=false){
 function openDailyChecklist(p=pat()){
  if(!p)return window.PedCareDialog.alert('Selecione um paciente.');
  overlay('Checklist diário — '+(p.name||'Paciente'),host=>{
+   const patientId=String(p.id);
+   const livePatient=()=>patients.find(item=>String(item.id)===patientId);
    const paint=()=>{
-     const check=dailyChecklist(p);
-     const due=program(p).filter(reminderDue);
+     const latest=livePatient();if(!latest)return;
+     const check=dailyChecklist(latest);
+     const due=program(latest).filter(reminderDue);
      const questions=allDailyQuestions();
      host.innerHTML=`<p class="pc-daily-title"><strong>${esc(today().split('-').reverse().join('/'))}</strong> · Revisões diárias de ${esc(p.name||'Paciente')}. Todas as caixas voltam a ficar vazias em um novo dia; confirme os cuidados também no prontuário.</p>`+
        `<div class="pc-daily-sectionhead"><strong>Revisões de rotina</strong><span>${questions.filter(([key])=>!!check[key]).length} de ${questions.length} concluídas</span></div>`+
@@ -5537,7 +5580,8 @@ function openDailyChecklist(p=pat()){
        due.map(t=>`<div class="pc-task"><span style="flex:1">${esc(t.text)} <small>${esc(pcDateBR(t.date)||'Sem data')}</small>${reminderFrom(t)?'<span class="pc-overdue"> • Lembrar desde '+esc(reminderFrom(t).split('-').reverse().join('/'))+'</span>':''}</span></div>`).join('')+
        `<div class="pc-row"><button id="pc-daily-programs">Editar programações</button><button id="pc-daily-close" class="pc-primary">Concluir revisão</button></div>`;
      host.querySelectorAll('[data-daily]').forEach(input=>input.addEventListener('change',()=>{
-       const current=dailyChecklist(p,true);
+       const latest=livePatient();if(!latest){input.checked=false;return;}
+       const current=dailyChecklist(latest,true);
        if(!current){input.checked=false;return;}
        current[input.dataset.daily]=input.checked;
        safeSave();updatePendingBadge();
@@ -5561,10 +5605,11 @@ function openDailyChecklist(p=pat()){
        meta().dailyReviewQuestions=customDailyQuestions().filter(q=>q.id!==key);
        persist();updatePendingBadge();paint();
      });
-     el('pc-daily-programs').onclick=()=>openTasks(p);
+     el('pc-daily-programs').onclick=()=>openTasks(livePatient());
      el('pc-daily-close').onclick=()=>el('pc-overlay')?.remove();
    };
    paint();
+   host.closest('.pc-overlay').__pcCloudRefreshChecklist=paint;
  },'side');
 }
 function uncheckedDailyCount(){
@@ -5602,6 +5647,32 @@ function renderPatientTabBadges(){
    const close=btn.querySelector('.tab-close');
    if(close)btn.insertBefore(bubble,close);else btn.appendChild(bubble);
  });
+}
+function refreshDailyCloudUI(){
+ // Atualiza apenas os checkboxes exibidos (inclusive janelas destacadas).
+ // Não reconstrói a janela inteira nem remove o foco do usuário.
+ document.querySelectorAll('.pc-overlay.pc-kind-checklist').forEach(root=>{
+   const p=patients.find(item=>String(item.id)===String(root.dataset.pcPatientId));
+   if(!p)return;
+   const checked=dailyChecklist(p),questions=allDailyQuestions();
+   root.querySelectorAll('input[data-daily]').forEach(box=>{
+     if(document.activeElement!==box)box.checked=!!checked[box.dataset.daily];
+   });
+   const counter=root.querySelector('.pc-daily-sectionhead span');
+   if(counter)counter.textContent=questions.filter(([key])=>!!checked[key]).length+' de '+questions.length+' concluídas';
+ });
+ document.querySelectorAll('.pc-overlay.pc-kind-reminders .pc-review-patient[data-pc-patient-id]').forEach(group=>{
+   const p=patients.find(item=>String(item.id)===String(group.dataset.pcPatientId));
+   if(!p)return;
+   const checked=dailyChecklist(p),questions=allDailyQuestions();
+   group.querySelectorAll('input[data-question]').forEach(box=>{
+     if(document.activeElement!==box)box.checked=!!checked[box.dataset.question];
+   });
+   const done=questions.filter(([key])=>!!checked[key]).length;
+   const chip=group.querySelector('.pc-review-status');
+   if(chip){chip.textContent=done+'/'+questions.length;chip.classList.toggle('complete',done===questions.length)}
+ });
+ updatePendingBadge();
 }
 function updatePendingBadge(){
  // A conferência geral não exibe nenhuma contagem agregada.
@@ -5742,6 +5813,7 @@ function openTasks(p=pat()){
     safeSave();updatePendingBadge();paint();
    };
   };paint();
+  host.closest('.pc-overlay').__pcCloudRefreshPrograms=paint;
  },'side');
 }
 // Estado de expansão dos pacientes na visão geral das programações.
@@ -5759,10 +5831,11 @@ function showDaily(force=false){
        const check=dailyChecklist(p);
        const done=questions.filter(([k])=>check[k]).length;
        const details=document.createElement('details');details.className='pc-review-patient';
+       details.dataset.pcPatientId=String(p.id);
        details.open=done<questions.length;
        details.innerHTML=`<summary><span>${esc(p.name||'Paciente')} ${p.bed?'· Leito '+esc(p.bed):''}</span><span class="pc-review-status ${done===questions.length?'complete':''}">${done}/${questions.length}</span></summary><div class="pc-review-body">${questions.map(([key,q])=>`<label class="pc-daily-question"><input type="checkbox" data-question="${esc(key)}" ${check[key]?'checked':''}><span>${esc(q)}</span></label>`).join('')}<button data-configure>Personalizar perguntas</button></div>`;
-       details.querySelectorAll('[data-question]').forEach(box=>box.onchange=()=>{const current=dailyChecklist(p,true);if(!current){box.checked=false;return;}current[box.dataset.question]=box.checked;safeSave();updatePendingBadge();const total=questions.filter(([key])=>current[key]).length;const chip=details.querySelector('.pc-review-status');chip.textContent=`${total}/${questions.length}`;chip.classList.toggle('complete',total===questions.length);if(total===questions.length)details.open=false;});
-       details.querySelector('[data-configure]').onclick=()=>openDailyChecklist(p);
+       details.querySelectorAll('[data-question]').forEach(box=>box.onchange=()=>{const latest=patients.find(item=>String(item.id)===String(p.id));if(!latest){box.checked=false;return;}const current=dailyChecklist(latest,true);if(!current){box.checked=false;return;}current[box.dataset.question]=box.checked;safeSave();updatePendingBadge();const total=questions.filter(([key])=>current[key]).length;const chip=details.querySelector('.pc-review-status');chip.textContent=`${total}/${questions.length}`;chip.classList.toggle('complete',total===questions.length);if(total===questions.length)details.open=false;});
+       details.querySelector('[data-configure]').onclick=()=>openDailyChecklist(patients.find(item=>String(item.id)===String(p.id)));
        dailyHost.appendChild(details);
      }
      const tasksHost=host.querySelector('#pc-drawer-programs');
@@ -5989,6 +6062,57 @@ function drawFolders(){
  el('pc-deletefolder').onclick=async()=>{if(!currentFolder)return;let f=meta().patientFolders.find(f=>f.id===currentFolder);if(!f)return;if(meta().patientFolders.some(x=>x.parent===f.id)||patients.some(x=>x.folderId===f.id))return window.PedCareDialog.alert('Mova os pacientes e subpastas antes de excluir.');if(await window.PedCareDialog.confirm('Excluir pasta vazia?')){meta().patientFolders=meta().patientFolders.filter(x=>x.id!==f.id);currentFolder=f.parent||'';persist();drawFolders();if(el('archive-view')?.style.display==='block')renderArchiveTable()}};
 }
 function openFolders(){overlay('Pastas e subpastas de pacientes',()=>drawFolders(),'side')}
+// Atualiza as janelas abertas sem perder texto em edição ou deslocar a página.
+function refreshCloudPanels(){
+ refreshDailyCloudUI();
+ for(const root of document.querySelectorAll('.pc-overlay[data-pc-window-kind]')){
+  const kind=root.dataset.pcWindowKind;
+  if(!['folders','programs','checklist','handoff'].includes(kind))continue;
+  const patient=patients.find(p=>String(p.id)===String(root.dataset.pcPatientId));
+  // Nada mudou para esta janela? Não reconstruir componentes, seleções ou scroll.
+  const signature=kind==='folders'
+   ? JSON.stringify([meta().patientFolders,patients.map(p=>[p.id,p.name,p.bed,p.folderId,p.dischargedAt])])
+   : kind==='programs'
+    ? JSON.stringify(patient?.programs||[])
+    : kind==='handoff'
+     ? JSON.stringify([patient?.handoffDraft||null,patient?.handoffs||[],patient?.name,patient?.weight,patient?.bed])
+    : JSON.stringify([patient?.dailyChecklist,patient?.programs,allDailyQuestions()]);
+  if(root.__pcCloudSignature===signature)continue;
+  if(kind!=='handoff' && root.contains(document.activeElement) &&
+     document.activeElement?.matches?.('input:not([type="checkbox"]),textarea,select,[contenteditable="true"]')){
+    root.dataset.pcCloudUpdatePending='1';
+    let note=root.querySelector('.pc-cloud-pending-note');
+    if(!note){note=document.createElement('div');note.className='pc-cloud-pending-note';
+      note.style.cssText='padding:7px 10px;margin:7px;background:#eff6ff;border:1px solid #93c5fd;border-radius:7px;font:600 12px system-ui';
+      note.setAttribute('role','status');
+      root.querySelector('.pc-dialog')?.prepend(note);
+    }
+    note.textContent='Atualização recebida da nuvem. Termine sua edição ou saia do campo para atualizar esta janela.';
+    continue;
+  }
+  if(kind==='handoff'){
+   if(root.__pcCloudRefreshHandoff?.()===false)continue;
+  }
+  if(kind==='folders'){
+   const scroll=root.querySelector('#pc-content');const top=scroll?.scrollTop||0;
+   const openFolders=[...root.querySelectorAll('[data-archive-folder][open]')].map(n=>n.dataset.archiveFolder);
+   drawFolders();
+   for(const id of openFolders){const n=[...root.querySelectorAll('[data-archive-folder]')].find(n=>n.dataset.archiveFolder===id);if(n)n.open=true}
+   if(scroll)scroll.scrollTop=top;
+  }
+  if(kind==='programs'){
+   const scroll=root.querySelector('#pc-content');const top=scroll?.scrollTop||0;
+   root.__pcCloudRefreshPrograms?.();if(scroll)scroll.scrollTop=top;
+  }
+  if(kind==='checklist'){
+   const scroll=root.querySelector('#pc-content');const top=scroll?.scrollTop||0;
+   root.__pcCloudRefreshChecklist?.();if(scroll)scroll.scrollTop=top;
+  }
+  root.__pcCloudSignature=signature;
+  root.querySelector('.pc-cloud-pending-note')?.remove();delete root.dataset.pcCloudUpdatePending;
+ }
+}
+
 const examBlocks=[
  ['Estado geral',['BEG','REG','MEG','Ativo/reativo','Hipoativo','Irritado','Letárgico','Hidratado','Desidratado','Corado','Hipocorado','Anictérico','Ictérico','Acianótico','Cianótico']],
  ['Pele e mucosas',['Sem lesões','Exantema','Petéquias/púrpura','Turgor preservado','Turgor diminuído','Mucosas úmidas','Mucosas secas']],
@@ -6051,17 +6175,70 @@ function openHandoff(p=pat(),initialDraft=null){
    return draft;
   };
   let timer=null;
-  const storeDraft=()=>{collect();p.handoffDraft=structuredClone(draft);safeSave()};
-  const queueDraft=()=>{clearTimeout(timer);timer=setTimeout(storeDraft,400)};
+  let localEditing=false;
+  const handoffRoot=host.closest('.pc-overlay');
+  const handoffSignature=rec=>JSON.stringify(rec||null);
+  let lastCloudDraft=handoffSignature(p.handoffDraft||null);
+  const handoffHistory=()=>{
+   const selector=host.querySelector('#pc-hand-history');
+   if(!selector)return;
+   const old=selector.value;
+   selector.innerHTML='<option value="">Consultar versões anteriores</option>'+handoffLatestPerDay(p).map((h,i)=>`<option value="${i}">${esc(pcDateBR(handoffSavedDay(h)))} — ${esc(h.savedAt||h.date||'Versão')}</option>`).join('');
+   if([...selector.options].some(o=>o.value===old))selector.value=old;
+  };
+  const updateHandoffForm=record=>{
+   draft=structuredClone(record);
+   host.querySelectorAll('[data-hfield]').forEach(n=>{
+    const key=n.dataset.hfield;
+    n.value=key==='date'?(pcDateISO(draft.date||today())||today()):String(draft[key]??'');
+   });
+   host.querySelectorAll('[data-vital]').forEach(n=>n.value=String(draft.vitals?.[n.dataset.vital]??''));
+   host.querySelectorAll('[data-enote]').forEach(n=>n.value=String(draft.notes?.[n.dataset.enote]??''));
+   host.querySelectorAll('[data-exam]').forEach(n=>n.checked=Boolean(draft.exam?.[n.dataset.exam]));
+   const v=host.querySelector('[data-hvisc]');if(v)v.value=String(draft.otherViscera||'');
+   refreshWeight();handoffHistory();
+  };
+  if(handoffRoot){
+   handoffRoot.__pcCloudRefreshHandoff=()=>{
+    if(!handoffRoot.isConnected)return false;
+    const latest=p.handoffDraft&&typeof p.handoffDraft==='object'?p.handoffDraft:seedHandoff(p);
+    const incoming=handoffSignature(latest);
+    // Histórico e cabeçalho devem acompanhar outras abas mesmo sem mudar o rascunho.
+    handoffHistory();refreshWeight();
+    if(incoming===lastCloudDraft)return true;
+    const focused=host.contains(document.activeElement) &&
+       document.activeElement?.matches?.('textarea,input:not([readonly]):not([disabled])');
+    if(localEditing||timer!==null){
+     let warn=host.querySelector('.pc-handoff-remote-warning');
+     if(!warn){warn=document.createElement('div');warn.className='pc-handoff-remote-warning';
+      warn.style.cssText='margin:8px 0;padding:9px;background:#fff7ed;border:1px solid #fdba74;border-radius:8px;font:600 12px system-ui';
+      host.querySelector('.pc-hand-actions')?.insertAdjacentElement('afterend',warn);
+     }
+     warn.textContent='A passagem foi modificada em outra aba. Seu texto local está preservado. Salve uma cópia antes de recarregar para não perder alterações.';
+     return false;
+    }
+    // Foco sozinho não impede atualização; apenas alterações ainda não salvas.
+    updateHandoffForm(latest);lastCloudDraft=incoming;
+    host.querySelector('.pc-handoff-remote-warning')?.remove();
+    const status=host.querySelector('.pc-handoff-save-feedback');
+    if(status)status.textContent='Passagem atualizada da nuvem.';
+    return true;
+   };
+  }
+  const storeDraft=()=>{
+   timer=null;collect();p.handoffDraft=structuredClone(draft);
+   lastCloudDraft=handoffSignature(p.handoffDraft);localEditing=false;safeSave();
+  };
+  const queueDraft=()=>{localEditing=true;clearTimeout(timer);timer=setTimeout(storeDraft,400)};
   host.querySelectorAll('[data-hfield],[data-vital],[data-exam],[data-enote],[data-hvisc]').forEach(n=>{n.addEventListener('input',queueDraft);n.addEventListener('change',queueDraft)});
   const save=()=>{
-   clearTimeout(timer);collect();
+   clearTimeout(timer);timer=null;collect();localEditing=false;
    // A hora reflete o clique em Salvar/Salvar e imprimir, nunca a abertura da tela.
    const instant=new Date();
    draft.time=`${String(instant.getHours()).padStart(2,'0')}:${String(instant.getMinutes()).padStart(2,'0')}`;
    const timeInput=host.querySelector('[data-hfield="time"]');
    if(timeInput)timeInput.value=draft.time;
-   p.handoffDraft=structuredClone(draft);
+   p.handoffDraft=structuredClone(draft);lastCloudDraft=handoffSignature(p.handoffDraft);
    const version=structuredClone(draft);
    version.id='hand_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
    version.savedAt=instant.toLocaleString('pt-BR');
@@ -6082,12 +6259,12 @@ function openHandoff(p=pat(),initialDraft=null){
   };
   el('pc-hand-save').onclick=()=>{save()};
   el('pc-hand-print').onclick=()=>{const rec=save();printHandoff(p,rec)};
-  el('pc-hand-new').onclick=()=>{clearTimeout(timer);storeDraft();const next={date:today(),time:'',dih:'',reason:'',comorbidities:'',clinicalHistory:'',impression:'',conduct:'',pending:'',devices:'',neurology:'',exam:{},notes:{},vitals:{},id:''};openHandoff(p,next)};
-  el('pc-hand-history').onchange=e=>{if(e.target.value==='')return;clearTimeout(timer);storeDraft();let i=Number(e.target.value);let rec=handoffLatestPerDay(p)[i];if(rec)openHandoffVersion(p,rec)};
+  el('pc-hand-new').onclick=()=>{clearTimeout(timer);timer=null;storeDraft();const next={date:today(),time:'',dih:'',reason:'',comorbidities:'',clinicalHistory:'',impression:'',conduct:'',pending:'',devices:'',neurology:'',exam:{},notes:{},vitals:{},id:''};openHandoff(p,next)};
+  el('pc-hand-history').onchange=e=>{if(e.target.value==='')return;clearTimeout(timer);timer=null;storeDraft();let i=Number(e.target.value);let rec=handoffLatestPerDay(p)[i];if(rec)openHandoffVersion(p,rec)};
   // Fechar não perde o texto já digitado.
   const root=el('pc-overlay');
-  root?.addEventListener('click',event=>{if(event.target===root || event.target.id==='pc-close'){clearTimeout(timer);storeDraft()}}, {capture:true});
-  root?.addEventListener('pc-before-close',()=>{clearTimeout(timer);storeDraft()});
+  root?.addEventListener('click',event=>{if(event.target===root || event.target.id==='pc-close'){clearTimeout(timer);timer=null;storeDraft()}}, {capture:true});
+  root?.addEventListener('pc-before-close',()=>{clearTimeout(timer);timer=null;storeDraft()});
  },'side');
 }
 function openHandoffVersion(p,rec){
@@ -6259,7 +6436,16 @@ function init(){
  },1600);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
-window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,showDaily,beforeLogout};
+window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,showDaily,beforeLogout,refreshDailyCloudUI,refreshCloudPanels};
+// Recuperação discreta das janelas que receberam dados durante uma edição.
+document.addEventListener('focusout',event=>{
+ const root=event.target?.closest?.('.pc-overlay[data-pc-window-kind][data-pc-cloud-update-pending]');
+ if(!root)return;
+ setTimeout(()=>{
+  if(!root.isConnected||root.contains(document.activeElement))return;
+  refreshCloudPanels();
+ },0);
+});
 })();
 
 
@@ -6631,6 +6817,36 @@ function saveConfig(){
   if(typeof saveObsidianData==='function')saveObsidianData();
  }
 }
+// Recebe o catálogo da nuvem sem gerar um novo salvamento.
+// O HTML principal atualiza obsidianData ao instalar um snapshot do Firestore.
+function refreshFromCloud(){
+ try{
+  if(typeof obsidianData==='undefined')return;
+  const cloud=obsidianData.masterPrescriptionCatalog;
+  const next=cloud&&typeof cloud==='object' ? cloud : {categories:{},items:{},customCategories:[],customItems:[]};
+  next.categories||={};next.items||={};next.customCategories||=[];next.customItems||=[];
+  if(JSON.stringify(config)===JSON.stringify(next))return;
+  config=JSON.parse(JSON.stringify(next));
+  try{localStorage.setItem(CATALOG_KEY,JSON.stringify(config))}catch(e){console.warn('Cache local do catálogo indisponível',e)}
+  applyCatalog();
+  const overlay=$('pc-master-overlay');
+  if(overlay?.classList.contains('open')){
+   // Não descartar silenciosamente um rascunho que está sendo digitado.
+   const editing=overlay.contains(document.activeElement)
+     && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
+   if(editing){
+    let notice=$('pc-master-cloud-notice');
+    if(!notice){notice=document.createElement('div');notice.id='pc-master-cloud-notice';notice.setAttribute('role','status');notice.style.cssText='padding:9px 12px;background:#fff7ed;color:#92400e;border:1px solid #fdba74;border-radius:8px;margin:8px 0;font-weight:650';overlay.querySelector('.pc-master-editor')?.prepend(notice)}
+    notice.textContent='O catálogo foi atualizado em outro dispositivo. Seu texto em edição foi preservado nesta tela; feche e abra o Controle Mestre para visualizar a versão recebida antes de salvar.';
+   }else{
+    if(!categories().some(c=>c.id===selectedCategory))selectedCategory=categories()[0]?.id||'';
+    if(selectedItem && selectedItem!=='NEW' && !items(selectedCategory).some(i=>i.id===selectedItem))selectedItem='';
+    $('pc-master-cloud-notice')?.remove();
+    render();
+   }
+  }
+ }catch(e){console.error('Falha ao atualizar Controle Mestre recebido da nuvem',e)}
+}
 function categoryNumber(id){
  const original=baseline.find(b=>b.id===id);
  if(original)return original.index+1;
@@ -6821,7 +7037,7 @@ async function addCategory(){
  confirmChange('Criar a classe “'+name.trim()+'” para todas as prescrições',()=>{
  const id='master_cat_'+Date.now()+'_'+(++catSequence);config.customCategories.push({id,title:name.trim()});selectedCategory=id;selectedItem='';saveConfig();applyCatalog();render()});
 }
-function open(){selectedCategory=categories()[0]?.id||'';selectedItem='';render();$('pc-master-overlay').classList.add('open');$('pc-master-overlay').setAttribute('aria-hidden','false')}
+function open(){refreshFromCloud();selectedCategory=categories()[0]?.id||'';selectedItem='';$('pc-master-cloud-notice')?.remove();render();$('pc-master-overlay').classList.add('open');$('pc-master-overlay').setAttribute('aria-hidden','false')}
 function close(){$('pc-master-overlay').classList.remove('open');$('pc-master-overlay').setAttribute('aria-hidden','true')}
 function cancelConfirmation(){pending=null;$('pc-master-confirm').classList.remove('open')}
 function commitConfirmation(){if($('pc-master-confirm-input').value.trim()!=='CONFIRMAR'||!pending)return;const run=pending;cancelConfirmation();try{run()}catch(e){console.error(e);window.PedCareDialog.alert('Não foi possível aplicar a alteração.')}}
@@ -6841,7 +7057,14 @@ function init(){if(!ROOT())return;takeBaseline();loadConfig();selectedCategory=c
   window.loadPatientDataIntoForm=function(...args){const result=old.apply(this,args);applyCatalog();return result};
  }
 }
-window.PedCareMaster={open,close,addCategory,cancelConfirmation,commitConfirmation,refreshDoses:refreshCustomDoses};
+window.PedCareMaster={open,close,addCategory,cancelConfirmation,commitConfirmation,refreshDoses:refreshCustomDoses,refreshFromCloud};
+// Se o catálogo mudou enquanto um campo estava focado, redesenhar após sair
+// desse campo, nunca durante a digitação.
+document.addEventListener('focusout',event=>{
+ if(!event.target?.closest?.('#pc-master-overlay'))return;
+ if(!$('pc-master-cloud-notice'))return;
+ setTimeout(()=>{if(!$('pc-master-overlay')?.contains(document.activeElement))refreshFromCloud()},0);
+});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
