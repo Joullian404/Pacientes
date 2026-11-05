@@ -8481,7 +8481,7 @@ function resetEditorStates(){for(const e of Object.values(state.editors)){e.key=
 function editorKey(kind){return `${state.selected||''}|${$(kind==='evo'?'pc-fb-evo-date':'pc-fb-handoff-date').value}`;}
 function editorRecord(kind){const day=$(kind==='evo'?'pc-fb-evo-date':'pc-fb-handoff-date').value;return (kind==='evo'?state.evolutions:state.handoffs).get(day);}
 function editorLabel(kind,msg){text(kind==='evo'?'pc-fb-evo-label':'pc-fb-handoff-label',msg);}
-function remoteConflict(kind){const e=state.editors[kind],record=editorRecord(kind);return e.key===editorKey(kind)&&e.dirty&&Number(record?.version||0)!==e.version;}
+function remoteConflict(kind){const e=state.editors[kind],record=editorRecord(kind);return e.key===editorKey(kind)&&e.dirty&&Number(record?.version||0)!==e.version&&String(record?.text||'')!==String(e.baseText||'');}
 function markDirty(kind){const e=state.editors[kind];if(e.key!==editorKey(kind)){e.key=editorKey(kind);e.version=Number(editorRecord(kind)?.version||0);e.baseText=String(editorRecord(kind)?.text||"")}e.dirty=true;editorLabel(kind,remoteConflict(kind)?'⚠️ Alteração recebida de outro dispositivo. Seu texto está preservado; não salve por cima.':'Alterações locais ainda não salvas.');}
 function discardOrSwitch(kind){const e=state.editors[kind];if(e.saving){status('Aguarde a confirmação do salvamento antes de mudar de paciente ou data.',true);return false;}if(!e.dirty)return true;if(!confirm('Há alterações não salvas nesta janela. Descartá-las?'))return false;e.dirty=false;return true;}
 
@@ -8505,6 +8505,21 @@ function mergeVersionedSnapshots(previous, snap, confirmed){
  }
  return incoming;
 }
+function mergePatientSnapshots(snap){
+ const incoming=snap.docs.map(d=>({id:d.id,...d.data()}));
+ const prior=new Map(state.patients.map(p=>[p.id,p]));
+ for(const patient of incoming){
+   const old=prior.get(patient.id);
+   if(old && Number(old.version||0)>Number(patient.version||0))Object.assign(patient,old);
+ }
+ // Never treat a transient cache-only result as permission to forget a patient
+ // that was already confirmed in this tab. The authoritative server event reconciles it.
+ if(snap.metadata.fromCache){
+   const ids=new Set(incoming.map(p=>p.id));
+   for(const old of state.patients)if(!ids.has(old.id))incoming.push(old);
+ }
+ state.patients=incoming.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+}
 function snapshotMessage(snap){return snap.metadata.fromCache?'Dados do cache local; aguardando confirmação da nuvem.':snap.metadata.hasPendingWrites?'Alteração local pendente de envio ao Firestore.':'Sincronizado com o Firestore.';}
 function showFreshness(source){
  text('pc-fb-last-sync',source+' · '+new Date().toLocaleTimeString('pt-BR'));
@@ -8517,7 +8532,7 @@ async function reconcileServer(){
  if(patient.exists()){
    const remote={id,...patient.data()};
    const i=state.patients.findIndex(p=>p.id===id);
-   if(i>=0)state.patients[i]=remote;else state.patients.push(remote);
+   if(i>=0){if(Number(remote.version||0)>=Number(state.patients[i].version||0))state.patients[i]=remote;}else state.patients.push(remote);
    renderPatients();
  }
  const dayE=$('pc-fb-evo-date').value,dayH=$('pc-fb-handoff-date').value;
@@ -8527,11 +8542,11 @@ async function reconcileServer(){
  ]);
  if(epoch!==state.patientEpoch||id!==state.selected)return;
  if(dayE===$('pc-fb-evo-date').value){
-   if(evo.exists())state.evolutions.set(dayE,evo.data());else state.evolutions.delete(dayE);
+   if(evo.exists()){const received=evo.data(),current=state.evolutions.get(dayE);if(Number(received.version||0)>=Number(current?.version||0))state.evolutions.set(dayE,received);}else if(!state.evolutions.has(dayE))state.evolutions.delete(dayE);
    state.evolutionsConfirmed.delete(dayE);renderEvo();
  }
  if(dayH===$('pc-fb-handoff-date').value){
-   if(handoff.exists())state.handoffs.set(dayH,handoff.data());else state.handoffs.delete(dayH);
+   if(handoff.exists()){const received=handoff.data(),current=state.handoffs.get(dayH);if(Number(received.version||0)>=Number(current?.version||0))state.handoffs.set(dayH,received);}else if(!state.handoffs.has(dayH))state.handoffs.delete(dayH);
    state.handoffsConfirmed.delete(dayH);renderHandoff();
  }
  showFreshness('Conferido no servidor');
@@ -8562,7 +8577,7 @@ function renderPatients(){
 }
 function subscribePatients(){
  cleanSubs();++state.patientEpoch;resetPatientEditor();
- subscribe(patientCollection(),snap=>{state.patients=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''));renderPatients();status(snapshotMessage(snap));showFreshness(snap.metadata.fromCache?'Lista do cache':'Lista recebida');});
+ subscribe(patientCollection(),snap=>{mergePatientSnapshots(snap);renderPatients();status(snapshotMessage(snap));showFreshness(snap.metadata.fromCache?'Lista do cache':'Lista recebida');});
 }
 function renderEvo(){
  const e=state.editors.evo,d=$('pc-fb-evo-date').value,item=state.evolutions.get(d),key=editorKey('evo');
@@ -8602,7 +8617,7 @@ function selectPatient(id){
  cleanSubs();const epoch=++state.patientEpoch;state.selected=id||null;state.evolutions.clear();state.handoffs.clear();state.evolutionsConfirmed.clear();state.handoffsConfirmed.clear();state.programs=[];programsRenderHash='';resetEditorStates();$('pc-fb-evo-save').disabled=true;$('pc-fb-evo-release').disabled=true;$('pc-fb-handoff-save').disabled=true;
  if(!id){show('pc-fb-editor',false);subscribePatients();return}
  // Keep patient list listener and rebuild the patient's specific subscriptions.
- subscribe(patientCollection(),snap=>{if(epoch!==state.patientEpoch)return;state.patients=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''));renderPatients();showFreshness(snap.metadata.fromCache?'Lista do cache':'Lista recebida')});
+ subscribe(patientCollection(),snap=>{if(epoch!==state.patientEpoch)return;mergePatientSnapshots(snap);renderPatients();showFreshness(snap.metadata.fromCache?'Lista do cache':'Lista recebida')});
  show('pc-fb-editor',true);
  subscribe(subCollection('evolutions'),snap=>{if(epoch!==state.patientEpoch)return;state.evolutions=mergeVersionedSnapshots(state.evolutions,snap,state.evolutionsConfirmed);$('pc-fb-evo-save').disabled=false;$('pc-fb-evo-release').disabled=false;renderEvo();showFreshness(snap.metadata.fromCache?'Evoluções do cache':'Evoluções recebidas')});
  subscribe(subCollection('handoffs'),snap=>{if(epoch!==state.patientEpoch)return;state.handoffs=mergeVersionedSnapshots(state.handoffs,snap,state.handoffsConfirmed);$('pc-fb-handoff-save').disabled=false;renderHandoff();showFreshness(snap.metadata.fromCache?'Passagens do cache':'Passagens recebidas')});
@@ -8679,7 +8694,7 @@ async function refreshRecord(kind, askBeforeDiscard=true){
  if(patientBefore!==state.selected||keyBefore!==editorKey(kind))return;
  const remote=snap.exists()?snap.data():null;
  const map=isEvo?state.evolutions:state.handoffs;
- if(remote)map.set(dateId,remote);else map.delete(dateId);
+ if(remote){if(Number(remote.version||0)>=Number(map.get(dateId)?.version||0))map.set(dateId,remote);}else if(!map.has(dateId))map.delete(dateId);
  (isEvo?state.evolutionsConfirmed:state.handoffsConfirmed).delete(dateId);
  e.dirty=false;e.saving=false;e.key=null;
  (isEvo?renderEvo:renderHandoff)();
@@ -8700,28 +8715,30 @@ async function saveText(kind){
  const ref=subDoc(isEvo?'evolutions':'handoffs',dateId);
  field.disabled=true;e.saving=true;e.dirty=true;
  const btn=$(isEvo?'pc-fb-evo-save':'pc-fb-handoff-save');btn.disabled=true;
- editorLabel(kind,'Conferindo versão e salvando na nuvem…');
+ const startedAt=performance.now();editorLabel(kind,'Salvando na nuvem (verificação de conflito incluída)…');
  try{
-   // Read the authoritative server copy before the transaction; do not trust
-   // an onSnapshot event that can still be one version behind on mobile.
-   const fresh=await getDocFromServer(ref);
-   if(patientAtStart!==state.selected||key!==editorKey(kind))throw Error('O paciente ou a data mudou durante o salvamento.');
-   const live=fresh.exists()?fresh.data():null;
-   if(isEvo&&live?.status==='released')throw Error('Esta evolução foi liberada em outro dispositivo.');
-   const liveVersion=Number(live?.version||0);
-   // A missing snapshot notification is harmless if the server text itself
-   // has not changed. Rebase that metadata/version-only update safely.
-   if(liveVersion!==e.version && String(live?.text||'')!==String(e.baseText||'')){
-     if(live)(isEvo?state.evolutions:state.handoffs).set(dateId,live);
-     throw Error('CONFLITO REAL: a nuvem tem um texto diferente (v'+liveVersion+'). Seu texto foi preservado. Copie-o ou use Carregar da nuvem para descartá-lo.');
-   }
-   await changeDoc(ref,liveVersion,changes);
-   const newVersion=liveVersion+1;
+   // One authoritative transaction is both the conflict check and the write.
+   // This avoids a redundant getDocFromServer request on slow mobile connections.
+   let live=null, newVersion=0;
+   await runTransaction(state.db,async tx=>{
+     const snap=await tx.get(ref);
+     live=snap.exists()?snap.data():null;
+     if(isEvo&&live?.status==='released')throw Error('Esta evolução foi liberada em outro dispositivo.');
+     const liveVersion=Number(live?.version||0);
+     // A change in version alone is harmless if the source text is identical.
+     // Different text, however, must never be overwritten silently.
+     if(String(live?.text||'')!==String(e.baseText||'')){
+       throw Error('CONFLITO REAL: a nuvem possui texto diferente (v'+liveVersion+'). Seu rascunho foi preservado. Use Carregar da nuvem somente depois de copiá-lo.');
+     }
+     newVersion=liveVersion+1;
+     tx.set(ref,{...(live||{}),...changes,version:newVersion,updatedAt:serverTimestamp()});
+   });
+   if(patientAtStart!==state.selected||key!==editorKey(kind))throw Error('Registro salvo, mas o paciente ou a data mudou. Reabra o registro para conferir.');
    const confirmed={...(live||{}),...changes,version:newVersion};
    (isEvo?state.evolutionsConfirmed:state.handoffsConfirmed).set(dateId,confirmed);
    (isEvo?state.evolutions:state.handoffs).set(dateId,confirmed);
    e.version=newVersion;e.baseText=savedText;e.dirty=false;
-   editorLabel(kind,'✓ Salvo na nuvem · versão '+newVersion);
+   editorLabel(kind,'✓ Salvo na nuvem · versão '+newVersion+' · '+((performance.now()-startedAt)/1000).toFixed(1)+'s');
    status((isEvo?'Evolução':'Passagem')+' confirmada no Firestore · versão '+newVersion);
  }catch(error){e.dirty=true;editorLabel(kind,'⚠️ Não salvo: '+(error.message||error));throw error}
  finally{e.saving=false;btn.disabled=false;field.disabled=isEvo&&editorRecord('evo')?.status==='released';if(!e.dirty)(isEvo?renderEvo:renderHandoff)()}
