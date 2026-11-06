@@ -1477,6 +1477,18 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
 #modal-github #pc-sync-export-backup{display:block;margin:10px 0 0;padding:9px 12px;
   border-radius:9px;background:#e8f1fa;color:#15456b;border:1px solid #bad5ea;cursor:pointer}
 </style>
+<style id="pc-full-firebase-pilot-lock-style">
+html.pc-full-firebase-pending body > :not(#pc-full-firebase-gate):not(script):not(style){visibility:hidden!important}
+#pc-full-firebase-gate{position:fixed;inset:0;z-index:2147483550;display:flex;align-items:center;justify-content:center;background:#eaf2f7;padding:16px;font-family:system-ui,Arial,sans-serif;color:#193951}
+#pc-full-firebase-gate .pc-full-dialog{background:#fff;box-shadow:0 18px 58px #102f4440;border:1px solid #cedee7;border-radius:16px;padding:22px;width:min(550px,100%);max-height:94vh;overflow:auto;display:grid;gap:11px}
+#pc-full-firebase-gate h2{font-size:20px;margin:0}#pc-full-firebase-gate p{font-size:13px;line-height:1.5;margin:0}
+#pc-full-firebase-gate label{display:grid;gap:4px;font-size:12px;font-weight:650}
+#pc-full-firebase-gate input,#pc-full-firebase-gate textarea{width:100%;font:15px system-ui;box-sizing:border-box;border:1px solid #b8cbd6;border-radius:7px;padding:9px}
+#pc-full-firebase-gate textarea{min-height:125px}#pc-full-firebase-gate button{background:#096c98;border:0;border-radius:8px;padding:10px 12px;color:white;font-weight:700;cursor:pointer}
+#pc-full-firebase-gate button:disabled{opacity:.5;cursor:wait}#pc-full-firebase-gate .pc-fb-statusline{border:1px solid #cfe1e9;background:#f2f8fb;border-radius:8px;padding:10px;font-size:13px;white-space:pre-wrap}
+#pc-full-firebase-mini{position:fixed;left:12px;bottom:15px;z-index:2147481500;border:0;background:#15577d;color:#fff;border-radius:999px;padding:10px 13px;box-shadow:0 6px 22px #16405c40;font:700 12px system-ui;cursor:pointer}
+@media print{#pc-full-firebase-gate,#pc-full-firebase-mini{display:none!important}}
+</style><script>document.documentElement.classList.add('pc-full-firebase-pending')</script>
 </head>
 <body>
 
@@ -2370,8 +2382,9 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
   </script>
   <script>
 
-    const PATIENTS_STORAGE_KEY = 'pedcare_patients_v7';
-    const OBSIDIAN_STORAGE_KEY = 'pedcare_obsidian_notes_v1';
+    const PC_FULL_FIREBASE_MODE = true; // Piloto integrado separado do PedCare/Gist
+    const PATIENTS_STORAGE_KEY = PC_FULL_FIREBASE_MODE ? 'pc_fb_full_test_patients_cache_v1' : 'pedcare_patients_v7';
+    const OBSIDIAN_STORAGE_KEY = PC_FULL_FIREBASE_MODE ? 'pc_fb_full_test_obsidian_cache_v1' : 'pedcare_obsidian_notes_v1';
     const GH_TOKEN_KEY = 'pedcare_gh_token';
     const GH_GIST_KEY = 'pedcare_gh_gist_id';
     const PEDCARE_SIGNED_OUT_KEY = 'pedcare_signed_out';
@@ -2581,10 +2594,10 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
 
     window.onload = function() {
       if (isPedCareSignedOut()) { showPedCareSignedOutScreen(); return; }
-      loadObsidianData();
-      loadAllPatients();
+      if(!PC_FULL_FIREBASE_MODE){loadObsidianData();loadAllPatients();}
+      else { patients=[]; } // Nunca importar dados anteriores automaticamente
 
-      if (!patients.length && !(localStorage.getItem(GH_TOKEN_KEY) && localStorage.getItem(GH_GIST_KEY))) {
+      if (!PC_FULL_FIREBASE_MODE && !patients.length && !(localStorage.getItem(GH_TOKEN_KEY) && localStorage.getItem(GH_GIST_KEY))) {
         createNewPatient();
       } else {
         const firstOpen = patients.find(p => !p.tabClosed);
@@ -2592,7 +2605,7 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
         else { renderTabs(); showArchiveView(); }
       }
 
-      initGitHubConnection();
+      if(!PC_FULL_FIREBASE_MODE)initGitHubConnection();
       renderObsidianUI();
       setupPasteListener();
     };
@@ -3114,6 +3127,7 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
     }
 
     function saveObsidianData() {
+      if(PC_FULL_FIREBASE_MODE && !window.PedCareFullFirebase?.ready?.())return;
       if (isPedCareSignedOut()) return;
       try {localStorage.setItem(OBSIDIAN_STORAGE_KEY, JSON.stringify(obsidianData))}
       catch(e){console.error('Falha no salvamento local das notas',e);updateCloudStatus('disconnected','⚠️ Armazenamento local indisponível')}
@@ -3508,6 +3522,7 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
 
     /* GITHUB SYNC */
     function openGitHubModal() {
+      if(PC_FULL_FIREBASE_MODE){ window.PedCareFullFirebase?.showPanel?.(); return; }
       let backupBtn=document.getElementById('pc-sync-export-backup');
       if(!backupBtn){
         const section=document.getElementById('modal-github');
@@ -3541,6 +3556,7 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
     }
 
     async function initGitHubConnection() {
+      if(PC_FULL_FIREBASE_MODE)return;
       if (isPedCareSignedOut()) return;
       const token = localStorage.getItem(GH_TOKEN_KEY);
       const gistId = localStorage.getItem(GH_GIST_KEY);
@@ -3635,8 +3651,8 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
     const pcObj = v => v && typeof v === 'object' && !Array.isArray(v);
     const pcGistValid = (token,gist) => !isPedCareSignedOut() &&
        localStorage.getItem(GH_TOKEN_KEY) === token && localStorage.getItem(GH_GIST_KEY) === gist;
-    function pcSyncKey(){return PC_SYNC_BASE_PREFIX+(localStorage.getItem(GH_GIST_KEY)||'none')}
-    function pcRecoverKey(){return PC_SYNC_RECOVERY_PREFIX+(localStorage.getItem(GH_GIST_KEY)||'none')}
+    function pcSyncKey(){return PC_SYNC_BASE_PREFIX+(PC_FULL_FIREBASE_MODE?'full_firebase_pilot':(localStorage.getItem(GH_GIST_KEY)||'none'))}
+    function pcRecoverKey(){return PC_SYNC_RECOVERY_PREFIX+(PC_FULL_FIREBASE_MODE?'full_firebase_pilot':(localStorage.getItem(GH_GIST_KEY)||'none'))}
     function pcReadBase(){try{return JSON.parse(localStorage.getItem(pcSyncKey())||'null')}catch{return null}}
     function pcWriteBase(value){
       pcSyncBase=pcClone(value);
@@ -3710,19 +3726,108 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
       };
     }
     function pcCurrentPayload(){return prepareDatabasePayload()}
+    function pcWithoutDailyChecks(list){
+      return (Array.isArray(list)?list:[]).map(p=>{
+        if(!p || typeof p!=='object')return p;
+        const copy={...p};delete copy.dailyChecklist;delete copy.dailyChecklistHistory;
+        return copy;
+      });
+    }
+    // Preserva as referências de pacientes mantidas pelas janelas de rotina.
+    // O Firestore devolve objetos novos; trocar a instância quebrava os handlers
+    // das janelas que permaneciam abertas entre snapshots.
+    function pcStablePatients(incoming){
+      const existing=new Map(patients.map(p=>[String(p.id),p]));
+      return incoming.map(record=>{
+        const current=existing.get(String(record.id));
+        if(!current)return record;
+        if(pcEq(current,record))return current;
+        for(const key of Object.keys(current)){if(!(key in record))delete current[key]}
+        Object.assign(current,record);
+        return current;
+      });
+    }
+    function pcNotifyLivePanels(){
+      try{window.PedCareWorkflow?.refreshCloudPanels?.()}catch(e){console.warn('Falha ao atualizar painéis',e)}
+    }
+    // Um snapshot nunca deve recriar o formulário enquanto o usuário digita.
+    // Recriar a ficha (switchPatientTab -> loadPatientDataIntoForm -> showPatient)
+    // altera value/cursor, inclusive em evoluções e editores de texto.
+    let pcCloudPendingView=false, pcCloudDeferredTimer=null;
+    function pcCloudActiveEditor(){
+      const a=document.activeElement;
+      return Boolean(a && a.isConnected && !a.disabled &&
+        (a.matches?.('textarea,input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),[contenteditable="true"]') ||
+         a.closest?.('[contenteditable="true"]')) &&
+        (a.closest?.('#patient-main-view,#popup-obsidian,#pc-master-overlay,.pc-overlay,.floating-popup') || a.id==='pront-history'));
+    }
+    function pcCloudRefreshView(){
+      if(!pcCloudPendingView||pcCloudActiveEditor())return;
+      pcCloudPendingView=false;
+      const px=window.scrollX,py=window.scrollY;
+      window.__pcApplyingRemoteDisplay=true;
+      try{
+        const pat=patients.find(p=>String(p.id)===String(currentPatientId));
+        if(pat && document.getElementById('patient-main-view')?.style.display!=='none'){
+          switchPatientTab(pat.id,{fromCloud:true});
+        }
+        // Não recriar o editor de notas se ele ganhou foco entre o blur e o refresh.
+        if(!pcCloudActiveEditor())renderObsidianUI();
+        window.PedCareMaster?.refreshFromCloud?.();
+        pcNotifyLivePanels();
+      }finally{window.__pcApplyingRemoteDisplay=false;}
+      window.scrollTo({left:px,top:py,behavior:'instant'});
+    }
+    document.addEventListener('focusout',()=>{
+      if(!pcCloudPendingView)return;
+      clearTimeout(pcCloudDeferredTimer);
+      pcCloudDeferredTimer=setTimeout(pcCloudRefreshView,120);
+    },true);
     function pcInstallMerged(data){
       if(!data || !Array.isArray(data.patients))throw Error('Banco remoto inválido: pacientes ausentes');
-      patients=data.patients;
+      // Checklists alterados isoladamente não exigem reconstruir o prontuário.
+      // Recriar o paciente a cada snapshot provoca engasgos e deixa janelas com
+      // referências antigas. Atualizamos somente as caixas e contadores visíveis.
+      const onlyDaily=pcEq(pcWithoutDailyChecks(patients),pcWithoutDailyChecks(data.patients))
+        && pcEq(obsidianData,data.obsidianData)
+        && pcEq(window.PedCareLayoutPrefs?.getCloudData?.()||{},data.uiPreferences||{});
+      if(onlyDaily){
+        patients=pcStablePatients(data.patients);
+        try{localStorage.setItem(PATIENTS_STORAGE_KEY,JSON.stringify(patients))}catch(e){console.warn('Cache local indisponível',e)}
+        pcNotifyLivePanels();
+        return;
+      }
+      const previousScrollX=window.scrollX, previousScrollY=window.scrollY;
+      const previousPatientId=currentPatientId;
+      patients=pcStablePatients(data.patients);
       if(pcObj(data.obsidianData)&&Array.isArray(data.obsidianData.notes))obsidianData=data.obsidianData;
       window.PedCareLayoutPrefs?.receiveCloud?.(data.uiPreferences);
       localStorage.setItem(PATIENTS_STORAGE_KEY,JSON.stringify(patients));
       localStorage.setItem(OBSIDIAN_STORAGE_KEY,JSON.stringify(obsidianData));
       const active=patients.find(p=>String(p.id)===String(currentPatientId));
+      // Atualizar apenas as abas e painéis que não substituem o campo em edição.
+      // Se um editor estiver ativo, postergar o redesenho da ficha até o blur.
       renderTabs();
-      if(active)switchPatientTab(active.id);
-      else if(patients.length)switchPatientTab((patients.find(p=>!p.tabClosed)||patients[0]).id);
-      else showArchiveView();
-      renderObsidianUI();
+      if(pcCloudActiveEditor()){
+        pcCloudPendingView=true;
+        pcNotifyLivePanels();
+      }else{
+        pcCloudPendingView=false;
+        window.__pcApplyingRemoteDisplay=true;
+        try{
+          if(active)switchPatientTab(active.id,{fromCloud:true});
+          else if(patients.length)switchPatientTab((patients.find(p=>!p.tabClosed)||patients[0]).id,{fromCloud:true});
+          else showArchiveView();
+          renderObsidianUI();
+          window.PedCareMaster?.refreshFromCloud?.();
+          pcNotifyLivePanels();
+        }finally{window.__pcApplyingRemoteDisplay=false;}
+      }
+      // Nao deslocar a pagina quando um snapshot chega do servidor.
+      // Apenas restaurar se o paciente exibido nao foi realmente trocado pelo usuario.
+      if(String(previousPatientId)===String(currentPatientId)){
+        window.scrollTo({left:previousScrollX,top:previousScrollY,behavior:'instant'});
+      }
     }
     async function pcFetchGist(token,gist){
       const response=await fetch('https://api.github.com/gists/'+encodeURIComponent(gist),{
@@ -3744,6 +3849,7 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
       return data;
     }
     function pcScheduleSync(ms=2200){
+      if(PC_FULL_FIREBASE_MODE)return;
       if(isPedCareSignedOut()||!localStorage.getItem(GH_GIST_KEY))return;
       clearTimeout(syncTimeout);
       if(!pcSyncReady){pcSyncNeedsRetry=true;return}
@@ -3839,11 +3945,13 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
         obsidianData:obsidianData,uiPreferences:window.PedCareLayoutPrefs?.getCloudData?.()||{}};
     }
     function triggerCloudSync(){
+      if(PC_FULL_FIREBASE_MODE){window.PedCareFullFirebase?.localChange?.();return;}
       if(isPedCareSignedOut())return;
       pcSyncRevision++;pcSyncDirty=true;
       pcScheduleSync();
     }
     function manualSyncGitHub(){
+      if(PC_FULL_FIREBASE_MODE){window.PedCareFullFirebase?.refresh?.();return;}
       const token=localStorage.getItem(GH_TOKEN_KEY),gistId=localStorage.getItem(GH_GIST_KEY);
       if(!token||!gistId){openGitHubModal();return}
       if(!pcSyncReady){pcSyncNeedsRetry=true;return}
@@ -3853,6 +3961,7 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
     // Ao voltar à aba (ou após um minuto de atividade), conferir alterações feitas
     // em outro dispositivo sem exigir que o usuário sobrescreva a nuvem primeiro.
     function pcRefreshFromCloud(){
+      if(PC_FULL_FIREBASE_MODE){window.PedCareFullFirebase?.onFocus?.();return;}
       if(isPedCareSignedOut()||!pcSyncReady||pcSyncBusy)return;
       const token=localStorage.getItem(GH_TOKEN_KEY),gist=localStorage.getItem(GH_GIST_KEY);
       if(!token||!gist)return;
@@ -3874,6 +3983,7 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
     };
 
     function disconnectGitHub() {
+      if(PC_FULL_FIREBASE_MODE){window.PedCareFullFirebase?.signOut?.();return;}
       if(window.PedCareWorkflow?.beforeLogout) return window.PedCareWorkflow.beforeLogout();
       window.PedCareDialog.alert('Não foi possível abrir a conferência de saída. Recarregue o PedCare e tente novamente.');
     }
@@ -3897,6 +4007,11 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
     }
 
     function saveAllPatients() {
+      // Uma atualização visual da nuvem não é uma edição do usuário.
+      if(PC_FULL_FIREBASE_MODE && window.__pcApplyingRemoteDisplay)return;
+      if(PC_FULL_FIREBASE_MODE && !window.PedCareFullFirebase?.ready?.()){
+        window.PedCareFullFirebase?.showError?.('Faça login no Firebase antes de editar.');return;
+      }
       if (isPedCareSignedOut()) return;
       try {localStorage.setItem(PATIENTS_STORAGE_KEY, JSON.stringify(patients));flashSaveIndicator()}
       catch(e){console.error('Falha no salvamento local dos pacientes',e);updateCloudStatus('disconnected','⚠️ Armazenamento local indisponível')}
@@ -3945,11 +4060,11 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
       switchPatientTab(newId);
     }
 
-    function switchPatientTab(id) {
+    function switchPatientTab(id, options={}) {
       const chosen = patients.find(p => String(p.id) === String(id));
       if (!chosen) return;
-      window.PedCareClinicalHistory?.flush?.();
-      if (chosen.tabClosed) { chosen.tabClosed = false; saveAllPatients(); }
+      if(!options.fromCloud)window.PedCareClinicalHistory?.flush?.();
+      if (chosen.tabClosed && !options.fromCloud) { chosen.tabClosed = false; saveAllPatients(); }
       if (String(currentPatientId) !== String(chosen.id)) window.PedCarePatientWindows?.beforeSwitch?.();
       currentPatientId = chosen.id;
       document.getElementById('archive-view').style.display = 'none';
@@ -3960,7 +4075,7 @@ window.PedCareDialog={alert:msg=>request('alert',msg),confirm:msg=>request('conf
       switchSubTab(currentSubTab);
       window.PedCarePatientWindows?.afterSwitch?.(chosen.id);
 
-      setTimeout(() => {
+      if(!options.fromCloud)setTimeout(() => {
         const activeTab = document.querySelector('.tab-btn.active');
         if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
       }, 50);
@@ -5494,9 +5609,12 @@ function dailyChecklist(p, write=false){
 function openDailyChecklist(p=pat()){
  if(!p)return window.PedCareDialog.alert('Selecione um paciente.');
  overlay('Checklist diário — '+(p.name||'Paciente'),host=>{
+   const patientId=String(p.id);
+   const livePatient=()=>patients.find(item=>String(item.id)===patientId);
    const paint=()=>{
-     const check=dailyChecklist(p);
-     const due=program(p).filter(reminderDue);
+     const latest=livePatient();if(!latest)return;
+     const check=dailyChecklist(latest);
+     const due=program(latest).filter(reminderDue);
      const questions=allDailyQuestions();
      host.innerHTML=`<p class="pc-daily-title"><strong>${esc(today().split('-').reverse().join('/'))}</strong> · Revisões diárias de ${esc(p.name||'Paciente')}. Todas as caixas voltam a ficar vazias em um novo dia; confirme os cuidados também no prontuário.</p>`+
        `<div class="pc-daily-sectionhead"><strong>Revisões de rotina</strong><span>${questions.filter(([key])=>!!check[key]).length} de ${questions.length} concluídas</span></div>`+
@@ -5506,7 +5624,8 @@ function openDailyChecklist(p=pat()){
        due.map(t=>`<div class="pc-task"><span style="flex:1">${esc(t.text)} <small>${esc(pcDateBR(t.date)||'Sem data')}</small>${reminderFrom(t)?'<span class="pc-overdue"> • Lembrar desde '+esc(reminderFrom(t).split('-').reverse().join('/'))+'</span>':''}</span></div>`).join('')+
        `<div class="pc-row"><button id="pc-daily-programs">Editar programações</button><button id="pc-daily-close" class="pc-primary">Concluir revisão</button></div>`;
      host.querySelectorAll('[data-daily]').forEach(input=>input.addEventListener('change',()=>{
-       const current=dailyChecklist(p,true);
+       const latest=livePatient();if(!latest){input.checked=false;return;}
+       const current=dailyChecklist(latest,true);
        if(!current){input.checked=false;return;}
        current[input.dataset.daily]=input.checked;
        safeSave();updatePendingBadge();
@@ -5530,10 +5649,11 @@ function openDailyChecklist(p=pat()){
        meta().dailyReviewQuestions=customDailyQuestions().filter(q=>q.id!==key);
        persist();updatePendingBadge();paint();
      });
-     el('pc-daily-programs').onclick=()=>openTasks(p);
+     el('pc-daily-programs').onclick=()=>openTasks(livePatient());
      el('pc-daily-close').onclick=()=>el('pc-overlay')?.remove();
    };
    paint();
+   host.closest('.pc-overlay').__pcCloudRefreshChecklist=paint;
  },'side');
 }
 function uncheckedDailyCount(){
@@ -5571,6 +5691,32 @@ function renderPatientTabBadges(){
    const close=btn.querySelector('.tab-close');
    if(close)btn.insertBefore(bubble,close);else btn.appendChild(bubble);
  });
+}
+function refreshDailyCloudUI(){
+ // Atualiza apenas os checkboxes exibidos (inclusive janelas destacadas).
+ // Não reconstrói a janela inteira nem remove o foco do usuário.
+ document.querySelectorAll('.pc-overlay.pc-kind-checklist').forEach(root=>{
+   const p=patients.find(item=>String(item.id)===String(root.dataset.pcPatientId));
+   if(!p)return;
+   const checked=dailyChecklist(p),questions=allDailyQuestions();
+   root.querySelectorAll('input[data-daily]').forEach(box=>{
+     if(document.activeElement!==box)box.checked=!!checked[box.dataset.daily];
+   });
+   const counter=root.querySelector('.pc-daily-sectionhead span');
+   if(counter)counter.textContent=questions.filter(([key])=>!!checked[key]).length+' de '+questions.length+' concluídas';
+ });
+ document.querySelectorAll('.pc-overlay.pc-kind-reminders .pc-review-patient[data-pc-patient-id]').forEach(group=>{
+   const p=patients.find(item=>String(item.id)===String(group.dataset.pcPatientId));
+   if(!p)return;
+   const checked=dailyChecklist(p),questions=allDailyQuestions();
+   group.querySelectorAll('input[data-question]').forEach(box=>{
+     if(document.activeElement!==box)box.checked=!!checked[box.dataset.question];
+   });
+   const done=questions.filter(([key])=>!!checked[key]).length;
+   const chip=group.querySelector('.pc-review-status');
+   if(chip){chip.textContent=done+'/'+questions.length;chip.classList.toggle('complete',done===questions.length)}
+ });
+ updatePendingBadge();
 }
 function updatePendingBadge(){
  // A conferência geral não exibe nenhuma contagem agregada.
@@ -5711,6 +5857,7 @@ function openTasks(p=pat()){
     safeSave();updatePendingBadge();paint();
    };
   };paint();
+  host.closest('.pc-overlay').__pcCloudRefreshPrograms=paint;
  },'side');
 }
 // Estado de expansão dos pacientes na visão geral das programações.
@@ -5728,10 +5875,11 @@ function showDaily(force=false){
        const check=dailyChecklist(p);
        const done=questions.filter(([k])=>check[k]).length;
        const details=document.createElement('details');details.className='pc-review-patient';
+       details.dataset.pcPatientId=String(p.id);
        details.open=done<questions.length;
        details.innerHTML=`<summary><span>${esc(p.name||'Paciente')} ${p.bed?'· Leito '+esc(p.bed):''}</span><span class="pc-review-status ${done===questions.length?'complete':''}">${done}/${questions.length}</span></summary><div class="pc-review-body">${questions.map(([key,q])=>`<label class="pc-daily-question"><input type="checkbox" data-question="${esc(key)}" ${check[key]?'checked':''}><span>${esc(q)}</span></label>`).join('')}<button data-configure>Personalizar perguntas</button></div>`;
-       details.querySelectorAll('[data-question]').forEach(box=>box.onchange=()=>{const current=dailyChecklist(p,true);if(!current){box.checked=false;return;}current[box.dataset.question]=box.checked;safeSave();updatePendingBadge();const total=questions.filter(([key])=>current[key]).length;const chip=details.querySelector('.pc-review-status');chip.textContent=`${total}/${questions.length}`;chip.classList.toggle('complete',total===questions.length);if(total===questions.length)details.open=false;});
-       details.querySelector('[data-configure]').onclick=()=>openDailyChecklist(p);
+       details.querySelectorAll('[data-question]').forEach(box=>box.onchange=()=>{const latest=patients.find(item=>String(item.id)===String(p.id));if(!latest){box.checked=false;return;}const current=dailyChecklist(latest,true);if(!current){box.checked=false;return;}current[box.dataset.question]=box.checked;safeSave();updatePendingBadge();const total=questions.filter(([key])=>current[key]).length;const chip=details.querySelector('.pc-review-status');chip.textContent=`${total}/${questions.length}`;chip.classList.toggle('complete',total===questions.length);if(total===questions.length)details.open=false;});
+       details.querySelector('[data-configure]').onclick=()=>openDailyChecklist(patients.find(item=>String(item.id)===String(p.id)));
        dailyHost.appendChild(details);
      }
      const tasksHost=host.querySelector('#pc-drawer-programs');
@@ -5958,6 +6106,57 @@ function drawFolders(){
  el('pc-deletefolder').onclick=async()=>{if(!currentFolder)return;let f=meta().patientFolders.find(f=>f.id===currentFolder);if(!f)return;if(meta().patientFolders.some(x=>x.parent===f.id)||patients.some(x=>x.folderId===f.id))return window.PedCareDialog.alert('Mova os pacientes e subpastas antes de excluir.');if(await window.PedCareDialog.confirm('Excluir pasta vazia?')){meta().patientFolders=meta().patientFolders.filter(x=>x.id!==f.id);currentFolder=f.parent||'';persist();drawFolders();if(el('archive-view')?.style.display==='block')renderArchiveTable()}};
 }
 function openFolders(){overlay('Pastas e subpastas de pacientes',()=>drawFolders(),'side')}
+// Atualiza as janelas abertas sem perder texto em edição ou deslocar a página.
+function refreshCloudPanels(){
+ refreshDailyCloudUI();
+ for(const root of document.querySelectorAll('.pc-overlay[data-pc-window-kind]')){
+  const kind=root.dataset.pcWindowKind;
+  if(!['folders','programs','checklist','handoff'].includes(kind))continue;
+  const patient=patients.find(p=>String(p.id)===String(root.dataset.pcPatientId));
+  // Nada mudou para esta janela? Não reconstruir componentes, seleções ou scroll.
+  const signature=kind==='folders'
+   ? JSON.stringify([meta().patientFolders,patients.map(p=>[p.id,p.name,p.bed,p.folderId,p.dischargedAt])])
+   : kind==='programs'
+    ? JSON.stringify(patient?.programs||[])
+    : kind==='handoff'
+     ? JSON.stringify([patient?.handoffDraft||null,patient?.handoffs||[],patient?.name,patient?.weight,patient?.bed])
+    : JSON.stringify([patient?.dailyChecklist,patient?.programs,allDailyQuestions()]);
+  if(root.__pcCloudSignature===signature)continue;
+  if(kind!=='handoff' && root.contains(document.activeElement) &&
+     document.activeElement?.matches?.('input:not([type="checkbox"]),textarea,select,[contenteditable="true"]')){
+    root.dataset.pcCloudUpdatePending='1';
+    let note=root.querySelector('.pc-cloud-pending-note');
+    if(!note){note=document.createElement('div');note.className='pc-cloud-pending-note';
+      note.style.cssText='padding:7px 10px;margin:7px;background:#eff6ff;border:1px solid #93c5fd;border-radius:7px;font:600 12px system-ui';
+      note.setAttribute('role','status');
+      root.querySelector('.pc-dialog')?.prepend(note);
+    }
+    note.textContent='Atualização recebida da nuvem. Termine sua edição ou saia do campo para atualizar esta janela.';
+    continue;
+  }
+  if(kind==='handoff'){
+   if(root.__pcCloudRefreshHandoff?.()===false)continue;
+  }
+  if(kind==='folders'){
+   const scroll=root.querySelector('#pc-content');const top=scroll?.scrollTop||0;
+   const openFolders=[...root.querySelectorAll('[data-archive-folder][open]')].map(n=>n.dataset.archiveFolder);
+   drawFolders();
+   for(const id of openFolders){const n=[...root.querySelectorAll('[data-archive-folder]')].find(n=>n.dataset.archiveFolder===id);if(n)n.open=true}
+   if(scroll)scroll.scrollTop=top;
+  }
+  if(kind==='programs'){
+   const scroll=root.querySelector('#pc-content');const top=scroll?.scrollTop||0;
+   root.__pcCloudRefreshPrograms?.();if(scroll)scroll.scrollTop=top;
+  }
+  if(kind==='checklist'){
+   const scroll=root.querySelector('#pc-content');const top=scroll?.scrollTop||0;
+   root.__pcCloudRefreshChecklist?.();if(scroll)scroll.scrollTop=top;
+  }
+  root.__pcCloudSignature=signature;
+  root.querySelector('.pc-cloud-pending-note')?.remove();delete root.dataset.pcCloudUpdatePending;
+ }
+}
+
 const examBlocks=[
  ['Estado geral',['BEG','REG','MEG','Ativo/reativo','Hipoativo','Irritado','Letárgico','Hidratado','Desidratado','Corado','Hipocorado','Anictérico','Ictérico','Acianótico','Cianótico']],
  ['Pele e mucosas',['Sem lesões','Exantema','Petéquias/púrpura','Turgor preservado','Turgor diminuído','Mucosas úmidas','Mucosas secas']],
@@ -6020,17 +6219,70 @@ function openHandoff(p=pat(),initialDraft=null){
    return draft;
   };
   let timer=null;
-  const storeDraft=()=>{collect();p.handoffDraft=structuredClone(draft);safeSave()};
-  const queueDraft=()=>{clearTimeout(timer);timer=setTimeout(storeDraft,400)};
+  let localEditing=false;
+  const handoffRoot=host.closest('.pc-overlay');
+  const handoffSignature=rec=>JSON.stringify(rec||null);
+  let lastCloudDraft=handoffSignature(p.handoffDraft||null);
+  const handoffHistory=()=>{
+   const selector=host.querySelector('#pc-hand-history');
+   if(!selector)return;
+   const old=selector.value;
+   selector.innerHTML='<option value="">Consultar versões anteriores</option>'+handoffLatestPerDay(p).map((h,i)=>`<option value="${i}">${esc(pcDateBR(handoffSavedDay(h)))} — ${esc(h.savedAt||h.date||'Versão')}</option>`).join('');
+   if([...selector.options].some(o=>o.value===old))selector.value=old;
+  };
+  const updateHandoffForm=record=>{
+   draft=structuredClone(record);
+   host.querySelectorAll('[data-hfield]').forEach(n=>{
+    const key=n.dataset.hfield;
+    n.value=key==='date'?(pcDateISO(draft.date||today())||today()):String(draft[key]??'');
+   });
+   host.querySelectorAll('[data-vital]').forEach(n=>n.value=String(draft.vitals?.[n.dataset.vital]??''));
+   host.querySelectorAll('[data-enote]').forEach(n=>n.value=String(draft.notes?.[n.dataset.enote]??''));
+   host.querySelectorAll('[data-exam]').forEach(n=>n.checked=Boolean(draft.exam?.[n.dataset.exam]));
+   const v=host.querySelector('[data-hvisc]');if(v)v.value=String(draft.otherViscera||'');
+   refreshWeight();handoffHistory();
+  };
+  if(handoffRoot){
+   handoffRoot.__pcCloudRefreshHandoff=()=>{
+    if(!handoffRoot.isConnected)return false;
+    const latest=p.handoffDraft&&typeof p.handoffDraft==='object'?p.handoffDraft:seedHandoff(p);
+    const incoming=handoffSignature(latest);
+    // Histórico e cabeçalho devem acompanhar outras abas mesmo sem mudar o rascunho.
+    handoffHistory();refreshWeight();
+    if(incoming===lastCloudDraft)return true;
+    const focused=host.contains(document.activeElement) &&
+       document.activeElement?.matches?.('textarea,input:not([readonly]):not([disabled])');
+    if(localEditing||timer!==null){
+     let warn=host.querySelector('.pc-handoff-remote-warning');
+     if(!warn){warn=document.createElement('div');warn.className='pc-handoff-remote-warning';
+      warn.style.cssText='margin:8px 0;padding:9px;background:#fff7ed;border:1px solid #fdba74;border-radius:8px;font:600 12px system-ui';
+      host.querySelector('.pc-hand-actions')?.insertAdjacentElement('afterend',warn);
+     }
+     warn.textContent='A passagem foi modificada em outra aba. Seu texto local está preservado. Salve uma cópia antes de recarregar para não perder alterações.';
+     return false;
+    }
+    // Foco sozinho não impede atualização; apenas alterações ainda não salvas.
+    updateHandoffForm(latest);lastCloudDraft=incoming;
+    host.querySelector('.pc-handoff-remote-warning')?.remove();
+    const status=host.querySelector('.pc-handoff-save-feedback');
+    if(status)status.textContent='Passagem atualizada da nuvem.';
+    return true;
+   };
+  }
+  const storeDraft=()=>{
+   timer=null;collect();p.handoffDraft=structuredClone(draft);
+   lastCloudDraft=handoffSignature(p.handoffDraft);localEditing=false;safeSave();
+  };
+  const queueDraft=()=>{localEditing=true;clearTimeout(timer);timer=setTimeout(storeDraft,400)};
   host.querySelectorAll('[data-hfield],[data-vital],[data-exam],[data-enote],[data-hvisc]').forEach(n=>{n.addEventListener('input',queueDraft);n.addEventListener('change',queueDraft)});
   const save=()=>{
-   clearTimeout(timer);collect();
+   clearTimeout(timer);timer=null;collect();localEditing=false;
    // A hora reflete o clique em Salvar/Salvar e imprimir, nunca a abertura da tela.
    const instant=new Date();
    draft.time=`${String(instant.getHours()).padStart(2,'0')}:${String(instant.getMinutes()).padStart(2,'0')}`;
    const timeInput=host.querySelector('[data-hfield="time"]');
    if(timeInput)timeInput.value=draft.time;
-   p.handoffDraft=structuredClone(draft);
+   p.handoffDraft=structuredClone(draft);lastCloudDraft=handoffSignature(p.handoffDraft);
    const version=structuredClone(draft);
    version.id='hand_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
    version.savedAt=instant.toLocaleString('pt-BR');
@@ -6051,12 +6303,12 @@ function openHandoff(p=pat(),initialDraft=null){
   };
   el('pc-hand-save').onclick=()=>{save()};
   el('pc-hand-print').onclick=()=>{const rec=save();printHandoff(p,rec)};
-  el('pc-hand-new').onclick=()=>{clearTimeout(timer);storeDraft();const next={date:today(),time:'',dih:'',reason:'',comorbidities:'',clinicalHistory:'',impression:'',conduct:'',pending:'',devices:'',neurology:'',exam:{},notes:{},vitals:{},id:''};openHandoff(p,next)};
-  el('pc-hand-history').onchange=e=>{if(e.target.value==='')return;clearTimeout(timer);storeDraft();let i=Number(e.target.value);let rec=handoffLatestPerDay(p)[i];if(rec)openHandoffVersion(p,rec)};
+  el('pc-hand-new').onclick=()=>{clearTimeout(timer);timer=null;storeDraft();const next={date:today(),time:'',dih:'',reason:'',comorbidities:'',clinicalHistory:'',impression:'',conduct:'',pending:'',devices:'',neurology:'',exam:{},notes:{},vitals:{},id:''};openHandoff(p,next)};
+  el('pc-hand-history').onchange=e=>{if(e.target.value==='')return;clearTimeout(timer);timer=null;storeDraft();let i=Number(e.target.value);let rec=handoffLatestPerDay(p)[i];if(rec)openHandoffVersion(p,rec)};
   // Fechar não perde o texto já digitado.
   const root=el('pc-overlay');
-  root?.addEventListener('click',event=>{if(event.target===root || event.target.id==='pc-close'){clearTimeout(timer);storeDraft()}}, {capture:true});
-  root?.addEventListener('pc-before-close',()=>{clearTimeout(timer);storeDraft()});
+  root?.addEventListener('click',event=>{if(event.target===root || event.target.id==='pc-close'){clearTimeout(timer);timer=null;storeDraft()}}, {capture:true});
+  root?.addEventListener('pc-before-close',()=>{clearTimeout(timer);timer=null;storeDraft()});
  },'side');
 }
 function openHandoffVersion(p,rec){
@@ -6228,7 +6480,16 @@ function init(){
  },1600);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
-window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,showDaily,beforeLogout};
+window.PedCareWorkflow={openTasks,openDailyChecklist,openFolders,openHandoff,showDaily,beforeLogout,refreshDailyCloudUI,refreshCloudPanels};
+// Recuperação discreta das janelas que receberam dados durante uma edição.
+document.addEventListener('focusout',event=>{
+ const root=event.target?.closest?.('.pc-overlay[data-pc-window-kind][data-pc-cloud-update-pending]');
+ if(!root)return;
+ setTimeout(()=>{
+  if(!root.isConnected||root.contains(document.activeElement))return;
+  refreshCloudPanels();
+ },0);
+});
 })();
 
 
@@ -6600,6 +6861,36 @@ function saveConfig(){
   if(typeof saveObsidianData==='function')saveObsidianData();
  }
 }
+// Recebe o catálogo da nuvem sem gerar um novo salvamento.
+// O HTML principal atualiza obsidianData ao instalar um snapshot do Firestore.
+function refreshFromCloud(){
+ try{
+  if(typeof obsidianData==='undefined')return;
+  const cloud=obsidianData.masterPrescriptionCatalog;
+  const next=cloud&&typeof cloud==='object' ? cloud : {categories:{},items:{},customCategories:[],customItems:[]};
+  next.categories||={};next.items||={};next.customCategories||=[];next.customItems||=[];
+  if(JSON.stringify(config)===JSON.stringify(next))return;
+  config=JSON.parse(JSON.stringify(next));
+  try{localStorage.setItem(CATALOG_KEY,JSON.stringify(config))}catch(e){console.warn('Cache local do catálogo indisponível',e)}
+  applyCatalog();
+  const overlay=$('pc-master-overlay');
+  if(overlay?.classList.contains('open')){
+   // Não descartar silenciosamente um rascunho que está sendo digitado.
+   const editing=overlay.contains(document.activeElement)
+     && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
+   if(editing){
+    let notice=$('pc-master-cloud-notice');
+    if(!notice){notice=document.createElement('div');notice.id='pc-master-cloud-notice';notice.setAttribute('role','status');notice.style.cssText='padding:9px 12px;background:#fff7ed;color:#92400e;border:1px solid #fdba74;border-radius:8px;margin:8px 0;font-weight:650';overlay.querySelector('.pc-master-editor')?.prepend(notice)}
+    notice.textContent='O catálogo foi atualizado em outro dispositivo. Seu texto em edição foi preservado nesta tela; feche e abra o Controle Mestre para visualizar a versão recebida antes de salvar.';
+   }else{
+    if(!categories().some(c=>c.id===selectedCategory))selectedCategory=categories()[0]?.id||'';
+    if(selectedItem && selectedItem!=='NEW' && !items(selectedCategory).some(i=>i.id===selectedItem))selectedItem='';
+    $('pc-master-cloud-notice')?.remove();
+    render();
+   }
+  }
+ }catch(e){console.error('Falha ao atualizar Controle Mestre recebido da nuvem',e)}
+}
 function categoryNumber(id){
  const original=baseline.find(b=>b.id===id);
  if(original)return original.index+1;
@@ -6790,7 +7081,7 @@ async function addCategory(){
  confirmChange('Criar a classe “'+name.trim()+'” para todas as prescrições',()=>{
  const id='master_cat_'+Date.now()+'_'+(++catSequence);config.customCategories.push({id,title:name.trim()});selectedCategory=id;selectedItem='';saveConfig();applyCatalog();render()});
 }
-function open(){selectedCategory=categories()[0]?.id||'';selectedItem='';render();$('pc-master-overlay').classList.add('open');$('pc-master-overlay').setAttribute('aria-hidden','false')}
+function open(){refreshFromCloud();selectedCategory=categories()[0]?.id||'';selectedItem='';$('pc-master-cloud-notice')?.remove();render();$('pc-master-overlay').classList.add('open');$('pc-master-overlay').setAttribute('aria-hidden','false')}
 function close(){$('pc-master-overlay').classList.remove('open');$('pc-master-overlay').setAttribute('aria-hidden','true')}
 function cancelConfirmation(){pending=null;$('pc-master-confirm').classList.remove('open')}
 function commitConfirmation(){if($('pc-master-confirm-input').value.trim()!=='CONFIRMAR'||!pending)return;const run=pending;cancelConfirmation();try{run()}catch(e){console.error(e);window.PedCareDialog.alert('Não foi possível aplicar a alteração.')}}
@@ -6810,7 +7101,14 @@ function init(){if(!ROOT())return;takeBaseline();loadConfig();selectedCategory=c
   window.loadPatientDataIntoForm=function(...args){const result=old.apply(this,args);applyCatalog();return result};
  }
 }
-window.PedCareMaster={open,close,addCategory,cancelConfirmation,commitConfirmation,refreshDoses:refreshCustomDoses};
+window.PedCareMaster={open,close,addCategory,cancelConfirmation,commitConfirmation,refreshDoses:refreshCustomDoses,refreshFromCloud};
+// Se o catálogo mudou enquanto um campo estava focado, redesenhar após sair
+// desse campo, nunca durante a digitação.
+document.addEventListener('focusout',event=>{
+ if(!event.target?.closest?.('#pc-master-overlay'))return;
+ if(!$('pc-master-cloud-notice'))return;
+ setTimeout(()=>{if(!$('pc-master-overlay')?.contains(document.activeElement))refreshFromCloud()},0);
+});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
@@ -8385,6 +8683,561 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     event.returnValue='';
   });
 })();
+</script>
+
+<style id="pc-firebase-lab-style">
+#pc-fb-open{position:fixed;bottom:18px;left:18px;z-index:2147481800;border:0;border-radius:999px;background:#12537e;color:white;padding:12px 18px;font:700 13px system-ui;box-shadow:0 12px 28px #082d4a55;cursor:pointer}
+#pc-fb-lab{position:fixed;inset:0;z-index:2147482000;background:#08263b99;display:none;align-items:center;justify-content:center;padding:14px;font:14px/1.4 system-ui,sans-serif;color:#20384b}
+#pc-fb-lab.pc-fb-visible{display:flex}
+#pc-fb-shell{width:min(970px,100%);max-height:94dvh;overflow:auto;border-radius:18px;background:#f7fafc;box-shadow:0 24px 80px #00152366}
+#pc-fb-head{background:linear-gradient(120deg,#16557e,#158b92);color:white;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+#pc-fb-head strong{font-size:17px} #pc-fb-head small{display:block;font-size:12px;opacity:.9}
+#pc-fb-close{border:1px solid #ffffff88;background:#ffffff24;color:#fff;border-radius:8px;padding:7px 12px;cursor:pointer}
+#pc-fb-content{padding:20px;display:grid;gap:14px}
+#pc-fb-lab h3{font-size:16px;color:#15577e;margin:5px 0}
+#pc-fb-lab label{display:grid;gap:4px;font-weight:650;font-size:12px;color:#455b68}
+#pc-fb-lab input,#pc-fb-lab textarea,#pc-fb-lab select{box-sizing:border-box;width:100%;font:15px system-ui;border:1px solid #becfd9;border-radius:9px;padding:10px;background:#fff;color:#19344a;min-width:0}
+#pc-fb-lab textarea{min-height:110px;resize:vertical}
+#pc-fb-lab button{cursor:pointer}
+#pc-fb-lab button:disabled{opacity:.48;cursor:not-allowed}
+#pc-fb-lab .pc-fb-btn{border:0;border-radius:9px;background:#116f91;color:#fff;padding:10px 13px;font:700 13px system-ui}
+#pc-fb-lab .pc-fb-btn.light{background:#e4edf3;color:#204561}
+#pc-fb-lab .pc-fb-btn.warn{background:#b34b39}
+#pc-fb-lab .pc-fb-panel{background:#fff;border:1px solid #dce8ed;border-radius:12px;padding:14px;display:grid;gap:10px}
+#pc-fb-lab .pc-fb-row{display:flex;gap:9px;align-items:end;flex-wrap:wrap}
+#pc-fb-lab .pc-fb-row>*{flex:1 1 130px}
+#pc-fb-lab .pc-fb-meta{font-size:12px;color:#496877}
+#pc-fb-lab .pc-fb-status{border-radius:9px;padding:9px 12px;background:#e8f4f8;font-size:13px;white-space:pre-wrap}
+#pc-fb-lab .pc-fb-status.error{background:#fff0eb;color:#9a3123}
+#pc-fb-lab .pc-fb-card{border:1px solid #dfebf0;padding:11px;border-radius:10px;display:grid;gap:6px;background:#fcfeff}
+#pc-fb-lab .pc-fb-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#pc-fb-lab .pc-fb-pill{background:#e4f2fa;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;color:#17516f}
+#pc-fb-lab .pc-fb-empty{color:#63808d;font-style:italic;font-size:13px}
+#pc-fb-lab .pc-fb-hidden{display:none!important}
+@media(max-width:650px){#pc-fb-content{padding:12px}#pc-fb-lab .pc-fb-grid{grid-template-columns:1fr}#pc-fb-lab input,#pc-fb-lab textarea{font-size:16px}}
+</style>
+<button type="button" id="pc-fb-open" style="display:none!important">☁️ Firebase • Testes</button>
+<section id="pc-fb-lab" role="dialog" aria-modal="true" aria-label="Firebase - testes do PedCare">
+<div id="pc-fb-shell">
+<header id="pc-fb-head"><div><strong>☁️ PedCare · Laboratório Firebase V7</strong><small>Ambiente isolado · sincronização V7 · somente pacientes fictícios</small></div><button id="pc-fb-close" type="button">Fechar ×</button></header>
+<div id="pc-fb-content">
+<div class="pc-fb-status" id="pc-fb-status">Pronto para configurar o Firebase. Os dados do seu PedCare atual não serão enviados.</div>
+<section id="pc-fb-setup" class="pc-fb-panel">
+<h3>1. Conectar ao seu projeto Firebase</h3>
+<p class="pc-fb-meta">Copie o bloco <code>const firebaseConfig = {...}</code> do Firebase Console e cole aqui. A configuração será guardada somente neste navegador. Não cole senhas nem tokens.</p>
+<label>Configuração Web do Firebase<textarea id="pc-fb-config" spellcheck="false" placeholder='const firebaseConfig = { apiKey: "...", authDomain: "...", projectId: "...", appId: "..." };'></textarea></label>
+<button type="button" class="pc-fb-btn" id="pc-fb-connect">Conectar projeto</button>
+</section>
+<section id="pc-fb-auth" class="pc-fb-panel pc-fb-hidden">
+<h3>2. Entrar na conta autorizada</h3><div class="pc-fb-row"><label>E-mail<input id="pc-fb-email" type="email" autocomplete="username"/></label><label>Senha<input id="pc-fb-password" type="password" autocomplete="current-password"/></label></div>
+<div class="pc-fb-row"><button type="button" class="pc-fb-btn" id="pc-fb-login">Entrar</button><button type="button" class="pc-fb-btn light" id="pc-fb-logout">Sair do Firebase</button></div>
+<p class="pc-fb-meta" id="pc-fb-account">Nenhum usuário autenticado.</p>
+</section>
+<section id="pc-fb-work" class="pc-fb-panel pc-fb-hidden">
+<h3>3. Testar a sincronização em tempo real</h3><div class="pc-fb-row"><button type="button" class="pc-fb-btn light" id="pc-fb-sync-now">↻ Conferir dados na nuvem</button><span class="pc-fb-meta" id="pc-fb-last-sync">Aguardando sincronização…</span></div>
+<p class="pc-fb-meta">Os registros abaixo são armazenados em <code>pedcare_test_users/{uid}/patients</code>. Nunca são copiados do prontuário real. Use dois navegadores com o mesmo login para testar.</p>
+<div class="pc-fb-row"><label>Nome fictício para novo paciente<input id="pc-fb-new-name" placeholder="Paciente Teste A"/></label><button type="button" class="pc-fb-btn" id="pc-fb-new">Criar paciente fictício</button></div>
+<label>Paciente de teste selecionado<select id="pc-fb-patient"><option value="">Selecione um paciente</option></select></label>
+<div id="pc-fb-editor" class="pc-fb-hidden pc-fb-grid">
+<section class="pc-fb-panel"><h3>Alta</h3><p class="pc-fb-meta" id="pc-fb-discharge-label">—</p><div class="pc-fb-row"><button type="button" class="pc-fb-btn" id="pc-fb-discharge">Dar alta</button><button type="button" class="pc-fb-btn light" id="pc-fb-reactivate">Reativar</button></div></section>
+<section class="pc-fb-panel"><h3>Evolução por dia</h3><label>Data<input id="pc-fb-evo-date" type="date"/></label><label>Evolução (somente dados fictícios)<textarea id="pc-fb-evo-text" placeholder="Texto fictício"></textarea></label><div class="pc-fb-row"><button type="button" class="pc-fb-btn" id="pc-fb-evo-save">Salvar evolução</button><button type="button" class="pc-fb-btn light" id="pc-fb-evo-refresh">Carregar da nuvem</button><button type="button" class="pc-fb-btn light" id="pc-fb-evo-release">Liberar evolução</button></div><p class="pc-fb-meta" id="pc-fb-evo-label"></p></section>
+<section class="pc-fb-panel"><h3>Programações contínuas</h3><label>Programação<input id="pc-fb-program-text" placeholder="Checar exame fictício"/></label><button type="button" class="pc-fb-btn" id="pc-fb-program-add">Adicionar programação</button><div id="pc-fb-program-list"></div></section>
+<section class="pc-fb-panel"><h3>Passagem de plantão</h3><label>Data<input id="pc-fb-handoff-date" type="date"/></label><label>Texto (somente dados fictícios)<textarea id="pc-fb-handoff-text"></textarea></label><button type="button" class="pc-fb-btn" id="pc-fb-handoff-save">Salvar última versão do dia</button><button type="button" class="pc-fb-btn light" id="pc-fb-handoff-refresh">Carregar da nuvem</button><p class="pc-fb-meta" id="pc-fb-handoff-label"></p></section>
+</div>
+</section>
+<section class="pc-fb-panel"><h3>Segurança da etapa de teste</h3><p class="pc-fb-meta">Este ambiente não migra os dados do Gist e não interfere no PedCare principal. A integração definitiva deve ser feita após testes de concorrência, persistência entre dias, recuperação de versões e revisão das regras de segurança. Não armazene dados reais de pacientes neste protótipo.</p></section>
+</div></div></section>
+
+<script type="module" id="pc-firebase-lab-module">
+import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
+import { getFirestore, doc, collection, onSnapshot, runTransaction, getDocFromServer, serverTimestamp, setDoc } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
+const $ = id => document.getElementById(id);
+const key='pedcare_firebase_test_config_v1';
+const state={app:null,auth:null,db:null,user:null,selected:null,patients:[],programs:[],evolutions:new Map(),handoffs:new Map(),stops:[],activeVersion:new Map(),editors:{evo:{key:null,version:0,dirty:false,saving:false,baseText:""},handoff:{key:null,version:0,dirty:false,saving:false,baseText:""}},busy:new Set(),patientEpoch:0,evolutionsConfirmed:new Map(),handoffsConfirmed:new Map()};
+const show=(id,on)=>$(id).classList.toggle('pc-fb-hidden',!on);
+const text=(id,value)=>$(id).textContent=String(value??'');
+const status=(message,isError=false)=>{text('pc-fb-status',message);$('pc-fb-status').classList.toggle('error',isError)};
+const dateToday=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+$('pc-fb-evo-date').value=dateToday();$('pc-fb-handoff-date').value=dateToday();
+$('pc-fb-open').onclick=()=>$('pc-fb-lab').classList.add('pc-fb-visible');
+$('pc-fb-close').onclick=()=>$('pc-fb-lab').classList.remove('pc-fb-visible');
+const guard=async fn=>{try{await fn()}catch(err){console.error('PedCare Firebase Test',err);status('Falha: '+(err?.message||err),true)}};
+function parseConfig(input){
+ const val=String(input||'').trim();
+ // Only parse quoted Firebase config properties; never evaluate pasted JavaScript.
+ const fields=['apiKey','authDomain','projectId','appId','storageBucket','messagingSenderId','measurementId'];
+ const result={};
+ for(const field of fields){const pattern=new RegExp('(?:["\\\']?'+field+'["\\\']?)\\s*:\\s*(["\\\'])(.*?)\\1');const found=val.match(pattern);if(found)result[field]=found[2]}
+ if(!result.apiKey||!result.projectId||!result.appId||!result.authDomain)throw Error('Cole o objeto firebaseConfig completo da seção Config do Firebase Console.');
+ if(!/^[a-z0-9-]+$/.test(result.projectId))throw Error('projectId inválido');
+ return result;
+}
+function cleanSubs(){clearActiveRecordListeners();for(const stop of state.stops.splice(0))try{stop()}catch(_){}}
+function resetPatientEditor(){state.selected=null;show('pc-fb-editor',false);$('pc-fb-patient').value='';state.programs=[];state.evolutions.clear();state.handoffs.clear();resetEditorStates();}
+function resetEditorStates(){for(const e of Object.values(state.editors)){e.key=null;e.version=0;e.dirty=false;e.saving=false;e.baseText="";}}
+function editorKey(kind){return `${state.selected||''}|${$(kind==='evo'?'pc-fb-evo-date':'pc-fb-handoff-date').value}`;}
+function editorRecord(kind){const day=$(kind==='evo'?'pc-fb-evo-date':'pc-fb-handoff-date').value;return (kind==='evo'?state.evolutions:state.handoffs).get(day);}
+function editorLabel(kind,msg){text(kind==='evo'?'pc-fb-evo-label':'pc-fb-handoff-label',msg);}
+function remoteConflict(kind){const e=state.editors[kind],record=editorRecord(kind);return e.key===editorKey(kind)&&e.dirty&&Number(record?.version||0)!==e.version&&String(record?.text||'')!==String(e.baseText||'');}
+function markDirty(kind){const e=state.editors[kind];if(e.key!==editorKey(kind)){e.key=editorKey(kind);e.version=Number(editorRecord(kind)?.version||0);e.baseText=String(editorRecord(kind)?.text||"")}e.dirty=true;editorLabel(kind,remoteConflict(kind)?'⚠️ Alteração recebida de outro dispositivo. Seu texto está preservado; não salve por cima.':'Alterações locais ainda não salvas.');}
+function discardOrSwitch(kind){const e=state.editors[kind];if(e.saving){status('Aguarde a confirmação do salvamento antes de mudar de paciente ou data.',true);return false;}if(!e.dirty)return true;if(!confirm('Há alterações não salvas nesta janela. Descartá-las?'))return false;e.dirty=false;return true;}
+
+function patientCollection(){return collection(state.db,'pedcare_test_users',state.user.uid,'patients')}
+function subCollection(sub){return collection(state.db,'pedcare_test_users',state.user.uid,'patients',state.selected,sub)}
+function subDoc(sub,id){return doc(state.db,'pedcare_test_users',state.user.uid,'patients',state.selected,sub,id)}
+function patientDoc(id=state.selected){return doc(state.db,'pedcare_test_users',state.user.uid,'patients',id)}
+function subscribe(ref,callback){const stop=onSnapshot(ref,{includeMetadataChanges:true},callback,err=>status('Erro de leitura: '+err.message,true));state.stops.push(stop)}
+async function onceButton(btn,fn){if(state.busy.has(btn))return;state.busy.add(btn);btn.disabled=true;try{await fn()}finally{state.busy.delete(btn);btn.disabled=false}}
+function mergeVersionedSnapshots(previous, snap, confirmed){
+ const incoming=new Map(snap.docs.map(d=>[d.id,d.data()]));
+ for(const [id, old] of previous){
+   const next=incoming.get(id);
+   // A cached or delayed snapshot must not roll the UI back one version.
+   if(next && Number(next.version||0)<Number(old.version||0))incoming.set(id,old);
+ }
+ for(const [id, expected] of confirmed){
+   const next=incoming.get(id);
+   if(next && Number(next.version||0)>=Number(expected.version||0))confirmed.delete(id);
+   else incoming.set(id,expected);
+ }
+ return incoming;
+}
+function mergePatientSnapshots(snap){
+ const incoming=snap.docs.map(d=>({id:d.id,...d.data()}));
+ const prior=new Map(state.patients.map(p=>[p.id,p]));
+ for(const patient of incoming){
+   const old=prior.get(patient.id);
+   if(old && Number(old.version||0)>Number(patient.version||0))Object.assign(patient,old);
+ }
+ // Never treat a transient cache-only result as permission to forget a patient
+ // that was already confirmed in this tab. The authoritative server event reconciles it.
+ if(snap.metadata.fromCache){
+   const ids=new Set(incoming.map(p=>p.id));
+   for(const old of state.patients)if(!ids.has(old.id))incoming.push(old);
+ }
+ state.patients=incoming.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+}
+function snapshotMessage(snap){return snap.metadata.fromCache?'Dados do cache local; aguardando confirmação da nuvem.':snap.metadata.hasPendingWrites?'Alteração local pendente de envio ao Firestore.':'Sincronizado com o Firestore.';}
+function showFreshness(source){
+ text('pc-fb-last-sync',source+' · '+new Date().toLocaleTimeString('pt-BR'));
+}
+async function reconcileServer(){
+ if(!state.user||!state.selected||!state.db)return;
+ const id=state.selected, epoch=state.patientEpoch;
+ const patient=await getDocFromServer(patientDoc(id));
+ if(epoch!==state.patientEpoch||id!==state.selected)return;
+ if(patient.exists()){
+   const remote={id,...patient.data()};
+   const i=state.patients.findIndex(p=>p.id===id);
+   if(i>=0){state.patients[i]=remote;}else state.patients.push(remote);
+   renderPatients();
+ }
+ const dayE=$('pc-fb-evo-date').value,dayH=$('pc-fb-handoff-date').value;
+ const [evo,handoff]=await Promise.all([
+   getDocFromServer(subDoc('evolutions',dayE)),
+   getDocFromServer(subDoc('handoffs',dayH))
+ ]);
+ if(epoch!==state.patientEpoch||id!==state.selected)return;
+ if(dayE===$('pc-fb-evo-date').value){
+   if(evo.exists())state.evolutions.set(dayE,evo.data());else state.evolutions.delete(dayE);
+   state.evolutionsConfirmed.delete(dayE);renderEvo();
+ }
+ if(dayH===$('pc-fb-handoff-date').value){
+   if(handoff.exists())state.handoffs.set(dayH,handoff.data());else state.handoffs.delete(dayH);
+   state.handoffsConfirmed.delete(dayH);renderHandoff();
+ }
+ showFreshness('Conferido no servidor');
+}
+let reconcilePending=null;
+function refreshOnReturn(){
+ if(!state.user||!state.selected||!$('pc-fb-lab').classList.contains('pc-fb-visible')||document.hidden)return;
+ if(reconcilePending)return;
+ reconcilePending=reconcileServer().catch(err=>status('Não foi possível conferir na nuvem: '+(err.message||err),true)).finally(()=>{reconcilePending=null});
+}
+$('pc-fb-sync-now').onclick=()=>guard(()=>onceButton($('pc-fb-sync-now'),async()=>{
+ if(!state.selected)throw Error('Selecione um paciente fictício.');
+ status('Consultando documentos diretamente no servidor…');
+ // Avoid silently ignoring a user-triggered refresh because a background refresh is pending.
+ if(reconcilePending){try{await reconcilePending}catch(_){}}
+ reconcilePending=reconcileServer().finally(()=>{reconcilePending=null});
+ await reconcilePending;
+ status('Consulta manual concluída. Confira o horário e as versões dos registros.');
+}));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){startActiveRecordListeners(state.patientEpoch);refreshOnReturn()}});
+window.addEventListener('focus',refreshOnReturn);
+$('pc-fb-open').addEventListener('click',()=>{queueMicrotask(()=>{startActiveRecordListeners(state.patientEpoch);refreshOnReturn()})});
+let lastPatientOptions='';
+function renderPatients(){
+ const sel=$('pc-fb-patient');const old=state.selected;
+ const newOptions=JSON.stringify(state.patients.map(p=>[p.id,p.name,p.dischargedAt?1:0]));
+ if(newOptions!==lastPatientOptions){
+   lastPatientOptions=newOptions;
+   sel.replaceChildren(new Option('Selecione um paciente',''));
+   for(const p of state.patients)sel.add(new Option((p.name||'Teste')+(p.dischargedAt?' (alta)':''),p.id));
+ }
+ if(old&&state.patients.some(p=>p.id===old))sel.value=old;
+ else if(old){sel.value=''; /* Keep selection until authoritative patient-doc lookup; avoid cache reset. */}
+ const patient=state.patients.find(p=>p.id===state.selected);
+ if(patient){text('pc-fb-discharge-label',patient.dischargedAt?'Alta registrada: '+new Date(patient.dischargedAt).toLocaleString('pt-BR'):'Paciente em acompanhamento');}
+}
+function subscribePatients(){
+ cleanSubs();++state.patientEpoch;resetPatientEditor();
+ subscribe(patientCollection(),snap=>{mergePatientSnapshots(snap);renderPatients();status(snapshotMessage(snap));showFreshness(snap.metadata.fromCache?'Lista do cache':'Lista recebida');});
+}
+function renderEvo(){
+ const e=state.editors.evo,d=$('pc-fb-evo-date').value,item=state.evolutions.get(d),key=editorKey('evo');
+ if(e.key===key&&e.dirty&&!e.saving){
+   const current=$('pc-fb-evo-text').value;
+   if(current===String(item?.text||'')||current===e.baseText){e.dirty=false;}
+ }
+ if(e.key===key&&(e.dirty||e.saving)){editorLabel('evo',remoteConflict('evo')?'⚠️ CONFLITO: outra versão foi salva em outro dispositivo. Seu texto foi preservado. Copie-o antes de descartar ou atualizar.':e.saving?'Salvando na nuvem…':'Alterações locais ainda não salvas.');return;}
+ e.key=key;e.version=Number(item?.version||0);e.baseText=String(item?.text||"");e.dirty=false;
+ $('pc-fb-evo-text').value=item?.text||'';
+ $('pc-fb-evo-text').disabled=item?.status==='released';
+ editorLabel('evo',item?.status==='released'?'Evolução liberada · edição bloqueada':item?'Rascunho salvo no Firestore · versão '+e.version:'Nenhuma evolução nesta data');
+}
+function renderHandoff(){
+ const e=state.editors.handoff,item=editorRecord('handoff'),key=editorKey('handoff');
+ if(e.key===key&&e.dirty&&!e.saving){
+   const current=$('pc-fb-handoff-text').value;
+   if(current===String(item?.text||'')||current===e.baseText){e.dirty=false;}
+ }
+ if(e.key===key&&(e.dirty||e.saving)){editorLabel('handoff',remoteConflict('handoff')?'⚠️ CONFLITO: passagem atualizada em outro dispositivo. Texto local preservado.':e.saving?'Salvando na nuvem…':'Alterações locais ainda não salvas.');return;}
+ e.key=key;e.version=Number(item?.version||0);e.baseText=String(item?.text||"");e.dirty=false;
+ $('pc-fb-handoff-text').value=item?.text||'';
+ editorLabel('handoff',item?'Última versão salva deste dia · versão '+e.version:'Nenhuma passagem salva nesta data');
+}
+let programsRenderHash='';
+function renderPrograms(){
+ const fingerprint=JSON.stringify(state.programs.map(p=>[p.id,p.title,p.status,p.lastComment,p.lastCheckedDate,p.version]));
+ if(programsRenderHash===fingerprint)return;programsRenderHash=fingerprint;
+ const box=$('pc-fb-program-list');box.replaceChildren();
+ if(!state.programs.length){const e=document.createElement('p');e.className='pc-fb-empty';e.textContent='Sem programações neste paciente.';box.append(e);return}
+ for(const p of state.programs){const card=document.createElement('div');card.className='pc-fb-card';
+ const title=document.createElement('strong');title.textContent=p.title||'(sem título)';
+ const comment=document.createElement('small');comment.textContent='Status: '+(p.status==='done'?'Concluída':'Em andamento')+(p.lastComment?' · Último comentário: '+p.lastComment:'');
+ const line=document.createElement('div');line.className='pc-fb-row';
+ const input=document.createElement('input');input.placeholder='Comentário da conferência de hoje';input.setAttribute('aria-label','Comentário');
+ const checked=document.createElement('button');checked.className='pc-fb-btn light';checked.textContent='Conferido hoje';
+ checked.onclick=()=>guard(()=>onceButton(checked,async()=>{await changeDoc(subDoc('programs',p.id),p.version,{lastComment:input.value.trim(),lastCheckedDate:dateToday(),status:'open'});status('Conferência confirmada na nuvem')}));
+ const done=document.createElement('button');done.className='pc-fb-btn';done.textContent='Concluir';done.onclick=()=>guard(()=>onceButton(done,async()=>{await changeDoc(subDoc('programs',p.id),p.version,{status:'done'});status('Conclusão confirmada na nuvem')}));
+ line.append(input,checked,done);card.append(title,comment,line);box.append(card);
+ }
+}
+function selectPatient(id){
+ if(id!==state.selected&&!discardOrSwitch('evo')){$('pc-fb-patient').value=state.selected||'';return;}
+ if(id!==state.selected&&!discardOrSwitch('handoff')){$('pc-fb-patient').value=state.selected||'';return;}
+ cleanSubs();const epoch=++state.patientEpoch;state.selected=id||null;state.evolutions.clear();state.handoffs.clear();state.evolutionsConfirmed.clear();state.handoffsConfirmed.clear();state.programs=[];programsRenderHash='';resetEditorStates();$('pc-fb-evo-save').disabled=true;$('pc-fb-evo-release').disabled=true;$('pc-fb-handoff-save').disabled=true;
+ if(!id){show('pc-fb-editor',false);subscribePatients();return}
+ // Keep patient list listener and rebuild the patient's specific subscriptions.
+ subscribe(patientCollection(),snap=>{if(epoch!==state.patientEpoch)return;mergePatientSnapshots(snap);renderPatients();showFreshness(snap.metadata.fromCache?'Lista do cache':'Lista recebida')});
+ // Observe the selected patient's document directly, independent of the list UI.
+ // This makes discharge/reactivation visible without reselecting the patient.
+ subscribe(patientDoc(id),snap=>{
+   if(epoch!==state.patientEpoch||id!==state.selected||!snap.exists())return;
+   const remote={id,...snap.data()};
+   const index=state.patients.findIndex(p=>p.id===id);
+   if(index<0)state.patients.push(remote);
+   else if(Number(remote.version||0)>=Number(state.patients[index].version||0))state.patients[index]=remote;
+   renderPatients();
+   showFreshness(snap.metadata.fromCache?'Paciente no cache':'Paciente atualizado');
+ });
+ show('pc-fb-editor',true);
+ subscribe(subCollection('evolutions'),snap=>{if(epoch!==state.patientEpoch)return;state.evolutions=mergeVersionedSnapshots(state.evolutions,snap,state.evolutionsConfirmed);$('pc-fb-evo-save').disabled=false;$('pc-fb-evo-release').disabled=false;renderEvo();showFreshness(snap.metadata.fromCache?'Evoluções do cache':'Evoluções recebidas')});
+ subscribe(subCollection('handoffs'),snap=>{if(epoch!==state.patientEpoch)return;state.handoffs=mergeVersionedSnapshots(state.handoffs,snap,state.handoffsConfirmed);$('pc-fb-handoff-save').disabled=false;renderHandoff();showFreshness(snap.metadata.fromCache?'Passagens do cache':'Passagens recebidas')});
+ subscribe(subCollection('programs'),snap=>{if(epoch!==state.patientEpoch)return;state.programs=snap.docs.map(d=>({id:d.id,...d.data()}));renderPrograms()});
+ startActiveRecordListeners(epoch);
+}
+let activeRecordStops=[];
+function clearActiveRecordListeners(){for(const stop of activeRecordStops.splice(0))try{stop()}catch(_){}}
+function startActiveRecordListeners(epoch){
+ clearActiveRecordListeners();
+ if(!state.selected)return;
+ for(const kind of ['evo','handoff']){
+   const day=$(kind==='evo'?'pc-fb-evo-date':'pc-fb-handoff-date').value;
+   if(!day)continue;
+   const id=state.selected;
+   const unsub=onSnapshot(subDoc(kind==='evo'?'evolutions':'handoffs',day),{includeMetadataChanges:true},snap=>{
+     if(epoch!==state.patientEpoch||id!==state.selected||day!==$(kind==='evo'?'pc-fb-evo-date':'pc-fb-handoff-date').value)return;
+     const map=kind==='evo'?state.evolutions:state.handoffs;
+     const existing=map.get(day);
+     if(snap.exists()){
+       const remote=snap.data();
+       if(Number(remote.version||0)>=Number(existing?.version||0))map.set(day,remote);
+     }else if(!snap.metadata.fromCache&&!existing){map.delete(day);}
+     (kind==='evo'?renderEvo:renderHandoff)();
+     showFreshness(snap.metadata.fromCache?'Registro do cache':'Registro recebido');
+   },err=>status('Falha na escuta do registro: '+err.message,true));
+   activeRecordStops.push(unsub);
+ }
+}
+// Explicit transaction with a version check prevents silently overwriting a
+// document that another device changed since the last onSnapshot update.
+async function changeDoc(ref,expected,changes){
+ await runTransaction(state.db,async tx=>{
+   const snap=await tx.get(ref),cur=snap.exists()?snap.data():null;
+   if(cur&&Number(cur.version||0)!==Number(expected||0))throw Error('Conflito: outro dispositivo alterou este registro. Confira a nova versão antes de salvar.');
+   if(!cur&&Number(expected||0)>0)throw Error('Conflito: registro ausente na nuvem.');
+   tx.set(ref,{...(cur||{}),...changes,version:Number(cur?.version||0)+1,updatedAt:serverTimestamp()});
+ });
+}
+async function addDocWithId(ref,fields){await runTransaction(state.db,async tx=>{const old=await tx.get(ref);if(old.exists())throw Error('Identificador já utilizado.');tx.set(ref,{...fields,version:1,updatedAt:serverTimestamp()})})}
+$('pc-fb-connect').onclick=()=>guard(async()=>{
+ const config=parseConfig($('pc-fb-config').value);
+ if(state.app&&state.app.options.projectId!==config.projectId)throw Error('Outro projeto já foi inicializado. Recarregue a página antes de trocar o projeto.');
+ state.app=state.app||initializeApp(config,'pedcare-firebase-test');
+ state.auth=getAuth(state.app);state.db=getFirestore(state.app);
+ localStorage.setItem(key,JSON.stringify(config));show('pc-fb-setup',false);show('pc-fb-auth',true);
+ onAuthStateChanged(state.auth,u=>{state.user=u;show('pc-fb-work',!!u);text('pc-fb-account',u?'Conectado: '+(u.email||'usuário autorizado'):'Não conectado');if(u)subscribePatients();else{cleanSubs();resetPatientEditor()}});
+ status('Projeto conectado. Entre com o e-mail e a senha cadastrados no Firebase Authentication.');
+});
+$('pc-fb-login').onclick=()=>guard(async()=>{if(!state.auth)throw Error('Configure o projeto primeiro');await signInWithEmailAndPassword(state.auth,$('pc-fb-email').value.trim(),$('pc-fb-password').value);$('pc-fb-password').value='';status('Login realizado. Carregando pacientes fictícios…')});
+$('pc-fb-logout').onclick=()=>guard(async()=>{if(state.auth)await signOut(state.auth);status('Sessão de testes encerrada.')});
+$('pc-fb-new').onclick=()=>guard(async()=>{
+ const name=$('pc-fb-new-name').value.trim();if(!name)throw Error('Digite um nome fictício');
+ const id='test_'+crypto.randomUUID();await addDocWithId(patientDoc(id),{name,dischargedAt:null,createdAt:serverTimestamp()});$('pc-fb-new-name').value='';status('Paciente fictício salvo na nuvem.');
+});
+$('pc-fb-patient').onchange=e=>selectPatient(e.target.value);
+async function setDischarge(shouldDischarge){
+ const id=state.selected;
+ if(!id||!state.user)throw Error('Selecione um paciente fictício.');
+ const ref=patientDoc(id);
+ // Atualize apenas o campo de alta em uma transação que lê a versão atual.
+ // Outros campos do paciente permanecem intactos.
+ let result=null;
+ await runTransaction(state.db,async tx=>{
+   const snap=await tx.get(ref);
+   if(!snap.exists())throw Error('Paciente não encontrado na nuvem.');
+   const current=snap.data();
+   const timestamp=shouldDischarge?new Date().toISOString():null;
+   result={id,...current,dischargedAt:timestamp,version:Number(current.version||0)+1};
+   tx.update(ref,{dischargedAt:timestamp,version:result.version,updatedAt:serverTimestamp()});
+ });
+ if(id!==state.selected)return;
+ const i=state.patients.findIndex(p=>p.id===id);
+ if(i>=0)state.patients[i]=result;
+ renderPatients();
+ status(shouldDischarge?'Alta confirmada no Firestore e atualizada na tela.':'Reativação confirmada no Firestore e atualizada na tela.');
+ showFreshness('Alta verificada na nuvem');
+}
+$('pc-fb-discharge').onclick=()=>guard(()=>onceButton($('pc-fb-discharge'),()=>setDischarge(true)));
+$('pc-fb-reactivate').onclick=()=>guard(()=>onceButton($('pc-fb-reactivate'),()=>setDischarge(false)));
+
+$('pc-fb-evo-text').addEventListener('input',()=>markDirty('evo'));
+$('pc-fb-handoff-text').addEventListener('input',()=>markDirty('handoff'));
+// Maintain the last displayed date so a date switch cannot discard unsaved text silently.
+for(const kind of ['evo','handoff']){
+ const input=$(kind==='evo'?'pc-fb-evo-date':'pc-fb-handoff-date');
+ input.addEventListener('focus',()=>{input.dataset.previousDate=input.value});
+ input.addEventListener('change',()=>{if(!discardOrSwitch(kind)){input.value=input.dataset.previousDate||dateToday();return;}input.dataset.previousDate=input.value;(kind==='evo'?renderEvo:renderHandoff)();startActiveRecordListeners(state.patientEpoch);guard(()=>refreshRecord(kind,false));});
+}
+async function refreshRecord(kind, askBeforeDiscard=true){
+ const isEvo=kind==='evo',e=state.editors[kind],keyBefore=editorKey(kind),patientBefore=state.selected;
+ if(!patientBefore||!state.user)throw Error('Selecione um paciente e entre na conta.');
+ if(e.saving)throw Error('Aguarde o salvamento terminar.');
+ if(askBeforeDiscard&&e.dirty&&!confirm('Seu texto ainda não foi salvo. Deseja descartá-lo e carregar a versão da nuvem?'))return;
+ const dateId=keyBefore.split('|').slice(1).join('|');
+ const ref=subDoc(isEvo?'evolutions':'handoffs',dateId);
+ const snap=await getDocFromServer(ref);
+ if(patientBefore!==state.selected||keyBefore!==editorKey(kind))return;
+ const remote=snap.exists()?snap.data():null;
+ const map=isEvo?state.evolutions:state.handoffs;
+ // getDocFromServer is authoritative: an inflated/stale local version must never block manual recovery.
+ if(remote)map.set(dateId,remote);else map.delete(dateId);
+ (isEvo?state.evolutionsConfirmed:state.handoffsConfirmed).delete(dateId);
+ e.dirty=false;e.saving=false;e.key=null;
+ (isEvo?renderEvo:renderHandoff)();
+ status('Consulta direta concluída · '+(remote?'versão '+Number(remote.version||0):'sem registro')+' · '+new Date().toLocaleTimeString('pt-BR'));
+ showFreshness('Documento carregado diretamente do servidor');
+}
+$('pc-fb-evo-refresh').onclick=()=>guard(()=>refreshRecord('evo'));
+$('pc-fb-handoff-refresh').onclick=()=>guard(()=>refreshRecord('handoff'));
+async function saveText(kind){
+ const isEvo=kind==='evo',dateId=$(isEvo?'pc-fb-evo-date':'pc-fb-handoff-date').value;
+ if(!dateId||!state.selected)throw Error('Selecione um paciente e uma data.');
+ const e=state.editors[kind],key=editorKey(kind),item=editorRecord(kind);
+ if(e.saving)throw Error('Este registro já está sendo salvo.');
+ if(e.key!==key)throw Error('Aguarde o registro carregar antes de salvar.');
+ if(isEvo&&item?.status==='released')throw Error('Evolução liberada: não pode ser sobrescrita.');
+ const field=$(isEvo?'pc-fb-evo-text':'pc-fb-handoff-text'),savedText=field.value;
+ const changes=isEvo?{date:dateId,text:savedText,status:'draft'}:{date:dateId,text:savedText,savedAt:new Date().toISOString()};
+ const patientAtStart=state.selected;
+ const ref=subDoc(isEvo?'evolutions':'handoffs',dateId);
+ field.disabled=true;e.saving=true;e.dirty=true;
+ const btn=$(isEvo?'pc-fb-evo-save':'pc-fb-handoff-save');btn.disabled=true;
+ const startedAt=performance.now();editorLabel(kind,'Salvando na nuvem (verificação de conflito incluída)…');
+ try{
+   // One authoritative transaction is both the conflict check and the write.
+   // This avoids a redundant getDocFromServer request on slow mobile connections.
+   let live=null, newVersion=0;
+   await runTransaction(state.db,async tx=>{
+     const snap=await tx.get(ref);
+     live=snap.exists()?snap.data():null;
+     if(isEvo&&live?.status==='released')throw Error('Esta evolução foi liberada em outro dispositivo.');
+     const liveVersion=Number(live?.version||0);
+     // A change in version alone is harmless if the source text is identical.
+     // Different text, however, must never be overwritten silently.
+     if(String(live?.text||'')!==String(e.baseText||'')){
+       throw Error('CONFLITO REAL: a nuvem possui texto diferente (v'+liveVersion+'). Seu rascunho foi preservado. Use Carregar da nuvem somente depois de copiá-lo.');
+     }
+     newVersion=liveVersion+1;
+     tx.set(ref,{...(live||{}),...changes,version:newVersion,updatedAt:serverTimestamp()});
+   });
+   if(patientAtStart!==state.selected||key!==editorKey(kind))throw Error('Registro salvo, mas o paciente ou a data mudou. Reabra o registro para conferir.');
+   const confirmed={...(live||{}),...changes,version:newVersion};
+   (isEvo?state.evolutionsConfirmed:state.handoffsConfirmed).set(dateId,confirmed);
+   (isEvo?state.evolutions:state.handoffs).set(dateId,confirmed);
+   e.version=newVersion;e.baseText=savedText;e.dirty=false;
+   editorLabel(kind,'✓ Salvo na nuvem · versão '+newVersion+' · '+((performance.now()-startedAt)/1000).toFixed(1)+'s');
+   status((isEvo?'Evolução':'Passagem')+' confirmada no Firestore · versão '+newVersion);
+ }catch(error){e.dirty=true;editorLabel(kind,'⚠️ Não salvo: '+(error.message||error));throw error}
+ finally{e.saving=false;btn.disabled=false;field.disabled=isEvo&&editorRecord('evo')?.status==='released';if(!e.dirty)(isEvo?renderEvo:renderHandoff)()}
+}
+$('pc-fb-evo-save').onclick=()=>guard(()=>saveText('evo'));
+$('pc-fb-evo-release').onclick=()=>guard(()=>onceButton($('pc-fb-evo-release'),async()=>{const d=$('pc-fb-evo-date').value,item=state.evolutions.get(d),e=state.editors.evo;if(e.dirty)throw Error('Salve ou descarte o texto em edição antes de liberar.');if(!item)throw Error('Primeiro salve uma evolução');if(item.status==='released')throw Error('Esta evolução já foi liberada');const fresh=await getDocFromServer(subDoc('evolutions',d));const latest=fresh.exists()?fresh.data():null;if(!latest||latest.status==='released'||String(latest.text||'')!==String(e.baseText||''))throw Error('A evolução mudou na nuvem. Use Carregar da nuvem antes de liberar.');await changeDoc(subDoc('evolutions',d),Number(latest.version||0),{status:'released',releasedAt:new Date().toISOString()});e.version=Number(latest.version||0)+1;state.evolutionsConfirmed.set(d,{...latest,status:'released',version:e.version});state.evolutions.set(d,{...latest,status:'released',version:e.version});renderEvo();status('Evolução liberada em '+d)}));
+$('pc-fb-handoff-save').onclick=()=>guard(()=>saveText('handoff'));
+$('pc-fb-program-add').onclick=()=>guard(()=>onceButton($('pc-fb-program-add'),async()=>{const title=$('pc-fb-program-text').value.trim();if(!title)throw Error('Informe uma programação fictícia');const id='program_'+crypto.randomUUID();await addDocWithId(subDoc('programs',id),{title,status:'open',lastComment:'',lastCheckedDate:'',createdOn:dateToday()});$('pc-fb-program-text').value='';status('Programação salva na nuvem')}));
+// Restore only project identification; never store the user's password.
+try{const cfg=localStorage.getItem(key);if(cfg)$('pc-fb-config').value=JSON.stringify(JSON.parse(cfg),null,2)}catch(_){ }
+</script>
+<!-- Firebase integrado ao PedCare PRINCIPAL: ambiente piloto isolado, somente dados fictícios. -->
+<div id="pc-full-firebase-gate" role="dialog" aria-label="Entrada no PedCare Firebase integrado">
+ <div class="pc-full-dialog">
+  <h2>☁️ PedCare · Firebase integrado (piloto)</h2>
+  <p><strong>Este é o PedCare completo</strong>, com seus módulos originais, conectado a um banco de testes separado. O Gist não será importado nem modificado. Utilize apenas pacientes fictícios.</p>
+  <div id="pc-full-firebase-status" class="pc-fb-statusline">Preparando a conexão…</div>
+  <div id="pc-full-firebase-login">
+   <p style="font-size:12px;color:#475569">Projeto Firebase configurado automaticamente: <strong>pedcare-33d29</strong>.</p>
+   <label>E-mail da conta autorizada<input id="pc-full-firebase-email" type="email" autocomplete="username" placeholder="usuario@exemplo.com"></label>
+   <label>Senha<input id="pc-full-firebase-password" type="password" autocomplete="current-password"></label>
+   <button id="pc-full-firebase-connect" type="button">Entrar no PedCare</button>
+  </div>
+  <p style="font-size:11px;color:#60798b">Não há importação automática de prontuários. Os registros deste piloto ficam em <code>pedcare_integrated_pilot_users/{UID}/workspace/main</code>. O banco experimental usa um documento único e tem limite de tamanho; não é adequado a prontuários reais.</p>
+ </div>
+</div>
+<button id="pc-full-firebase-mini" type="button" style="display:none">☁️ Firebase integrado</button>
+<script type="module" id="pc-firebase-full-pilot">
+import {initializeApp,getApps,getApp} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
+import {getFirestore,doc,onSnapshot,runTransaction,getDocFromServer,serverTimestamp} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
+const el=id=>document.getElementById(id);
+const PEDCARE_FIREBASE_CONFIG = Object.freeze({
+  apiKey: "AIzaSyDXLX95WDXGumEQtSs0P4kR9eA5vlWrJuI",
+  authDomain: "pedcare-33d29.firebaseapp.com",
+  projectId: "pedcare-33d29",
+  storageBucket: "pedcare-33d29.firebasestorage.app",
+  messagingSenderId: "940412232279",
+  appId: "1:940412232279:web:55fb935ae45877c05af912"
+});
+const status=msg=>{el('pc-full-firebase-status').textContent=msg;};
+const lock=()=>{document.documentElement.classList.add('pc-full-firebase-pending');el('pc-full-firebase-gate').style.display='flex';el('pc-full-firebase-mini').style.display='none'};
+const unlock=()=>{document.documentElement.classList.remove('pc-full-firebase-pending');el('pc-full-firebase-gate').style.display='none';el('pc-full-firebase-mini').style.display='block'};
+let app=null, auth=null, db=null, user=null, dbDoc=null, unsubscribe=null, base=null, version=0, dirty=false, saving=false, pending=false, armed=false, timer=null, hasConflict=false, lastStatus='';
+let localRevision=0, lastConfirmedRevision=0, applyingRemote=false;
+function parseConfig(raw){const result={};for(const field of ['apiKey','authDomain','projectId','appId','storageBucket','messagingSenderId','measurementId']){const exp=new RegExp('(?:["\\\']?'+field+'["\\\']?)\\s*:\\s*(["\\\'])(.*?)\\1');const match=String(raw||'').match(exp);if(match)result[field]=match[2];}
+if(!result.apiKey||!result.projectId||!result.appId||!result.authDomain)throw Error('Copie o firebaseConfig completo do Firebase Console.');return result;}
+function recordPayload(){return {app:'PedCare',patients:JSON.parse(JSON.stringify(patients)),obsidianData:JSON.parse(JSON.stringify(obsidianData)),uiPreferences:window.PedCareLayoutPrefs?.getCloudData?.()||{}};}
+function checkSize(payload){const bytes=new TextEncoder().encode(JSON.stringify(payload)).length;if(bytes>650000)throw Error('Banco de testes grande demais ('+Math.round(bytes/1024)+' KiB). O documento único não comporta todos os registros; não continue sem migrar para documentos individuais.');}
+function report(msg,error=false){lastStatus=msg;status(msg);updateCloudStatus(error?'disconnected':'connected',(error?'⚠️ ':'☁️ ')+msg);el('pc-full-firebase-mini').textContent=(error?'⚠️ ':'☁️ ')+msg;}
+function remoteDocument(snap){if(!snap.exists())return {version:0,data:{app:'PedCare',patients:[],obsidianData:null,uiPreferences:{}}};const obj=snap.data();if(!obj||!obj.payload||!Array.isArray(obj.payload.patients))throw Error('O banco recebido não tem o formato esperado.');return {version:Number(obj.version||0),data:obj.payload};}
+function install(remote){
+ if(!remote||!Array.isArray(remote.patients))return;
+ // Apply remote snapshots without treating their UI effects as new user edits.
+ applyingRemote=true;
+ try{pcInstallMerged(remote)}finally{applyingRemote=false}
+}
+function backupOnConflict(data){try{const snapshots=JSON.parse(localStorage.getItem('pc_full_fb_conflict_backups_v1')||'[]');snapshots.push({savedAt:new Date().toISOString(),data});localStorage.setItem('pc_full_fb_conflict_backups_v1',JSON.stringify(snapshots.slice(-5)));}catch(e){console.warn(e)}}
+function reconcile(remoteVersion,remote,fromLive){
+ if(!armed){base=remote;version=remoteVersion;install(remote);armed=true;dirty=false;lastConfirmedRevision=localRevision;unlock();report('Conectado · versão '+version);return;}
+ if(remoteVersion<version)return;
+ const before=recordPayload();
+ if(dirty){
+   // Never silently replace pending changes. Full three-way merge only if conflict-free.
+   if(!base){hasConflict=true;report('Conflito: origem das alterações não disponível',true);lock();return;}
+   pcSyncConflicts.length=0;
+   const merged=pcMergePayload(base,before,remote);
+   if(pcSyncConflicts.length){backupOnConflict(before);pcSaveConflicts();hasConflict=true;report('Conflito entre dispositivos. Dados locais preservados no backup; não foi enviado à nuvem.',true);lock();return;}
+   base=remote;version=remoteVersion;
+   if(!pcEq(before.patients,merged.patients)||!pcEq(before.obsidianData,merged.obsidianData))install(merged);
+   dirty=!pcEq(merged.patients,remote.patients)||!pcEq(merged.obsidianData,remote.obsidianData);
+   if(dirty)queue(); else report('Sincronizado · versão '+version);
+   return;
+ }
+ base=remote;version=remoteVersion;
+ if(!pcEq(before.patients,remote.patients)||!pcEq(before.obsidianData,remote.obsidianData))install(remote);
+ report('Sincronizado · versão '+version);
+}
+async function refresh(){if(!user||!dbDoc)return;try{const snap=await getDocFromServer(dbDoc);const remote=remoteDocument(snap);reconcile(remote.version,remote.data,false);}catch(e){report('Erro ao consultar nuvem: '+e.message,true)}}
+function listen(){if(unsubscribe)unsubscribe();unsubscribe=onSnapshot(dbDoc,{includeMetadataChanges:true},snap=>{
+ if(snap.metadata.fromCache||snap.metadata.hasPendingWrites)return;
+ try{const remote=remoteDocument(snap);reconcile(remote.version,remote.data,true)}catch(e){report('Falha de leitura: '+e.message,true)}
+ },err=>{report('Escuta interrompida: '+err.message,true)})}
+function queue(){if(!armed||!user||hasConflict)return;clearTimeout(timer);timer=setTimeout(save,1200)}
+async function save(){if(!armed||!user||hasConflict||!dirty)return;
+ if(saving){pending=true;return;}
+ const local=recordPayload();
+ // A form may request saving without changing data: never generate a version for it.
+ if(base && pcEq(local.patients,base.patients) && pcEq(local.obsidianData,base.obsidianData) && pcEq(local.uiPreferences,base.uiPreferences)){
+   dirty=false;pending=false;clearTimeout(timer);report('Sincronizado · versão '+version);return;
+ }
+ saving=true;const revision=localRevision;const known=base;const knownVersion=version;
+ try{
+   checkSize(local);report('Salvando na nuvem…');
+   const saved=await runTransaction(db,async tx=>{
+    const snap=await tx.get(dbDoc);const current=remoteDocument(snap);
+    // Resolve non-overlapping changes and protect actual conflicts atomically.
+    pcSyncConflicts.length=0;
+    const merged=current.version===knownVersion ? local : pcMergePayload(known||{patients:[],obsidianData:{},uiPreferences:{}},local,current.data);
+    if(pcSyncConflicts.length)throw Error('CONFLITO_REAL: outra sessão modificou os mesmos dados. Nenhuma sobrescrita foi feita.');
+    checkSize(merged);
+    // Se o resultado equivale ao registro existente, nenhuma gravacao deve ocorrer.
+    if(pcEq(merged.patients,current.data.patients) && pcEq(merged.obsidianData,current.data.obsidianData) && pcEq(merged.uiPreferences,current.data.uiPreferences)){
+      return {version:current.version,payload:current.data,unchanged:true};
+    }
+    tx.set(dbDoc,{version:current.version+1,payload:merged,updatedAt:serverTimestamp()});
+    return {version:current.version+1,payload:merged};
+   });
+   if(revision===localRevision){base=saved.payload;version=saved.version;dirty=false;lastConfirmedRevision=revision;
+     if(!pcEq(local.patients,saved.payload.patients)||!pcEq(local.obsidianData,saved.payload.obsidianData))install(saved.payload);
+   }else{base=saved.payload;version=saved.version;dirty=true;pending=true;}
+   report('Salvo na nuvem · versão '+saved.version);
+ }catch(e){
+   backupOnConflict(local);dirty=true;
+   if(String(e.message||'').includes('CONFLITO_REAL')){hasConflict=true;lock();report('Conflito verdadeiro: os dados locais foram preservados. Não continue editando neste dispositivo.',true)}
+   else report('Não salvo: '+e.message+' · dados locais preservados',true);
+ }finally{saving=false;if(pending&&!hasConflict){pending=false;queue()}}
+}
+function unlisten(){if(unsubscribe){unsubscribe();unsubscribe=null}}
+function onUser(u){user=u;unlisten();armed=false;hasConflict=false;dirty=false;pending=false;clearTimeout(timer);base=null;version=0;
+ if(!u){lock();status('Conecte o usuário autorizado para abrir o PedCare integrado.');return;}
+ dbDoc=doc(db,'pedcare_integrated_pilot_users',u.uid,'workspace','main');
+ lock();status('Autenticado. Carregando dados do Firestore…');
+ refresh().then(()=>{if(armed)listen()});
+}
+async function setProject(config){const name='pc_full_pilot_'+config.projectId;app=getApps().find(a=>a.name===name)||initializeApp(config,name);auth=getAuth(app);db=getFirestore(app);onAuthStateChanged(auth,onUser);}
+try {
+  await setProject(PEDCARE_FIREBASE_CONFIG);
+} catch(e) {
+  status('Não foi possível conectar ao projeto Firebase: '+e.message);
+}
+el('pc-full-firebase-connect').onclick=async()=>{
+ const btn=el('pc-full-firebase-connect');btn.disabled=true;
+ try{
+  if(!auth)await setProject(PEDCARE_FIREBASE_CONFIG);
+  const email=el('pc-full-firebase-email').value.trim();
+  const password=el('pc-full-firebase-password').value;
+  if(!email||!password)throw Error('Informe e-mail e senha cadastrados no Firebase Authentication.');
+  await signInWithEmailAndPassword(auth,email,password);
+  el('pc-full-firebase-password').value='';
+  status('Login efetuado. Carregando registros…');
+ }catch(e){status('Não foi possível entrar: '+e.message)}finally{btn.disabled=false}
+};
+el('pc-full-firebase-mini').onclick=()=>{report('Conferindo a versão na nuvem…');refresh();};
+const bridge={ready:()=>armed&&!!user&&!hasConflict,localChange:()=>{if(!armed||hasConflict||applyingRemote)return;dirty=true;localRevision++;queue()},showPanel:()=>{lock();status(lastStatus||'Entre no Firebase.')},showError:msg=>report(msg,true),refresh,onFocus:()=>{if(armed&&user&&document.visibilityState==='visible')refresh()},signOut:async()=>{if(dirty){report('Há alterações pendentes. Aguarde o salvamento ou exporte uma cópia.',true);return}await signOut(auth);lock();}};
+window.PedCareFullFirebase=bridge;
+window.addEventListener('focus',()=>bridge.onFocus());document.addEventListener('visibilitychange',()=>bridge.onFocus());
+// In case the Firebase SDK fails entirely, page remains locked instead of exposing cached records.
 </script>
 </body>
 </html>
